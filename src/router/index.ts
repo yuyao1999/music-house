@@ -38,6 +38,15 @@ const routes = [
       icon: '',
     },
   },
+  {
+    path: '/music',
+    name: 'music',
+    component: () => import('@/views/music/music.vue'),
+    meta: {
+      title: '音乐播放器',
+      icon: '',
+    },
+  },
 ]
 
 const router = createRouter({
