@@ -14,6 +14,8 @@ import router from './router'
 import { setupStore } from '@/store'
 // 引入动画
 import 'animate.css'
+// 引入全局样式
+import '@/styles/index.scss'
 
 createApp(App).use(router).use(setupStore).use(directive).mount('#app')
 

@@ -1,81 +1,185 @@
 <template>
-  <div class="">
-    <h1>音乐</h1>
-    <div @click="audioPlay">播放</div>
-    <div @click="audioPause">暂停</div>
-    <!-- audio进度条 -->
-    <div>
+  <div>
+    <div class="page">
+      <!-- 头部 -->
+      <div class="flex justify-between items-center">
+        <div>返回</div>
+        <div class="flex flex-col items-center">
+          <div class="name">{{ musicStore.nowMusic.name }}</div>
+          <div>{{ musicStore.nowMusic.singer }}</div>
+        </div>
+        <div>分享</div>
+      </div>
+      <!-- 图片 -->
+      <div v-if="!fullScreen" class="flex justify-center items-center mt-5" @click="onSwitchFullScreen">
+        <img class="w-[30vh] h-[30vh] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" alt="" />
+      </div>
       <!-- 歌词 -->
       <div class="lyrics" ref="lyricsRef">
-        <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }">
+        <div class="top" />
+        <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }" class="item">
           {{ item.lyric }}
         </div>
+        <div class="bottom" />
       </div>
-      <div>
-        当前时长
-        <!-- audio 当前播放时间 -->
-        <div>
-          {{ formatTime(currentTime) }}
-        </div>
-      </div>
-      <div>
-        总时长
-        <!-- audio 长度 -->
-        <div>
-          {{ formatTime(audio?.duration) }}
-        </div>
-      </div>
-      <!-- 音乐进度条 -->
-      <div>
-        <div class="progress-bar" @click="handleProgressClick">
-          <div class="bg"></div>
+      <!-- 进度条 -->
+      <div class="flex items-center justify-center">
+        <!-- 当前时长 -->
+        <div class="text-sm">{{ formatTime(currentTime) }}</div>
+        <!-- 音乐进度条 -->
+        <div class="progress-bar hover:cursor-pointer" @click="handleProgressClick">
           <div class="dot"></div>
         </div>
+        <!-- 总时长 -->
+        <div class="text-sm">{{ formatTime(audio?.duration) }}</div>
+      </div>
+      <!-- 播放按钮 -->
+      <div class="flex justify-between items-center">
+        <div class="hover:cursor-pointer">上一首</div>
+        <div v-if="getAudioStatus()" class="hover:cursor-pointer" @click="audioPause">暂停</div>
+        <div v-else class="hover:cursor-pointer" @click="audioPlay">播放</div>
+        <div class="hover:cursor-pointer">上一首</div>
+      </div>
+      <!-- 歌词全屏 -->
+      <div class="flex justify-center items-center pb-1" @click="onSwitchFullScreen">
+        <!-- <div class="text-gray-500" :class="{ 'text-white! font-600': fullScreen }">词</div> -->
+        <div :class="fullScreen ? 'text-white font-600' : 'text-gray-500'">词</div>
       </div>
     </div>
+    <div class="bg" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { musicApi } from '@/api/music'
 import { formatMusicLyrics } from '@/utils/handle-lyrics'
+import { useScroll, removeScroll, useManualScroll, useTouch, removeTouch } from '@/hooks/useScroll'
+import { useFont } from '@/hooks/useFont'
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
-import { ref, computed } from 'vue'
-import { createAudio, audioPlay, audioPause } from './audio'
+import { getImgColor } from '@/utils/img'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useMusicStore } from '@/store/modules/music'
+import { useAudio, audioPlay, audioPause, getAudioStatus } from '@/hooks/useAudio'
 import { ILyric } from '@/types/lyric'
+const musicStore = useMusicStore()
+
+// 搜索
+const getMusicSearch = () => {
+  let keyword = '天下'
+  musicApi.search({ keywords: keyword }).then((res: any) => {
+    console.log('getMusicSearch', res)
+    const data = res.result.songs[0]
+    musicStore.setNowMusic({
+      id: data.id,
+      name: data.name,
+      singer: data.artists[0].name,
+    })
+    getMusicDetail()
+    getMusicLyric()
+    getMusicUrl()
+  })
+}
+// 图片主色调
+const mainColor = ref('')
+// 歌曲详情
+const getMusicDetail = () => {
+  musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
+    console.log('getMusicDetail', res)
+    const data = res.songs[0]?.al?.picUrl
+    musicStore.setNowMusic({
+      cover: data,
+    })
+    getImgColor(data).then((res: any) => {
+      mainColor.value = res
+    })
+  })
+}
+//获取歌词
+const getMusicLyric = () => {
+  musicApi.getLyric({ id: musicStore.nowMusic?.id }).then((res: any) => {
+    const { lyric } = formatMusicLyrics(res.lrc.lyric)
+    console.log('lyric', lyric)
+    lyrics.value = lyric
+  })
+}
+//获取歌曲url
+const getMusicUrl = () => {
+  musicApi.getMusicUrl({ id: musicStore.nowMusic?.id }).then((res: any) => {
+    const audioTemp = useAudio(res.data[0].url, handleTimeUpdate)
+    audioTemp.oncanplay = () => {
+      audio.value = audioTemp
+      console.log('audio', audio.value)
+    }
+  })
+}
+
+getMusicSearch()
 
 const audio = ref<HTMLAudioElement>()
-musicApi.getMusicUrl({ id: '1436879751' }).then((res: any) => {
-  const audioTemp = createAudio(res.data[0].url, handleTimeUpdate)
-  audioTemp.oncanplay = () => {
-    audio.value = audioTemp
-    console.log('audio', audio.value)
-  }
+onMounted(() => {
+  useScroll(lyricsRef.value)
+  useTouch(lyricsRef.value)
 })
-const lyrics = ref<ILyric[]>([])
-musicApi.getLyric({ id: '1436879751' }).then((res: any) => {
-  const { lyric } = formatMusicLyrics(res.lrc.lyric)
-  console.log('lyric', lyric)
-  lyrics.value = lyric
+onUnmounted(() => {
+  audio.value?.removeEventListener('timeupdate', handleTimeUpdate)
+  removeScroll(lyricsRef.value)
+  removeTouch(lyricsRef.value)
 })
 
 //#region 歌词
+
+const lyrics = ref<ILyric[]>([])
 const lyricsRef = ref<HTMLDivElement>()
+
+// 歌词全屏
+const fullScreen = ref(false)
+const lyricsShowCount = ref(2)
+
+// 切换
+const onSwitchFullScreen = () => {
+  fullScreen.value = !fullScreen.value
+  if (fullScreen.value) {
+    lyricsShowCount.value = 10
+    nowActiveIndex = 4
+  } else {
+    lyricsShowCount.value = 2
+    nowActiveIndex = 0
+  }
+}
+
 // 当前歌词索引
 const lyricsIndex = ref(0)
+
+// 当前歌词居中索引
+let nowActiveIndex = 0
+// 歌词高度 40 60
+let lyricsHeight = useFont(40)
+if (lyricsHeight === -1) {
+  lyricsHeight = 40
+}
+console.log('lyricsHeight', lyricsHeight)
+// 正在播放的歌词高度
+let lyricsActiveHeight = lyricsHeight * 1.5
+
 // 监听歌词滚动
 const handleLyricsScroll = () => {
-  const lyricsDom = lyricsRef.value
   // 唱完一句歌词后，歌词滚动
   const index = getLyricsIndex(currentTime.value)
-  lyricsIndex.value = index
   console.log('index', index)
+  if (index === lyricsIndex.value) {
+    return
+  }
+
+  lyricsIndex.value = index
+  const lyricsDom = lyricsRef.value
+
   if (lyricsDom) {
     // 滚动到中间
-    if (index > 2) {
+    if (index > nowActiveIndex && !useManualScroll.value) {
       // 平滑滚动
+      const height = lyricsHeight
       lyricsDom.scrollTo({
-        top: (index - 2) * lyricsDom.children[0].clientHeight,
+        top: (index - nowActiveIndex) * height,
         behavior: 'smooth',
       })
     }
@@ -89,19 +193,24 @@ const getLyricsIndex = (currentTime: number) => {
   for (let i = 0; i < lyrics.value.length; i++) {
     if (currentTime > lyrics.value[i].time) {
       index = i
+      // 为什么不跳出循环，因为可能有多个歌词的时间小于当前播放时间
     }
   }
   return index
 }
 
+const handleTimeUpdate = () => {
+  currentTime.value = audio.value?.currentTime || 0
+  handleLyricsScroll()
+}
 //#endregion
 
+//#region 进度条
 const currentTime = ref(0)
 // 进度百分比
 const progressPercent = computed(() => {
   return getPercent(currentTime.value, audio.value?.duration || 0)
 })
-
 // 点击进度条 跳转到对应的时间
 const handleProgressClick = (e: any) => {
   const { clientX } = e
@@ -116,69 +225,126 @@ const handleProgressClick = (e: any) => {
     }
   }
 }
-
-const handleTimeUpdate = () => {
-  currentTime.value = audio.value?.currentTime || 0
-  handleLyricsScroll()
-}
+//#endregion
 </script>
 
 <style scoped lang="scss">
-// 单个歌词高度
-$lyricsHeight: 50px;
-// 当前歌词高度
-$lyricsActiveHeight: 80px;
-// 歌词显示行数 不包括当前歌词
-$lyricsShowCount: 4;
 .lyrics {
-  // 歌词显示行数 * （歌词显示行数-1） + 当前歌词高度
-  height: $lyricsShowCount * ($lyricsHeight - 1) + $lyricsActiveHeight;
+  position: relative;
+  // height: calc(#{$lyricsShowCount} * #{$lyricsHeight} + #{$lyricsActiveHeight});
+  // 上边的的代码在编译时会报错，所以用下面的代码代替
+  height: v-bind("lyricsShowCount * lyricsHeight + lyricsActiveHeight + 'px'");
+
   overflow: auto;
+  .top {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: v-bind("lyricsHeight+'px'");
+    // 从上到下渐变
+    background: linear-gradient(180deg, #010207, transparent);
+    box-shadow: 0 -1px #010207;
+  }
+  .bottom {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    height: v-bind("lyricsHeight+'px'");
+    // 从下到上渐变
+    background: linear-gradient(0deg, #010207, transparent);
+    box-shadow: 0 1px #010207;
+  }
+
   // 隐藏滚动条
   &::-webkit-scrollbar {
     display: none;
   }
-  div {
-    height: $lyricsHeight;
+
+  .item {
+    height: v-bind("lyricsHeight+'px'");
     // 文字垂直居中
     @apply flex items-center justify-center;
-    font-size: 20px;
+    font-size: 1rem;
     text-align: center;
     &.active {
-      color: #ffcd32;
-      // 1.5的高度
-      height: $lyricsActiveHeight;
+      color: v-bind('mainColor');
+      height: v-bind("lyricsActiveHeight+'px'");
       // 文字垂直居中
       @apply flex items-center justify-center;
-      font-size: 30px;
+      font-size: 1.3rem;
+      font-weight: 700;
       text-align: center;
     }
   }
   // 滚动动画
   transition: all 0.3s;
 }
+
 .progress-bar {
-  width: 50%;
-  height: 10px;
-  background-color: #e2e2e2;
   position: relative;
-  .bg {
-    width: 100%;
-    height: 100%;
-    background-color: #ffcd32;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
+  width: 60%;
+  height: 2px;
+  background-color: #e2e2e2;
+  @apply mx-5;
+
   .dot {
-    width: 20px;
-    height: 20px;
-    background-color: #ffcd32;
     position: absolute;
-    // 动态计算位置
-    left: v-bind("progressPercent + '%'");
     top: -3px;
+    left: v-bind("progressPercent + '%'");
+    width: 8px;
+    height: 8px;
+    background-color: v-bind('mainColor');
+    // 动态计算位置
     border-radius: 50%;
   }
+}
+.page {
+  // 占满屏幕
+  height: 100vh;
+  width: 100vw;
+  padding: 20px;
+  color: #fff;
+  @apply flex flex-col justify-between;
+
+  .name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: v-bind('mainColor');
+  }
+  .music-img {
+    // box-shadow动画 闪动
+    box-shadow: v-bind('mainColor') 0px 0px 20px 10px;
+    animation: rotate 50s linear infinite paused, shadow 1s linear infinite alternate paused;
+  }
+}
+@keyframes shadow {
+  from {
+    box-shadow: v-bind('mainColor') 0px 0px 20px 10px;
+  }
+  to {
+    box-shadow: v-bind('mainColor') 0px 0px 10px 0px;
+  }
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.bg {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  // background: v-bind("musicStore.nowMusic?.cover ? 'url(' + musicStore.nowMusic?.cover + ')' : ''");
+  background: #010207;
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  z-index: -1;
+  transform: scale(1.05);
 }
 </style>

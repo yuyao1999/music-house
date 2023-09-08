@@ -21,6 +21,12 @@ class Music {
     return this.http.get('/search', params)
   }
   /**
+   * 获取歌曲详情
+   */
+  detail(params: any) {
+    return this.http.get('/song/detail', params)
+  }
+  /**
    * 获取音乐url
    */
   getMusicUrl(params: any) {
