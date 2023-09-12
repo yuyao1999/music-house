@@ -8,12 +8,10 @@ let audio: HTMLAudioElement
  * @memberof Audio
  */
 export const useAudio = (src: string, timeupdate: any) => {
-  if (!audio) {
-    audio = new Audio(src)
-    audio.crossOrigin = 'anonymous'
-    audio.addEventListener('timeupdate', timeupdate)
-    audio.addEventListener('ended', audioEnded)
-  }
+  audio = new Audio(src)
+  audio.crossOrigin = 'anonymous'
+  audio.addEventListener('timeupdate', timeupdate)
+  audio.addEventListener('ended', audioEnded)
   return audio
 }
 
@@ -33,7 +31,6 @@ export const audioPlay = () => {
   audio?.play()
 
   const dom: HTMLDivElement | null = document.querySelector('.music-img')
-  console.log(dom)
   if (dom) {
     dom.style.animationPlayState = 'running'
   }

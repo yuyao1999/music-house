@@ -5,17 +5,21 @@
     home
     <div @click="toLogin">login</div>
     <div @click="toMusic">music</div>
+    <input class="border w-50" type="text" v-model="msg" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+const msg = ref('home')
 const router = useRouter()
 const toLogin = () => {
   router.push({ name: 'login' })
 }
 const toMusic = () => {
-  router.push({ name: 'music' })
+  // 传参 msg
+  router.push({ name: 'music', query: { msg: msg.value } })
 }
 </script>
 

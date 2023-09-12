@@ -28,6 +28,11 @@ const throttleFn = useThrottleFn(setDefaultFontSize, 250)
 window.addEventListener('resize', throttleFn as EventListenerOrEventListenerObject)
 
 setDefaultTheme()
+
+//#region temp
+localStorage.setItem('token', '123456789')
+// console.log('import.meta.env.VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
+//#endregion
 </script>
 
 <template>

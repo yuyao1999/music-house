@@ -1,8 +1,8 @@
 /** @format */
 
-import axios from "axios"
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from "axios"
-import { IResponseData } from "./types"
+import axios from 'axios'
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
+import { IResponseData } from './types'
 
 export class Http {
   private service: AxiosInstance
@@ -64,7 +64,7 @@ export class Http {
           //   message: response.data.msg,
           // })
 
-          return Promise.reject("error")
+          return Promise.reject('error')
         }
         return response.data
       },

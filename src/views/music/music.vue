@@ -28,7 +28,7 @@
         <div class="text-sm">{{ formatTime(currentTime) }}</div>
         <!-- 音乐进度条 -->
         <div class="progress-bar hover:cursor-pointer" @click.stop="mousedownBar" ref="barRef">
-          <div class="dot" @mousedown="mousedown" @mouseup="mouseup" ref="dotRef"></div>
+          <div class="dot" @mousedown="onDot" ref="dotRef"></div>
         </div>
         <!-- 总时长 -->
         <div class="text-sm">{{ formatTime(audio?.duration) }}</div>
@@ -62,12 +62,12 @@ import { useMusicStore } from '@/store/modules/music'
 import { useAudio, audioPlay, audioPause, getAudioStatus } from '@/hooks/useAudio'
 import { useDraggable } from '@/hooks/useDraggable'
 import { ILyric } from '@/types/lyric'
-import { isMobile } from '@/utils/is'
+import { useRoute } from 'vue-router'
 const musicStore = useMusicStore()
 
 // 搜索
-const getMusicSearch = () => {
-  let keyword = '天下'
+const getMusicSearch = (name: string) => {
+  let keyword = name
   musicApi.search({ keywords: keyword }).then((res: any) => {
     const data = res.result.songs[0]
     musicStore.setNowMusic({
@@ -80,9 +80,16 @@ const getMusicSearch = () => {
     getMusicUrl()
   })
 }
+
+// 获取路由参数
+const route = useRoute()
+console.log('route', route.query)
+getMusicSearch(route.query.msg as string)
+
 // 图片主色调
-const mainColor = ref('')
-// 歌曲详情
+
+//#region 歌曲
+
 const getMusicDetail = () => {
   musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
     const data = res.songs[0]?.al?.picUrl
@@ -111,24 +118,26 @@ const getMusicUrl = () => {
   })
 }
 
-getMusicSearch()
-
+const mainColor = ref('')
 const audio = ref<HTMLAudioElement>()
 const dotRef = ref<HTMLDivElement>()
+//#endregion
 
+//#region 页面周期
 onMounted(() => {
+  console.log('onMounted')
   useScroll(lyricsRef.value)
   useTouch(lyricsRef.value)
-  if (!isMobile()) {
-    setDraggable(dotRef.value)
-  }
+  setDraggable(dotRef.value)
 })
 onUnmounted(() => {
-  audio.value?.removeEventListener('timeupdate', handleTimeUpdate)
-  destroyDraggable()
-  removeScroll(lyricsRef.value)
-  removeTouch(lyricsRef.value)
+  console.log('onUnmounted')
+  // audio.value?.removeEventListener('timeupdate', handleTimeUpdate)
+  // destroyDraggable()
+  // removeScroll(lyricsRef.value)
+  // removeTouch(lyricsRef.value)
 })
+//#endregion
 
 //#region 歌词
 
@@ -213,35 +222,28 @@ const barRef = ref<HTMLDivElement>()
 
 const onDragStart = () => {
   console.log('onDragStart')
-  useManualScroll.value = true
 }
 const onDragEnd = () => {
   console.log('onDragEnd')
-  useManualScroll.value = false
   handleProgress(getPercent(left.value, progressWidth.value) * 0.01)
-  isMobile() && destroyDraggable()
 }
 
 // 点击进度条 跳转到对应的时间
 const mousedownBar = (e: any) => {
-  const { clientX } = e
-  const { left, width } = e.target.getBoundingClientRect()
-  setPosition(clientX - left)
-  console.log('mousedownBar', clientX - left)
-  const percent = (clientX - left) / width
-  handleProgress(percent)
+  const barDom = barRef.value
+  if (barDom) {
+    const left = e.pageX - barDom.getBoundingClientRect().left
+    setPosition(left)
+    handleProgress(getPercent(left, progressWidth.value) * 0.01)
+  }
 }
-
-const mousedown = (e: any) => {
-  console.log('mousedown')
-  isMobile() && setDraggable(dotRef.value)
-}
-const mouseup = (e: any) => {
-  console.log('mouseup')
-  if (isMobile()) {
-    destroyDraggable()
-  } else {
-    e.stopPropagation()
+const onDot = (e: any) => {
+  console.log('onDot')
+  const barDom = barRef.value
+  if (barDom) {
+    const left = e.pageX - barDom.getBoundingClientRect().left
+    console.log('left', left)
+    setPosition(left)
   }
 }
 
@@ -260,12 +262,13 @@ const { setDraggable, left, isDragging, setPosition, destroyDraggable } = useDra
   onDragStart,
   onDragEnd,
 })
+
 const progressWidth = computed(() => {
   return barRef.value?.getBoundingClientRect().width || 0
 })
 // 进度百分比
 const progressPercent = computed(() => {
-  console.log('progressPercent', left.value)
+  // console.log('progressPercent', left.value)
   if (isDragging.value) {
     // 不能超出
     if (left.value < 0) {

@@ -20,17 +20,18 @@ export const useDraggable = (options: Options) => {
   const startY = ref(0)
   const left = ref(0)
   const top = ref(0)
+
   const handleDragStart = (e: MouseEvent | TouchEvent) => {
-    e.stopPropagation()
+    if (!isMobile()) {
+      window.addEventListener('mousemove', handleDragMove)
+    }
+    console.log('handleDragStart')
     isDragging.value = true
     startX.value = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     startY.value = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     options.onDragStart && options.onDragStart()
   }
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    // 阻止冒泡
-    e.stopPropagation()
-
     if (!isDragging.value) return
     // 元素移动
     const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
@@ -51,10 +52,12 @@ export const useDraggable = (options: Options) => {
     startY.value = currentY
   }
   const handleDragEnd = (e: MouseEvent | TouchEvent) => {
-    e.stopPropagation()
     console.log('handleDragEnd')
     isDragging.value = false
     options.onDragEnd && options.onDragEnd()
+    if (!isMobile()) {
+      window.removeEventListener('mousemove', handleDragMove)
+    }
   }
   const resetPosition = () => {
     left.value = 0
@@ -71,7 +74,9 @@ export const useDraggable = (options: Options) => {
   const draggable = ref<HTMLElement>()
 
   const bindEvents = () => {
+    console.log('bindEvents')
     if (isMobile()) {
+      console.log('bindEvents', draggable.value)
       // 兼容移动端
       draggable.value?.addEventListener('touchstart', handleDragStart)
       draggable.value?.addEventListener('touchmove', handleDragMove)
@@ -80,7 +85,6 @@ export const useDraggable = (options: Options) => {
     } else {
       // 兼容PC端
       window.addEventListener('mousedown', handleDragStart)
-      window.addEventListener('mousemove', handleDragMove)
       window.addEventListener('mouseup', handleDragEnd)
       window.addEventListener('mouseleave', handleDragEnd)
       window.addEventListener('contextmenu', handleDragEnd)
