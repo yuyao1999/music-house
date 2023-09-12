@@ -103,3 +103,10 @@ export const isUrl = (path: string): boolean => {
 export const isDark = (): boolean => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches
 }
+
+/**
+ * 是否移动端
+ */
+export const isMobile = (): boolean => {
+  return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)
+}

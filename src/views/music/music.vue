@@ -15,7 +15,7 @@
         <img class="w-[30vh] h-[30vh] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" alt="" />
       </div>
       <!-- 歌词 -->
-      <div class="lyrics" ref="lyricsRef">
+      <div class="lyrics" ref="lyricsRef" @click="onSwitchFullScreen">
         <div class="top" />
         <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }" class="item">
           {{ item.lyric }}
@@ -27,8 +27,8 @@
         <!-- 当前时长 -->
         <div class="text-sm">{{ formatTime(currentTime) }}</div>
         <!-- 音乐进度条 -->
-        <div class="progress-bar hover:cursor-pointer" @click="handleProgressClick">
-          <div class="dot"></div>
+        <div class="progress-bar hover:cursor-pointer" @click.stop="mousedownBar" ref="barRef">
+          <div class="dot" @mousedown="mousedown" @mouseup="mouseup" ref="dotRef"></div>
         </div>
         <!-- 总时长 -->
         <div class="text-sm">{{ formatTime(audio?.duration) }}</div>
@@ -60,14 +60,15 @@ import { getImgColor } from '@/utils/img'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio, audioPlay, audioPause, getAudioStatus } from '@/hooks/useAudio'
+import { useDraggable } from '@/hooks/useDraggable'
 import { ILyric } from '@/types/lyric'
+import { isMobile } from '@/utils/is'
 const musicStore = useMusicStore()
 
 // 搜索
 const getMusicSearch = () => {
   let keyword = '天下'
   musicApi.search({ keywords: keyword }).then((res: any) => {
-    console.log('getMusicSearch', res)
     const data = res.result.songs[0]
     musicStore.setNowMusic({
       id: data.id,
@@ -84,7 +85,6 @@ const mainColor = ref('')
 // 歌曲详情
 const getMusicDetail = () => {
   musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
-    console.log('getMusicDetail', res)
     const data = res.songs[0]?.al?.picUrl
     musicStore.setNowMusic({
       cover: data,
@@ -98,7 +98,6 @@ const getMusicDetail = () => {
 const getMusicLyric = () => {
   musicApi.getLyric({ id: musicStore.nowMusic?.id }).then((res: any) => {
     const { lyric } = formatMusicLyrics(res.lrc.lyric)
-    console.log('lyric', lyric)
     lyrics.value = lyric
   })
 }
@@ -108,7 +107,6 @@ const getMusicUrl = () => {
     const audioTemp = useAudio(res.data[0].url, handleTimeUpdate)
     audioTemp.oncanplay = () => {
       audio.value = audioTemp
-      console.log('audio', audio.value)
     }
   })
 }
@@ -116,12 +114,18 @@ const getMusicUrl = () => {
 getMusicSearch()
 
 const audio = ref<HTMLAudioElement>()
+const dotRef = ref<HTMLDivElement>()
+
 onMounted(() => {
   useScroll(lyricsRef.value)
   useTouch(lyricsRef.value)
+  if (!isMobile()) {
+    setDraggable(dotRef.value)
+  }
 })
 onUnmounted(() => {
   audio.value?.removeEventListener('timeupdate', handleTimeUpdate)
+  destroyDraggable()
   removeScroll(lyricsRef.value)
   removeTouch(lyricsRef.value)
 })
@@ -157,7 +161,6 @@ let lyricsHeight = useFont(40)
 if (lyricsHeight === -1) {
   lyricsHeight = 40
 }
-console.log('lyricsHeight', lyricsHeight)
 // 正在播放的歌词高度
 let lyricsActiveHeight = lyricsHeight * 1.5
 
@@ -165,7 +168,6 @@ let lyricsActiveHeight = lyricsHeight * 1.5
 const handleLyricsScroll = () => {
   // 唱完一句歌词后，歌词滚动
   const index = getLyricsIndex(currentTime.value)
-  console.log('index', index)
   if (index === lyricsIndex.value) {
     return
   }
@@ -207,16 +209,43 @@ const handleTimeUpdate = () => {
 
 //#region 进度条
 const currentTime = ref(0)
-// 进度百分比
-const progressPercent = computed(() => {
-  return getPercent(currentTime.value, audio.value?.duration || 0)
-})
+const barRef = ref<HTMLDivElement>()
+
+const onDragStart = () => {
+  console.log('onDragStart')
+  useManualScroll.value = true
+}
+const onDragEnd = () => {
+  console.log('onDragEnd')
+  useManualScroll.value = false
+  handleProgress(getPercent(left.value, progressWidth.value) * 0.01)
+  isMobile() && destroyDraggable()
+}
+
 // 点击进度条 跳转到对应的时间
-const handleProgressClick = (e: any) => {
+const mousedownBar = (e: any) => {
   const { clientX } = e
   const { left, width } = e.target.getBoundingClientRect()
+  setPosition(clientX - left)
+  console.log('mousedownBar', clientX - left)
   const percent = (clientX - left) / width
-  console.log('percent', percent)
+  handleProgress(percent)
+}
+
+const mousedown = (e: any) => {
+  console.log('mousedown')
+  isMobile() && setDraggable(dotRef.value)
+}
+const mouseup = (e: any) => {
+  console.log('mouseup')
+  if (isMobile()) {
+    destroyDraggable()
+  } else {
+    e.stopPropagation()
+  }
+}
+
+const handleProgress = (percent: number) => {
   if (audio.value) {
     audio.value.currentTime = getNowTime(percent, audio.value?.duration)
     // 如果没有播放，点击进度条后，自动播放
@@ -225,6 +254,33 @@ const handleProgressClick = (e: any) => {
     }
   }
 }
+
+const { setDraggable, left, isDragging, setPosition, destroyDraggable } = useDraggable({
+  axis: 'x',
+  onDragStart,
+  onDragEnd,
+})
+const progressWidth = computed(() => {
+  return barRef.value?.getBoundingClientRect().width || 0
+})
+// 进度百分比
+const progressPercent = computed(() => {
+  console.log('progressPercent', left.value)
+  if (isDragging.value) {
+    // 不能超出
+    if (left.value < 0) {
+      left.value = 0
+      return 0
+    }
+    if (left.value > progressWidth.value) {
+      left.value = progressWidth.value
+      return 100
+    }
+    return getPercent(left.value, progressWidth.value)
+  }
+  return getPercent(currentTime.value, audio.value?.duration || 0)
+})
+
 //#endregion
 </script>
 
@@ -286,6 +342,16 @@ const handleProgressClick = (e: any) => {
   height: 2px;
   background-color: #e2e2e2;
   @apply mx-5;
+  // 播放完的进度条颜色 从左到右渐变
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: v-bind("progressPercent + '%'");
+    height: 100%;
+    background: v-bind('mainColor');
+  }
 
   .dot {
     position: absolute;
@@ -305,6 +371,8 @@ const handleProgressClick = (e: any) => {
   padding: 20px;
   color: #fff;
   @apply flex flex-col justify-between;
+  // 不可选中
+  user-select: none;
 
   .name {
     font-size: 1.5rem;
