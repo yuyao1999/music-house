@@ -54,7 +54,7 @@ export const useDraggable = (options: Options) => {
   const handleDragEnd = (e: MouseEvent | TouchEvent) => {
     console.log('handleDragEnd')
     isDragging.value = false
-    options.onDragEnd && options.onDragEnd()
+    options.onDragEnd?.()
     if (!isMobile()) {
       window.removeEventListener('mousemove', handleDragMove)
     }

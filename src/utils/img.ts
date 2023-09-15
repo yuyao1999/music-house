@@ -29,12 +29,28 @@ export const getImgColor = (url: string): Promise<string> => {
       const rResult = Math.floor(r.reduce((a, b) => a + b) / r.length)
       const gResult = Math.floor(g.reduce((a, b) => a + b) / g.length)
       const bResult = Math.floor(b.reduce((a, b) => a + b) / b.length)
-      // 如果是黑色的话，分界线是 100
-      if (rResult < 100 && gResult < 100 && bResult < 100) {
-        resolve('#2CF2FE')
+      // 如果太暗则往上提高
+      if (rResult < 150 && gResult < 150 && bResult < 150) {
+        resolve(`rgb(${rResult + 100}, ${gResult + 90}, ${bResult + 80})`)
       }
 
       resolve(`rgb(${rResult}, ${gResult}, ${bResult})`)
     }
   })
+}
+/**
+ * 从主色调中获取#010207 相近的颜色
+ */
+export const getDarkColor = (color: string): string => {
+  if (!color) {
+    return '#010207'
+  }
+  const colorArr = color.split(',')
+  const r = Number(colorArr[0].split('(')[1])
+  const g = Number(colorArr[1])
+  const b = Number(colorArr[2].split(')')[0])
+  const rResult = r - 100 < 0 ? 0 : r - 160
+  const gResult = g - 100 < 0 ? 0 : g - 160
+  const bResult = b - 100 < 0 ? 0 : b - 160
+  return `rgb(${rResult}, ${gResult}, ${bResult})`
 }

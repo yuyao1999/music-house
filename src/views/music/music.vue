@@ -2,26 +2,30 @@
   <div>
     <div class="page">
       <!-- 头部 -->
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center w-full">
         <div>返回</div>
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center w-[80%]">
           <div class="name">{{ musicStore.nowMusic.name }}</div>
           <div>{{ musicStore.nowMusic.singer }}</div>
         </div>
         <div>分享</div>
       </div>
       <!-- 图片 -->
-      <div v-if="!fullScreen" class="flex justify-center items-center mt-5" @click="onSwitchFullScreen">
+      <div v-show="!fullScreen" class="flex justify-center items-center mt-5" @click="onSwitchFullScreen">
         <img class="w-[30vh] h-[30vh] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" alt="" />
       </div>
       <!-- 歌词 -->
-      <div class="lyrics" ref="lyricsRef" @click="onSwitchFullScreen">
-        <div class="top" />
-        <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }" class="item">
-          {{ item.lyric }}
+      <div :class="{ 'lyrics-active': manualScroll }">
+        <div class="lyrics" ref="lyricsRef" @click="onSwitchFullScreen">
+          <div class="top" />
+
+          <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }" class="item">
+            {{ item.lyric }}
+          </div>
+          <div class="bottom" />
         </div>
-        <div class="bottom" />
       </div>
+
       <!-- 进度条 -->
       <div class="flex items-center justify-center">
         <!-- 当前时长 -->
@@ -53,10 +57,10 @@
 <script setup lang="ts">
 import { musicApi } from '@/api/music'
 import { formatMusicLyrics } from '@/utils/handle-lyrics'
-import { useScroll, removeScroll, useManualScroll, useTouch, removeTouch } from '@/hooks/useScroll'
+import { useScroll } from '@/hooks/useScroll'
 import { useFont } from '@/hooks/useFont'
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
-import { getImgColor } from '@/utils/img'
+import { getImgColor, getDarkColor } from '@/utils/img'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio, audioPlay, audioPause, getAudioStatus } from '@/hooks/useAudio'
@@ -86,9 +90,14 @@ const route = useRoute()
 console.log('route', route.query)
 getMusicSearch(route.query.msg as string)
 
-// 图片主色调
-
 //#region 歌曲
+
+// 图片主色调
+const mainColor = ref('')
+// 界面暗色调
+const darkColor = computed(() => {
+  return getDarkColor(mainColor.value)
+})
 
 const getMusicDetail = () => {
   musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
@@ -118,7 +127,6 @@ const getMusicUrl = () => {
   })
 }
 
-const mainColor = ref('')
 const audio = ref<HTMLAudioElement>()
 const dotRef = ref<HTMLDivElement>()
 //#endregion
@@ -126,16 +134,11 @@ const dotRef = ref<HTMLDivElement>()
 //#region 页面周期
 onMounted(() => {
   console.log('onMounted')
-  useScroll(lyricsRef.value)
-  useTouch(lyricsRef.value)
+  initScroll(lyricsRef.value)
   setDraggable(dotRef.value)
 })
 onUnmounted(() => {
   console.log('onUnmounted')
-  // audio.value?.removeEventListener('timeupdate', handleTimeUpdate)
-  // destroyDraggable()
-  // removeScroll(lyricsRef.value)
-  // removeTouch(lyricsRef.value)
 })
 //#endregion
 
@@ -152,7 +155,7 @@ const lyricsShowCount = ref(2)
 const onSwitchFullScreen = () => {
   fullScreen.value = !fullScreen.value
   if (fullScreen.value) {
-    lyricsShowCount.value = 10
+    lyricsShowCount.value = 9
     nowActiveIndex = 4
   } else {
     lyricsShowCount.value = 2
@@ -186,7 +189,7 @@ const handleLyricsScroll = () => {
 
   if (lyricsDom) {
     // 滚动到中间
-    if (index > nowActiveIndex && !useManualScroll.value) {
+    if (index > nowActiveIndex && !manualScroll.value) {
       // 平滑滚动
       const height = lyricsHeight
       lyricsDom.scrollTo({
@@ -214,6 +217,10 @@ const handleTimeUpdate = () => {
   currentTime.value = audio.value?.currentTime || 0
   handleLyricsScroll()
 }
+
+//歌词拖动
+const { manualScroll, initScroll } = useScroll({})
+
 //#endregion
 
 //#region 进度条
@@ -257,7 +264,7 @@ const handleProgress = (percent: number) => {
   }
 }
 
-const { setDraggable, left, isDragging, setPosition, destroyDraggable } = useDraggable({
+const { setDraggable, left, isDragging, setPosition } = useDraggable({
   axis: 'x',
   onDragStart,
   onDragEnd,
@@ -288,6 +295,37 @@ const progressPercent = computed(() => {
 </script>
 
 <style scoped lang="scss">
+.lyrics-active {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 55%;
+    transform: translateY(-50%);
+    right: 10px;
+    // 向右的箭头
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid v-bind('mainColor');
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 55%;
+    transform: translateY(-50%);
+    right: 20px;
+    height: 1px;
+    width: 20%;
+    // 虚线
+    background: repeating-linear-gradient(
+      90deg,
+      v-bind('mainColor'),
+      v-bind('mainColor') 5px,
+      transparent 5px,
+      transparent 12px
+    );
+  }
+}
 .lyrics {
   position: relative;
   // height: calc(#{$lyricsShowCount} * #{$lyricsHeight} + #{$lyricsActiveHeight});
@@ -301,8 +339,9 @@ const progressPercent = computed(() => {
     width: 100%;
     height: v-bind("lyricsHeight+'px'");
     // 从上到下渐变
-    background: linear-gradient(180deg, #010207, transparent);
-    box-shadow: 0 -1px #010207;
+    // background: linear-gradient(180deg, #010207, transparent);
+    background: linear-gradient(180deg, v-bind('darkColor'), transparent);
+    box-shadow: 0 -2px v-bind('darkColor');
   }
   .bottom {
     position: sticky;
@@ -310,8 +349,8 @@ const progressPercent = computed(() => {
     width: 100%;
     height: v-bind("lyricsHeight+'px'");
     // 从下到上渐变
-    background: linear-gradient(0deg, #010207, transparent);
-    box-shadow: 0 1px #010207;
+    background: linear-gradient(0deg, v-bind('darkColor'), transparent);
+    box-shadow: 0 1px v-bind('darkColor');
   }
 
   // 隐藏滚动条
@@ -363,8 +402,16 @@ const progressPercent = computed(() => {
     width: 8px;
     height: 8px;
     background-color: v-bind('mainColor');
-    // 动态计算位置
     border-radius: 50%;
+    // 扩大点击区域
+    &::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 30px;
+      height: 30px;
+    }
   }
 }
 .page {
@@ -380,7 +427,10 @@ const progressPercent = computed(() => {
   .name {
     font-size: 1.5rem;
     font-weight: 700;
+    width: 100%;
+    text-align: center;
     color: v-bind('mainColor');
+    @apply truncate;
   }
   .music-img {
     // box-shadow动画 闪动
@@ -411,7 +461,9 @@ const progressPercent = computed(() => {
   left: 0;
   top: 0;
   // background: v-bind("musicStore.nowMusic?.cover ? 'url(' + musicStore.nowMusic?.cover + ')' : ''");
-  background: #010207;
+  // 渐变效果
+  background: v-bind('darkColor');
+
   background-size: cover;
   background-position: center;
   filter: blur(5px);
