@@ -22,16 +22,17 @@ export const useDraggable = (options: Options) => {
   const top = ref(0)
 
   const handleDragStart = (e: MouseEvent | TouchEvent) => {
-    if (!isMobile()) {
-      window.addEventListener('mousemove', handleDragMove)
-    }
     console.log('handleDragStart')
+    if (!isMobile()) {
+      draggable.value?.addEventListener('mousemove', handleDragMove)
+    }
     isDragging.value = true
     startX.value = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     startY.value = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
-    options.onDragStart && options.onDragStart()
+    options.onDragStart?.()
   }
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
+    console.log('handleDragMove')
     if (!isDragging.value) return
     // 元素移动
     const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
@@ -56,7 +57,7 @@ export const useDraggable = (options: Options) => {
     isDragging.value = false
     options.onDragEnd?.()
     if (!isMobile()) {
-      window.removeEventListener('mousemove', handleDragMove)
+      draggable.value?.removeEventListener('mousemove', handleDragMove)
     }
   }
   const resetPosition = () => {
@@ -76,7 +77,6 @@ export const useDraggable = (options: Options) => {
   const bindEvents = () => {
     console.log('bindEvents')
     if (isMobile()) {
-      console.log('bindEvents', draggable.value)
       // 兼容移动端
       draggable.value?.addEventListener('touchstart', handleDragStart)
       draggable.value?.addEventListener('touchmove', handleDragMove)
@@ -84,24 +84,21 @@ export const useDraggable = (options: Options) => {
       draggable.value?.addEventListener('touchcancel', handleDragEnd)
     } else {
       // 兼容PC端
-      window.addEventListener('mousedown', handleDragStart)
-      window.addEventListener('mouseup', handleDragEnd)
-      window.addEventListener('mouseleave', handleDragEnd)
-      window.addEventListener('contextmenu', handleDragEnd)
+      draggable.value?.addEventListener('mousedown', handleDragStart)
+      draggable.value?.addEventListener('mouseup', handleDragEnd)
+      draggable.value?.addEventListener('mouseleave', handleDragEnd)
     }
   }
   const unbindEvents = () => {
+    console.log('unbindEvents')
     if (isMobile()) {
       draggable.value?.removeEventListener('touchstart', handleDragStart)
       draggable.value?.removeEventListener('touchmove', handleDragMove)
       draggable.value?.removeEventListener('touchend', handleDragEnd)
       draggable.value?.removeEventListener('touchcancel', handleDragEnd)
     } else {
-      window.removeEventListener('mousedown', handleDragStart)
-      window.removeEventListener('mousemove', handleDragMove)
-      window.removeEventListener('mouseup', handleDragEnd)
-      window.removeEventListener('mouseleave', handleDragEnd)
-      window.removeEventListener('contextmenu', handleDragEnd)
+      draggable.value?.removeEventListener('mousedown', handleDragStart)
+      draggable.value?.removeEventListener('mouseup', handleDragEnd)
     }
   }
 

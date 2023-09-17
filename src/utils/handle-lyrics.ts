@@ -29,8 +29,15 @@ export const formatMusicLyrics = (lyric?: string): IReturnLyric => {
       })
     }
   }
-  console.log(lyricObjArr)
-
+  // 开头结尾加上空白 *3
+  for (let i = 0; i < 3; i++) {
+    lyricObjArr.push({
+      time: 99999,
+      lyric: '',
+      uid: parseInt(Math.random().toString().slice(-6)),
+    })
+  }
+  console.log('lyricObjArr', lyricObjArr)
   return {
     lyric: lyricObjArr,
   }

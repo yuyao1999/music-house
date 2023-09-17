@@ -87,7 +87,6 @@ const getMusicSearch = (name: string) => {
 
 // 获取路由参数
 const route = useRoute()
-console.log('route', route.query)
 getMusicSearch(route.query.msg as string)
 
 //#region 歌曲
@@ -133,13 +132,10 @@ const dotRef = ref<HTMLDivElement>()
 
 //#region 页面周期
 onMounted(() => {
-  console.log('onMounted')
   initScroll(lyricsRef.value)
   setDraggable(dotRef.value)
 })
-onUnmounted(() => {
-  console.log('onUnmounted')
-})
+onUnmounted(() => {})
 //#endregion
 
 //#region 歌词
@@ -155,7 +151,7 @@ const lyricsShowCount = ref(2)
 const onSwitchFullScreen = () => {
   fullScreen.value = !fullScreen.value
   if (fullScreen.value) {
-    lyricsShowCount.value = 9
+    lyricsShowCount.value = 10
     nowActiveIndex = 4
   } else {
     lyricsShowCount.value = 2
@@ -183,7 +179,6 @@ const handleLyricsScroll = () => {
   if (index === lyricsIndex.value) {
     return
   }
-
   lyricsIndex.value = index
   const lyricsDom = lyricsRef.value
 
@@ -219,7 +214,26 @@ const handleTimeUpdate = () => {
 }
 
 //歌词拖动
-const { manualScroll, initScroll } = useScroll({})
+const onScrollEnd = (diff: number) => {
+  // 歌词滚动的距离 跳转
+  // 开头没有滚动的误差
+  let errorIndex = 0
+  if (lyricsIndex.value < 4) {
+    errorIndex = 4
+  }
+  const index = Math.floor(diff / lyricsHeight) - errorIndex
+  const jumpIndex = -index + lyricsIndex.value
+  // 歌曲跳转
+  if (audio.value && lyricsIndex.value >= 0) {
+    audio.value?.play()
+    lyricsIndex.value = jumpIndex
+
+    currentTime.value = lyrics.value[jumpIndex]?.time
+    audio.value.currentTime = currentTime.value + 0.1
+    handleLyricsScroll()
+  }
+}
+const { manualScroll, initScroll } = useScroll({ onScrollEnd })
 
 //#endregion
 
@@ -227,12 +241,21 @@ const { manualScroll, initScroll } = useScroll({})
 const currentTime = ref(0)
 const barRef = ref<HTMLDivElement>()
 
-const onDragStart = () => {
-  console.log('onDragStart')
-}
+const onDragStart = () => {}
 const onDragEnd = () => {
-  console.log('onDragEnd')
   handleProgress(getPercent(left.value, progressWidth.value) * 0.01)
+}
+const { setDraggable, left, isDragging, setPosition } = useDraggable({
+  axis: 'x',
+  onDragStart,
+  onDragEnd,
+})
+const onDot = (e: any) => {
+  const barDom = barRef.value
+  if (barDom) {
+    const left = e.pageX - barDom.getBoundingClientRect().left
+    setPosition(left)
+  }
 }
 
 // 点击进度条 跳转到对应的时间
@@ -242,15 +265,6 @@ const mousedownBar = (e: any) => {
     const left = e.pageX - barDom.getBoundingClientRect().left
     setPosition(left)
     handleProgress(getPercent(left, progressWidth.value) * 0.01)
-  }
-}
-const onDot = (e: any) => {
-  console.log('onDot')
-  const barDom = barRef.value
-  if (barDom) {
-    const left = e.pageX - barDom.getBoundingClientRect().left
-    console.log('left', left)
-    setPosition(left)
   }
 }
 
@@ -264,18 +278,11 @@ const handleProgress = (percent: number) => {
   }
 }
 
-const { setDraggable, left, isDragging, setPosition } = useDraggable({
-  axis: 'x',
-  onDragStart,
-  onDragEnd,
-})
-
 const progressWidth = computed(() => {
   return barRef.value?.getBoundingClientRect().width || 0
 })
 // 进度百分比
 const progressPercent = computed(() => {
-  // console.log('progressPercent', left.value)
   if (isDragging.value) {
     // 不能超出
     if (left.value < 0) {

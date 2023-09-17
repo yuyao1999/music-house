@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { isMobile } from '@/utils/is'
 
 interface Options {
-  onScrollEnd?: () => void
+  onScrollEnd?: (diff: number) => void
 }
 
 /**
@@ -18,24 +18,14 @@ export const useScroll = (options: Options) => {
     }, 1000)
   }
   const handler = (e: any, dom: any) => {
-    const removeScroll = (dom: any) => {
-      if (!dom) return
-      dom.onmousewheel = null
-      dom.removeEventListener('DOMMouseScroll', null)
-    }
-
-    /**
-     * 监听移动端touch事件
-     */
-
+    console.log('handler')
     if (!dom) return
-
     var ev = e || event
-    if (ev.wheelDelta) {
+    if (ev.deltaY) {
+      initManualScroll()
       //google
       manualScroll.value = true
-      initManualScroll()
-      if (ev.wheelDelta > 0) {
+      if (ev.deltaY > 0) {
         // console.log('向上滚动...')
         // dom.scrollTop = dom.scrollTop - 40
       } else {
@@ -43,9 +33,10 @@ export const useScroll = (options: Options) => {
         // dom.scrollTop = dom.scrollTop + 40
       }
     } else if (ev.detail) {
+      initManualScroll()
       //firefox
       manualScroll.value = true
-      initManualScroll()
+      console.log('ev.detail', ev.detail)
       if (ev.detail > 0) {
         // console.log('向下滚动...')
         // dom.scrollTop = dom.scrollTop + 40
@@ -63,11 +54,12 @@ export const useScroll = (options: Options) => {
       'touchstart',
       (e: any) => {
         startY = e.touches[0].pageY
-        manualScroll.value = true
       },
       false
     )
     dom.addEventListener('touchmove', (e: any) => {
+      manualScroll.value = true
+      console.log('touchmove')
       endY = e.touches[0].pageY
       if (endY - startY > 0) {
         // console.log('touchmove向下滚动...')
@@ -78,7 +70,10 @@ export const useScroll = (options: Options) => {
       }
     })
     dom.addEventListener('touchend', (e: any) => {
+      if (!manualScroll.value) return
+      console.log('touchend')
       manualScroll.value = false
+      options.onScrollEnd?.(endY - startY)
     })
   }
   const removeTouch = (dom: any) => {
@@ -87,19 +82,33 @@ export const useScroll = (options: Options) => {
     dom.removeEventListener('touchmove', null)
     dom.removeEventListener('touchend', null)
   }
+  const removeScroll = (dom: any) => {
+    if (!dom) return
+    dom.onmousewheel = null
+    dom.removeEventListener('DOMMouseScroll', null)
+  }
 
   const manualScroll = ref(false)
   const initScroll = (dom: any) => {
+    console.log('initScroll')
     if (isMobile()) {
       useTouch(dom)
     } else {
       if (!dom) return
-      dom.onmousewheel = (e: any) => {
+      dom.onwheel = (e: any) => {
         handler(e, dom)
       }
       dom.addEventListener('DOMMouseScroll', (e: any) => {
         handler(e, dom)
       })
+
+      // 滚动结束
+      // dom.onscrollend = () => {
+      //   // 滚动的距离
+      //   const diff = dom.scrollHeight - dom.scrollTop - dom.clientHeight
+      //   console.log('onscrollend diff', Math.floor(diff / 10))
+      //   options.onScrollEnd?.(Math.floor(diff / 10))
+      // }
     }
   }
   return {
