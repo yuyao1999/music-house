@@ -3,12 +3,12 @@
     <div class="page">
       <!-- 头部 -->
       <div class="flex justify-between items-center w-full">
-        <div>返回</div>
+        <div class="icon-back hover:cursor-pointer" @click="back" />
         <div class="flex flex-col items-center w-[80%]">
           <div class="name">{{ musicStore.nowMusic.name }}</div>
           <div>{{ musicStore.nowMusic.singer }}</div>
         </div>
-        <div>分享</div>
+        <div class="icon-share" />
       </div>
       <!-- 图片 -->
       <div v-show="!fullScreen" class="flex justify-center items-center mt-5" @click="onSwitchFullScreen">
@@ -38,10 +38,27 @@
       </div>
       <!-- 播放按钮 -->
       <div class="flex justify-between items-center">
-        <div class="hover:cursor-pointer">上一首</div>
-        <div v-if="getAudioStatus()" class="hover:cursor-pointer" @click="audioPause">暂停</div>
-        <div v-else class="hover:cursor-pointer icon-play" @click="audioPlay"></div>
-        <div class="hover:cursor-pointer">上一首</div>
+        <div v-if="isLove" @click="isLove = false" class="pl-5">
+          <div class="hover:cursor-pointer animate__animated animate__heartBeat">
+            <div class="icon-love" />
+          </div>
+        </div>
+        <div v-else @click="isLove = true" class="pl-5">
+          <div class="hover:cursor-pointer animate__animated animate__bounceIn">
+            <div class="icon-love-none" />
+          </div>
+        </div>
+        <div class="w-[50%] flex justify-between items-center">
+          <div class="hover:cursor-pointer icon-last animate__animated animate__bounceIn" />
+          <div
+            v-if="getAudioStatus()"
+            class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
+            @click="audioPause"
+          />
+          <div v-else class="hover:cursor-pointer icon-play animate__animated animate__bounceIn" @click="audioPlay" />
+          <div class="hover:cursor-pointer icon-next animate__animated animate__bounceIn" />
+        </div>
+        <div>顺序</div>
       </div>
       <!-- 歌词全屏 -->
       <div class="flex justify-center items-center pb-1" @click="onSwitchFullScreen">
@@ -65,9 +82,12 @@ import { useMusicStore } from '@/store/modules/music'
 import { useAudio, audioPlay, audioPause, getAudioStatus } from '@/hooks/useAudio'
 import { useDraggable } from '@/hooks/useDraggable'
 import { ILyric } from '@/types/lyric'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { isMobile } from '../../utils/is'
 const musicStore = useMusicStore()
+
+// 当前歌曲是否喜欢
+const isLove = ref(false)
 
 // 搜索
 const getMusicSearch = (name: string) => {
@@ -87,7 +107,13 @@ const getMusicSearch = (name: string) => {
 
 // 获取路由参数
 const route = useRoute()
+const router = useRouter()
 getMusicSearch(route.query.msg as string)
+
+const back = () => {
+  // 跳转到首页
+  router.push('/')
+}
 
 //#region 歌曲
 
@@ -457,7 +483,8 @@ const progressPercent = computed(() => {
     height: 0;
     border-top: 0.6rem solid transparent;
     border-bottom: 0.6rem solid transparent;
-    border-left: 0.8rem solid #fff;
+    // border-left: 0.9rem solid #fff;
+    border-left: 0.9rem solid v-bind('darkColor');
     // 圆角
     border-radius: 0.2rem;
     // 居中
@@ -465,6 +492,188 @@ const progressPercent = computed(() => {
     left: 55%;
     transform: translate(-50%, -50%);
   }
+}
+.icon-pause {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 0.1rem solid v-bind('mainColor');
+  position: relative;
+  // 两个竖线
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0.2rem;
+    height: 1.2rem;
+    background: v-bind('mainColor');
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    width: 0.2rem;
+    height: 1.2rem;
+    background: v-bind('mainColor');
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+  }
+}
+.icon-next {
+  // 下一首
+  // 两个向右的三角形 左边小右边大 两个三角形重叠
+  width: 2.5rem;
+  height: 2.5rem;
+
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 0.7rem solid transparent;
+    border-bottom: 0.7rem solid transparent;
+    border-left: 1rem solid v-bind('mainColor');
+    // 圆角
+    border-radius: 0.2rem;
+    // 居中
+    top: 50%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 0.8rem solid transparent;
+    border-bottom: 0.8rem solid transparent;
+    border-left: 0.8rem solid v-bind('mainColor');
+    // 圆角
+    border-radius: 0.2rem;
+    // 居中
+    top: 50%;
+    left: 65%;
+    transform: translate(-50%, -50%);
+  }
+}
+.icon-last {
+  // 上一首
+  // 两个向左的三角形 左边大右边小 两个三角形重叠
+  width: 2.5rem;
+  height: 2.5rem;
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 0.7rem solid transparent;
+    border-bottom: 0.7rem solid transparent;
+    border-right: 1rem solid v-bind('mainColor');
+    // 圆角
+    border-radius: 0.2rem;
+    // 居中
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 0.8rem solid transparent;
+    border-bottom: 0.8rem solid transparent;
+    border-right: 0.8rem solid v-bind('mainColor');
+    // 圆角
+    border-radius: 0.2rem;
+    // 居中
+    top: 50%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+  }
+}
+.icon-back {
+  // 返回按钮 向左的箭头
+  width: 2.5rem;
+  height: 2.5rem;
+  position: relative;
+  // 两条直线 夹角45度
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0.2rem;
+    height: 1rem;
+    border-radius: 0.2rem;
+
+    background: #fff;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(50deg);
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    width: 0.2rem;
+    height: 1rem;
+    border-radius: 0.2rem;
+    background: #fff;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-50deg);
+  }
+}
+$heartWidth: 1.2rem;
+$heartHeight: 1.2rem;
+.icon-love {
+  //心型
+  width: $heartWidth;
+  height: $heartHeight;
+  position: relative;
+  background-color: tomato;
+  transform: rotate(-45deg);
+  &::before {
+    content: '';
+    position: absolute;
+    // 宽度的一半
+    top: calc(-#{$heartWidth} / 2);
+    left: 0;
+    width: $heartWidth;
+    height: $heartHeight;
+    border-radius: 50%;
+    background-color: tomato;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(#{$heartWidth} / 2);
+    width: $heartWidth;
+    height: $heartHeight;
+    border-radius: 50%;
+    background-color: tomato;
+  }
+}
+.icon-love-none {
+  // 裁剪为 空心心
+  @extend .icon-love;
+  background-color: white;
+  &::before {
+    background-color: white;
+  }
+  &::after {
+    background-color: white;
+  }
+  transform: rotate(-45deg) scale(0.8);
+}
+.icon-share {
+  // 分享图标
+  width: 2.5rem;
+  height: 2.5rem;
+  background: url('@/assets/music/icon-share.png') no-repeat center;
 }
 
 .page {

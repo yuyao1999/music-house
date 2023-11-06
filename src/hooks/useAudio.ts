@@ -52,5 +52,6 @@ export const audioPause = () => {
  * @returns {boolean} true: 播放中 false: 暂停中
  */
 export const getAudioStatus = () => {
+  console.log('getAudioStatus', !audio?.paused)
   return !audio?.paused
 }
