@@ -25,6 +25,8 @@ export const useDraggable = (options: Options) => {
     console.log('handleDragStart')
     if (!isMobile()) {
       draggable.value?.addEventListener('mousemove', handleDragMove)
+      draggable.value?.addEventListener('mouseup', handleDragEnd)
+      draggable.value?.addEventListener('mouseleave', handleDragEnd)
     }
     isDragging.value = true
     startX.value = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
@@ -32,13 +34,14 @@ export const useDraggable = (options: Options) => {
     options.onDragStart?.()
   }
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    console.log('handleDragMove')
+    console.log('handleDragMove', isDragging.value)
     if (!isDragging.value) return
     // 元素移动
     const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     const currentY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     const diffX = currentX - startX.value
     const diffY = currentY - startY.value
+    console.log('diffX', diffX)
     if (options.axis === 'x') {
       left.value += diffX
     }
@@ -57,6 +60,9 @@ export const useDraggable = (options: Options) => {
     isDragging.value = false
     options.onDragEnd?.()
     if (!isMobile()) {
+      console.log('removeEventListener')
+      draggable.value?.removeEventListener('mouseup', handleDragEnd)
+      draggable.value?.removeEventListener('mouseleave', handleDragEnd)
       draggable.value?.removeEventListener('mousemove', handleDragMove)
     }
   }
@@ -85,8 +91,6 @@ export const useDraggable = (options: Options) => {
     } else {
       // 兼容PC端
       draggable.value?.addEventListener('mousedown', handleDragStart)
-      draggable.value?.addEventListener('mouseup', handleDragEnd)
-      draggable.value?.addEventListener('mouseleave', handleDragEnd)
     }
   }
   const unbindEvents = () => {
@@ -99,6 +103,8 @@ export const useDraggable = (options: Options) => {
     } else {
       draggable.value?.removeEventListener('mousedown', handleDragStart)
       draggable.value?.removeEventListener('mouseup', handleDragEnd)
+      draggable.value?.removeEventListener('mouseleave', handleDragEnd)
+      draggable.value?.removeEventListener('mousemove', handleDragMove)
     }
   }
 

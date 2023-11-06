@@ -31,7 +31,7 @@ export const getImgColor = (url: string): Promise<string> => {
       const bResult = Math.floor(b.reduce((a, b) => a + b) / b.length)
       // 如果太暗则往上提高
       if (rResult < 150 && gResult < 150 && bResult < 150) {
-        resolve(`rgb(${rResult + 100}, ${gResult + 90}, ${bResult + 80})`)
+        resolve(`rgb(${rResult + 90}, ${gResult + 120}, ${bResult + 100})`)
       }
 
       resolve(`rgb(${rResult}, ${gResult}, ${bResult})`)

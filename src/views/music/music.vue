@@ -15,10 +15,9 @@
         <img class="w-[30vh] h-[30vh] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" alt="" />
       </div>
       <!-- 歌词 -->
-      <div :class="{ 'lyrics-active': manualScroll }">
-        <div class="lyrics" ref="lyricsRef" @click="onSwitchFullScreen">
+      <div :class="{ 'lyrics-active': manualScroll }" @click.stop="mousedownDot">
+        <div class="lyrics" ref="lyricsRef" @click.stop @click="onSwitchFullScreen">
           <div class="top" />
-
           <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }" class="item">
             {{ item.lyric }}
           </div>
@@ -31,8 +30,8 @@
         <!-- 当前时长 -->
         <div class="text-sm">{{ formatTime(currentTime) }}</div>
         <!-- 音乐进度条 -->
-        <div class="progress-bar hover:cursor-pointer" @click.stop="mousedownBar" ref="barRef">
-          <div class="dot" @mousedown="onDot" ref="dotRef"></div>
+        <div class="progress-bar hover:cursor-pointer" @mousedown.stop="mousedownBar" ref="barRef">
+          <div @mousedown.stop class="dot" @mousedown="onDot" ref="dotRef"></div>
         </div>
         <!-- 总时长 -->
         <div class="text-sm">{{ formatTime(audio?.duration) }}</div>
@@ -41,7 +40,7 @@
       <div class="flex justify-between items-center">
         <div class="hover:cursor-pointer">上一首</div>
         <div v-if="getAudioStatus()" class="hover:cursor-pointer" @click="audioPause">暂停</div>
-        <div v-else class="hover:cursor-pointer" @click="audioPlay">播放</div>
+        <div v-else class="hover:cursor-pointer icon-play" @click="audioPlay"></div>
         <div class="hover:cursor-pointer">上一首</div>
       </div>
       <!-- 歌词全屏 -->
@@ -67,6 +66,7 @@ import { useAudio, audioPlay, audioPause, getAudioStatus } from '@/hooks/useAudi
 import { useDraggable } from '@/hooks/useDraggable'
 import { ILyric } from '@/types/lyric'
 import { useRoute } from 'vue-router'
+import { isMobile } from '../../utils/is'
 const musicStore = useMusicStore()
 
 // 搜索
@@ -227,8 +227,7 @@ const onScrollEnd = (diff: number) => {
   if (audio.value && lyricsIndex.value >= 0) {
     audio.value?.play()
     lyricsIndex.value = jumpIndex
-
-    currentTime.value = lyrics.value[jumpIndex]?.time
+    currentTime.value = lyrics.value[jumpIndex]?.time || audio.value.currentTime
     audio.value.currentTime = currentTime.value + 0.1
     handleLyricsScroll()
   }
@@ -265,6 +264,20 @@ const mousedownBar = (e: any) => {
     const left = e.pageX - barDom.getBoundingClientRect().left
     setPosition(left)
     handleProgress(getPercent(left, progressWidth.value) * 0.01)
+  }
+}
+// 点击滚动条按钮 跳转到对应的时间
+const mousedownDot = (e: any) => {
+  if (isMobile()) return
+  const lyricsDom = lyricsRef.value
+  if (lyricsDom) {
+    // 获取lyricsRef 的滚动的距离 scrollTop
+    const top = e.pageY - lyricsDom.getBoundingClientRect().top + lyricsDom.scrollTop
+    const index = Math.floor(top / lyricsHeight)
+    if (audio.value) {
+      audio.value.currentTime = lyrics.value[index].time
+      audioPlay()
+    }
   }
 }
 
@@ -314,6 +327,7 @@ const progressPercent = computed(() => {
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
     border-left: 8px solid v-bind('mainColor');
+    cursor: pointer;
   }
   &::before {
     content: '';
@@ -367,16 +381,21 @@ const progressPercent = computed(() => {
 
   .item {
     height: v-bind("lyricsHeight+'px'");
+    width: 100%;
     // 文字垂直居中
     @apply flex items-center justify-center;
     font-size: 1rem;
     text-align: center;
+    line-height: 1rem;
+    overflow: hidden;
+
     &.active {
       color: v-bind('mainColor');
       height: v-bind("lyricsActiveHeight+'px'");
       // 文字垂直居中
       @apply flex items-center justify-center;
       font-size: 1.3rem;
+      line-height: 1.3rem;
       font-weight: 700;
       text-align: center;
     }
@@ -421,6 +440,33 @@ const progressPercent = computed(() => {
     }
   }
 }
+
+// 按钮
+.icon-play {
+  // 播放图标 圆形 css绘制
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: v-bind('mainColor');
+  position: relative;
+  // 三角形
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 0.6rem solid transparent;
+    border-bottom: 0.6rem solid transparent;
+    border-left: 0.8rem solid #fff;
+    // 圆角
+    border-radius: 0.2rem;
+    // 居中
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+  }
+}
+
 .page {
   // 占满屏幕
   height: 100vh;

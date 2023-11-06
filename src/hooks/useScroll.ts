@@ -15,16 +15,17 @@ export const useScroll = (options: Options) => {
   const initManualScroll = () => {
     setTimeout(() => {
       manualScroll.value = false
-    }, 1000)
+    }, 2000)
   }
+
   const handler = (e: any, dom: any) => {
     console.log('handler')
     if (!dom) return
+    manualScroll.value = true
+    initManualScroll()
     var ev = e || event
     if (ev.deltaY) {
-      initManualScroll()
       //google
-      manualScroll.value = true
       if (ev.deltaY > 0) {
         // console.log('向上滚动...')
         // dom.scrollTop = dom.scrollTop - 40
@@ -33,9 +34,7 @@ export const useScroll = (options: Options) => {
         // dom.scrollTop = dom.scrollTop + 40
       }
     } else if (ev.detail) {
-      initManualScroll()
       //firefox
-      manualScroll.value = true
       console.log('ev.detail', ev.detail)
       if (ev.detail > 0) {
         // console.log('向下滚动...')
@@ -101,14 +100,6 @@ export const useScroll = (options: Options) => {
       dom.addEventListener('DOMMouseScroll', (e: any) => {
         handler(e, dom)
       })
-
-      // 滚动结束
-      // dom.onscrollend = () => {
-      //   // 滚动的距离
-      //   const diff = dom.scrollHeight - dom.scrollTop - dom.clientHeight
-      //   console.log('onscrollend diff', Math.floor(diff / 10))
-      //   options.onScrollEnd?.(Math.floor(diff / 10))
-      // }
     }
   }
   return {
