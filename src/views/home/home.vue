@@ -2,7 +2,6 @@
 
 <template>
   <div class="flex justify-center">
-    home
     <div @click="toLogin">login</div>
     <div @click="toMusic">music</div>
     <input class="border w-50" type="text" v-model="msg" />
@@ -12,7 +11,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-const msg = ref('home')
+const msg = ref('那天')
 const router = useRouter()
 const toLogin = () => {
   router.push({ name: 'login' })

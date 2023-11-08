@@ -1,4 +1,16 @@
-let audio: HTMLAudioElement
+import { ref } from 'vue'
+
+const audio = ref<HTMLAudioElement>(new Audio('https://music.163.com/song/media/outer/url?id=33894312.mp3'))
+
+export const useAudio = () => {
+  return {
+    createAudio,
+    audio,
+    setAudioSrc,
+    audioPlay,
+    audioPause,
+  }
+}
 /**
  *
  *  创建audio
@@ -7,12 +19,18 @@ let audio: HTMLAudioElement
  * @returns
  * @memberof Audio
  */
-export const useAudio = (src: string, timeupdate: any) => {
-  audio = new Audio(src)
-  audio.crossOrigin = 'anonymous'
-  audio.addEventListener('timeupdate', timeupdate)
-  audio.addEventListener('ended', audioEnded)
+export const createAudio = (src: string, timeupdate?: any) => {
+  audio.value = new Audio(src)
+  audio.value.addEventListener('ended', audioEnded)
+  audio.value.addEventListener('timeupdate', timeupdate)
+  audio.value.oncanplay = () => {}
   return audio
+}
+/**
+ * 设置audio的src
+ */
+export const setAudioSrc = (src: string) => {
+  if (audio.value) audio.value.src = src
 }
 
 /**
@@ -20,16 +38,15 @@ export const useAudio = (src: string, timeupdate: any) => {
  */
 const audioEnded = () => {
   audioPause()
-  audio.currentTime = 0
+  if (audio.value) audio.value.currentTime = 0
   // audio?.play()
 }
 
 /**
  * audio播放
  */
-export const audioPlay = () => {
-  audio?.play()
-
+const audioPlay = () => {
+  audio.value?.play()
   const dom: HTMLDivElement | null = document.querySelector('.music-img')
   if (dom) {
     dom.style.animationPlayState = 'running'
@@ -39,19 +56,11 @@ export const audioPlay = () => {
 /**
  * audio暂停
  */
-export const audioPause = () => {
-  audio?.pause()
+const audioPause = () => {
+  audio.value?.pause()
 
   const dom: HTMLDivElement | null = document.querySelector('.music-img')
   if (dom) {
     dom.style.animationPlayState = 'paused'
   }
-}
-/**
- * 获取audio的播放状态
- * @returns {boolean} true: 播放中 false: 暂停中
- */
-export const getAudioStatus = () => {
-  console.log('getAudioStatus', !audio?.paused)
-  return !audio?.paused
 }
