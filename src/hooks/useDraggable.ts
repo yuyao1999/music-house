@@ -22,7 +22,6 @@ export const useDraggable = (options: Options) => {
   const top = ref(0)
 
   const handleDragStart = (e: MouseEvent | TouchEvent) => {
-    console.log('handleDragStart')
     if (!isMobile()) {
       draggable.value?.addEventListener('mousemove', handleDragMove)
       draggable.value?.addEventListener('mouseup', handleDragEnd)
@@ -34,14 +33,12 @@ export const useDraggable = (options: Options) => {
     options.onDragStart?.()
   }
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    console.log('handleDragMove', isDragging.value)
     if (!isDragging.value) return
     // 元素移动
     const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     const currentY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     const diffX = currentX - startX.value
     const diffY = currentY - startY.value
-    console.log('diffX', diffX)
     if (options.axis === 'x') {
       left.value += diffX
     }
@@ -56,11 +53,9 @@ export const useDraggable = (options: Options) => {
     startY.value = currentY
   }
   const handleDragEnd = (e: MouseEvent | TouchEvent) => {
-    console.log('handleDragEnd')
     isDragging.value = false
     options.onDragEnd?.()
     if (!isMobile()) {
-      console.log('removeEventListener')
       draggable.value?.removeEventListener('mouseup', handleDragEnd)
       draggable.value?.removeEventListener('mouseleave', handleDragEnd)
       draggable.value?.removeEventListener('mousemove', handleDragMove)
@@ -81,7 +76,6 @@ export const useDraggable = (options: Options) => {
   const draggable = ref<HTMLElement>()
 
   const bindEvents = () => {
-    console.log('bindEvents')
     if (isMobile()) {
       // 兼容移动端
       draggable.value?.addEventListener('touchstart', handleDragStart)
@@ -94,7 +88,6 @@ export const useDraggable = (options: Options) => {
     }
   }
   const unbindEvents = () => {
-    console.log('unbindEvents')
     if (isMobile()) {
       draggable.value?.removeEventListener('touchstart', handleDragStart)
       draggable.value?.removeEventListener('touchmove', handleDragMove)
@@ -109,7 +102,6 @@ export const useDraggable = (options: Options) => {
   }
 
   const setDraggable = (el: HTMLElement | undefined) => {
-    console.log('setDraggable')
     if (!el) return
     draggable.value = el
     bindEvents()

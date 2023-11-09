@@ -1,12 +1,10 @@
 import { ref } from 'vue'
 
-const audio = ref<HTMLAudioElement>(new Audio('https://music.163.com/song/media/outer/url?id=33894312.mp3'))
-
+const audio = ref<HTMLAudioElement | null>(null)
 export const useAudio = () => {
   return {
     createAudio,
     audio,
-    setAudioSrc,
     audioPlay,
     audioPause,
   }
@@ -19,18 +17,21 @@ export const useAudio = () => {
  * @returns
  * @memberof Audio
  */
-export const createAudio = (src: string, timeupdate?: any) => {
+const createAudio = (src: string, timeupdate?: any) => {
+  // 清空之前的audio
+  if (audio.value) {
+    audio.value.removeEventListener('ended', audioEnded)
+    audio.value.removeEventListener('timeupdate', timeupdate)
+    audio.value.oncanplay = null
+    audio.value.pause()
+    audio.value = null
+  }
   audio.value = new Audio(src)
   audio.value.addEventListener('ended', audioEnded)
   audio.value.addEventListener('timeupdate', timeupdate)
-  audio.value.oncanplay = () => {}
-  return audio
-}
-/**
- * 设置audio的src
- */
-export const setAudioSrc = (src: string) => {
-  if (audio.value) audio.value.src = src
+  audio.value.oncanplay = () => {
+    audioPlay()
+  }
 }
 
 /**
@@ -38,8 +39,7 @@ export const setAudioSrc = (src: string) => {
  */
 const audioEnded = () => {
   audioPause()
-  if (audio.value) audio.value.currentTime = 0
-  // audio?.play()
+  // if (audio.value) audio.value.currentTime = 0
 }
 
 /**

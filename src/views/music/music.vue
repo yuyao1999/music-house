@@ -59,7 +59,7 @@
               class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
             />
             <div
-              v-if="!audio.paused"
+              v-if="!audio?.paused"
               @click="audioPause"
               class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
             />
@@ -192,9 +192,11 @@ const getMusicLyric = () => {
     lyrics.value = lyric
   })
 }
+console.log('audio.value', audio.value)
 //获取歌曲url
 const getMusicUrl = () => {
   musicApi.getMusicUrl({ id: musicStore.nowMusic?.id }).then((res: any) => {
+    console.log('getMusicUrl', audio.value)
     createAudio(res.data[0].url, handleTimeUpdate)
   })
 }
@@ -296,7 +298,7 @@ const onScrollEnd = (diff: number) => {
   const index = Math.floor(diff / lyricsHeight) - errorIndex
   const jumpIndex = -index + lyricsIndex.value
   // 歌曲跳转
-  if (audio && lyricsIndex.value >= 0) {
+  if (audio.value && lyricsIndex.value >= 0) {
     audio.value?.play()
     lyricsIndex.value = jumpIndex
     currentTime.value = lyrics.value[jumpIndex]?.time || audio.value.currentTime
@@ -346,7 +348,7 @@ const mousedownDot = (e: any) => {
     // 获取lyricsRef 的滚动的距离 scrollTop
     const top = e.pageY - lyricsDom.getBoundingClientRect().top + lyricsDom.scrollTop
     const index = Math.floor(top / lyricsHeight)
-    if (audio) {
+    if (audio.value) {
       audio.value.currentTime = lyrics.value[index].time
       audioPlay()
     }
@@ -354,7 +356,7 @@ const mousedownDot = (e: any) => {
 }
 
 const handleProgress = (percent: number) => {
-  if (audio) {
+  if (audio.value) {
     audio.value.currentTime = getNowTime(percent, audio.value?.duration)
     // 如果没有播放，点击进度条后，自动播放
     if (audio.value.paused) {
