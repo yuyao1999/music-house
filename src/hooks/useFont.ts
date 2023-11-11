@@ -16,11 +16,8 @@ export const useFont = (size: number): number => {
   if (width > height) {
     return -1
   }
-  console.log('width', width)
-  console.log('height', height)
   const currentSize = width! / height!
   const res = size * (currentSize / baseSize)
-  console.log('res', res)
   if (res > 40) {
     return 40
   }

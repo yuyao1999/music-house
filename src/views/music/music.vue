@@ -54,20 +54,14 @@
             </div>
           </div>
           <div class="w-[50%] flex justify-between items-center">
-            <div
-              @click="musicStore.prevMusic"
-              class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
-            />
+            <div @click="onPrev" class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn" />
             <div
               v-if="!audio?.paused"
               @click="audioPause"
               class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
             />
             <div v-else @click="audioPlay" class="hover:cursor-pointer icon-play animate__animated animate__bounceIn" />
-            <div
-              @click="musicStore.nextMusic"
-              class="hover:cursor-pointer icon-next animate__animated animate__bounceIn"
-            />
+            <div @click="onNext" class="hover:cursor-pointer icon-next animate__animated animate__bounceIn" />
           </div>
           <div class="pr-2" @click="onPlayMode">
             <img
@@ -108,7 +102,7 @@ import { isMobile } from '@/utils/is'
 import { requireImg } from '@/utils/requireImg'
 
 const musicStore = useMusicStore()
-const { audio, createAudio, audioPlay, audioPause } = useAudio()
+const { audio, createAudio, createTimeupdate, audioPlay, audioPause } = useAudio()
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
@@ -151,10 +145,10 @@ const getMusicSearch = (name: string) => {
     // 优化
     Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl()])
       .then((res) => {
-        console.log('Promise res', res)
+        // console.log('Promise res', res)
       })
       .catch((err) => {
-        console.log('Promise err', err)
+        // console.log('Promise err', err)
       })
   })
 }
@@ -180,7 +174,6 @@ const darkColor = computed(() => {
 
 const getMusicDetail = () => {
   musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
-    console.log('getMusicDetail', res)
     // 错误处理返回异常
     if (!res) {
       return
@@ -202,24 +195,21 @@ const getMusicLyric = () => {
       return
     }
     const { lyric } = formatMusicLyrics(res.lrc.lyric)
-    lyrics.value = lyric
     musicStore.supplementMusic({
       id: musicStore.nowMusic?.id,
       lyric,
     })
   })
 }
-console.log('audio.value', audio.value)
 //获取歌曲url
 const getMusicUrl = () => {
   const promise = new Promise((resolve, reject) => {
     musicApi.getMusicUrl({ id: musicStore.nowMusic?.id }).then((res: any) => {
-      console.log('getMusicUrl', res)
       if (res.code !== 200) {
         reject(res)
         return
       }
-      createAudio(res.data[0].url, handleTimeUpdate)
+      createAudio(res.data[0].url)
       musicStore.supplementMusic({
         id: musicStore.nowMusic?.id,
         src: res.data[0].url,
@@ -227,7 +217,6 @@ const getMusicUrl = () => {
       resolve(res)
     })
   })
-  console.log('promise', promise)
   return promise
 }
 
@@ -244,7 +233,9 @@ onUnmounted(() => {})
 
 //#region 歌词
 
-const lyrics = ref<ILyric[]>([])
+const lyrics = computed<ILyric[]>(() => {
+  return musicStore.nowMusic?.lyric || []
+})
 const lyricsRef = ref<HTMLDivElement>()
 
 // 歌词全屏
@@ -316,6 +307,7 @@ const handleTimeUpdate = () => {
   currentTime.value = audio.value?.currentTime || 0
   handleLyricsScroll()
 }
+createTimeupdate(handleTimeUpdate)
 
 //歌词拖动
 const onScrollEnd = (diff: number) => {
@@ -336,7 +328,16 @@ const onScrollEnd = (diff: number) => {
     handleLyricsScroll()
   }
 }
-const { manualScroll, initScroll } = useScroll({ onScrollEnd })
+const { manualScroll, scrollToTop, initScroll } = useScroll({ onScrollEnd })
+
+const onNext = () => {
+  musicStore.nextMusic()
+  scrollToTop(lyricsRef.value)
+}
+const onPrev = () => {
+  musicStore.prevMusic()
+  scrollToTop(lyricsRef.value)
+}
 
 //#endregion
 

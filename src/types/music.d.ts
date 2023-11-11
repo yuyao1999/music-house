@@ -24,6 +24,5 @@ export type IMusic = {
   /**
    * 歌词
    */
-  lrc?: ILyric[]
-  [key: string]: any
+  lyric?: ILyric[]
 }

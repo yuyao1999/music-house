@@ -19,7 +19,6 @@ export const useScroll = (options: Options) => {
   }
 
   const handler = (e: any, dom: any) => {
-    console.log('handler')
     if (!dom) return
     manualScroll.value = true
     initManualScroll()
@@ -35,7 +34,6 @@ export const useScroll = (options: Options) => {
       }
     } else if (ev.detail) {
       //firefox
-      console.log('ev.detail', ev.detail)
       if (ev.detail > 0) {
         // console.log('向下滚动...')
         // dom.scrollTop = dom.scrollTop + 40
@@ -58,7 +56,6 @@ export const useScroll = (options: Options) => {
     )
     dom.addEventListener('touchmove', (e: any) => {
       manualScroll.value = true
-      console.log('touchmove')
       endY = e.touches[0].pageY
       if (endY - startY > 0) {
         // console.log('touchmove向下滚动...')
@@ -70,7 +67,6 @@ export const useScroll = (options: Options) => {
     })
     dom.addEventListener('touchend', (e: any) => {
       if (!manualScroll.value) return
-      console.log('touchend')
       manualScroll.value = false
       options.onScrollEnd?.(endY - startY)
     })
@@ -89,7 +85,6 @@ export const useScroll = (options: Options) => {
 
   const manualScroll = ref(false)
   const initScroll = (dom: any) => {
-    console.log('initScroll')
     if (isMobile()) {
       useTouch(dom)
     } else {
@@ -102,8 +97,16 @@ export const useScroll = (options: Options) => {
       })
     }
   }
+  /**
+   * 滚动到顶部
+   */
+  const scrollToTop = (dom: any) => {
+    if (!dom) return
+    dom.scrollTop = 0
+  }
   return {
     initScroll,
+    scrollToTop,
     manualScroll,
   }
 }

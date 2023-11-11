@@ -1,9 +1,12 @@
 import { ref } from 'vue'
 
 const audio = ref<HTMLAudioElement | null>(null)
+let timeupdate: EventListenerOrEventListenerObject
+
 export const useAudio = () => {
   return {
     createAudio,
+    createTimeupdate,
     audio,
     audioPlay,
     audioPause,
@@ -13,11 +16,11 @@ export const useAudio = () => {
  *
  *  创建audio
  * @param {string} src
- * @param {function} [timeupdate] 音频播放时触发
  * @returns
  * @memberof Audio
  */
-const createAudio = (src: string, timeupdate?: any) => {
+const createAudio = (src: string) => {
+  console.log('createAudio audio.value 1', audio.value)
   // 清空之前的audio
   if (audio.value) {
     audio.value.removeEventListener('ended', audioEnded)
@@ -32,6 +35,14 @@ const createAudio = (src: string, timeupdate?: any) => {
   audio.value.oncanplay = () => {
     audioPlay()
   }
+  console.log('createAudio audio.value 2', audio.value)
+}
+/**
+ * createTimeupdate
+ * @param {Function} fn
+ */
+const createTimeupdate = (fn: EventListenerOrEventListenerObject) => {
+  timeupdate = fn
 }
 
 /**
@@ -57,8 +68,8 @@ const audioPlay = () => {
  * audio暂停
  */
 const audioPause = () => {
+  console.log('audioPause ', audio.value)
   audio.value?.pause()
-
   const dom: HTMLDivElement | null = document.querySelector('.music-img')
   if (dom) {
     dom.style.animationPlayState = 'paused'

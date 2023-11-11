@@ -9,8 +9,6 @@ export const useMusicStore = defineStore(
   'music',
   () => {
     const nowMusic = computed<IMusic>(() => {
-      console.log('nowIndex.value', nowIndex.value)
-      console.log('nowMusic.value', nowMusic.value)
       return musicList.value[nowIndex.value] || {}
     })
     /**
@@ -21,12 +19,12 @@ export const useMusicStore = defineStore(
     const nextMusic = () => {
       nowIndex.value = (nowIndex.value + 1) % musicList.value.length
       console.log('nowMusic.value.ur', nowMusic.value)
-      createAudio(nowMusic.value.url)
+      createAudio(nowMusic.value.src || '')
     }
     // 上一首
     const prevMusic = () => {
       nowIndex.value = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
-      createAudio(nowMusic.value.url)
+      createAudio(nowMusic.value.src || '')
     }
     /**
      * 播放列表
@@ -39,7 +37,7 @@ export const useMusicStore = defineStore(
       // 不重复添加
       if (musicList.value.findIndex((item) => item.id === data.id) !== -1) return
       musicList.value.push(data)
-      nowIndex.value++
+      nowIndex.value = musicList.value.length - 1
     }
     /**
      * 补充之前的音乐信息
