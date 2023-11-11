@@ -148,9 +148,14 @@ const getMusicSearch = (name: string) => {
       name: data.name,
       singer: data.artists[0].name,
     })
-    getMusicDetail()
-    getMusicLyric()
-    getMusicUrl()
+    // 优化
+    Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl()])
+      .then((res) => {
+        console.log('Promise res', res)
+      })
+      .catch((err) => {
+        console.log('Promise err', err)
+      })
   })
 }
 
@@ -175,6 +180,11 @@ const darkColor = computed(() => {
 
 const getMusicDetail = () => {
   musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
+    console.log('getMusicDetail', res)
+    // 错误处理返回异常
+    if (!res) {
+      return
+    }
     const data = res.songs[0]?.al?.picUrl
     musicStore.supplementMusic({
       id: musicStore.nowMusic?.id,
@@ -188,17 +198,37 @@ const getMusicDetail = () => {
 //获取歌词
 const getMusicLyric = () => {
   musicApi.getLyric({ id: musicStore.nowMusic?.id }).then((res: any) => {
+    if (!res) {
+      return
+    }
     const { lyric } = formatMusicLyrics(res.lrc.lyric)
     lyrics.value = lyric
+    musicStore.supplementMusic({
+      id: musicStore.nowMusic?.id,
+      lyric,
+    })
   })
 }
 console.log('audio.value', audio.value)
 //获取歌曲url
 const getMusicUrl = () => {
-  musicApi.getMusicUrl({ id: musicStore.nowMusic?.id }).then((res: any) => {
-    console.log('getMusicUrl', audio.value)
-    createAudio(res.data[0].url, handleTimeUpdate)
+  const promise = new Promise((resolve, reject) => {
+    musicApi.getMusicUrl({ id: musicStore.nowMusic?.id }).then((res: any) => {
+      console.log('getMusicUrl', res)
+      if (res.code !== 200) {
+        reject(res)
+        return
+      }
+      createAudio(res.data[0].url, handleTimeUpdate)
+      musicStore.supplementMusic({
+        id: musicStore.nowMusic?.id,
+        src: res.data[0].url,
+      })
+      resolve(res)
+    })
   })
+  console.log('promise', promise)
+  return promise
 }
 
 const dotRef = ref<HTMLDivElement>()

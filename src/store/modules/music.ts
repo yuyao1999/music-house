@@ -4,11 +4,13 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useAudio } from '@/hooks/useAudio'
-const { audioPlay } = useAudio()
+const { createAudio } = useAudio()
 export const useMusicStore = defineStore(
   'music',
   () => {
     const nowMusic = computed<IMusic>(() => {
+      console.log('nowIndex.value', nowIndex.value)
+      console.log('nowMusic.value', nowMusic.value)
       return musicList.value[nowIndex.value] || {}
     })
     /**
@@ -18,11 +20,13 @@ export const useMusicStore = defineStore(
     // 下一首
     const nextMusic = () => {
       nowIndex.value = (nowIndex.value + 1) % musicList.value.length
-      audioPlay()
+      console.log('nowMusic.value.ur', nowMusic.value)
+      createAudio(nowMusic.value.url)
     }
     // 上一首
     const prevMusic = () => {
       nowIndex.value = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
+      createAudio(nowMusic.value.url)
     }
     /**
      * 播放列表
@@ -32,7 +36,10 @@ export const useMusicStore = defineStore(
       musicList.value = data
     }
     const pushPlayList = (data: IMusic) => {
+      // 不重复添加
+      if (musicList.value.findIndex((item) => item.id === data.id) !== -1) return
       musicList.value.push(data)
+      nowIndex.value++
     }
     /**
      * 补充之前的音乐信息
