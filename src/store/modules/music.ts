@@ -18,7 +18,6 @@ export const useMusicStore = defineStore(
     // 下一首
     const nextMusic = () => {
       nowIndex.value = (nowIndex.value + 1) % musicList.value.length
-      console.log('nowMusic.value.ur', nowMusic.value)
       createAudio(nowMusic.value.src || '')
     }
     // 上一首

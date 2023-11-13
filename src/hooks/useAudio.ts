@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useMusicStore } from '@/store/modules/music'
 
 const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
@@ -20,7 +21,6 @@ export const useAudio = () => {
  * @memberof Audio
  */
 const createAudio = (src: string) => {
-  console.log('createAudio audio.value 1', audio.value)
   // 清空之前的audio
   if (audio.value) {
     audio.value.removeEventListener('ended', audioEnded)
@@ -30,12 +30,20 @@ const createAudio = (src: string) => {
     audio.value = null
   }
   audio.value = new Audio(src)
+  // 音乐无法播放的情况
+  audio.value.onerror = () => {
+    console.log('音乐无法播放')
+    // 下一首
+    setTimeout(() => {
+      const musicStore = useMusicStore()
+      musicStore.nextMusic()
+    }, 1000)
+  }
   audio.value.addEventListener('ended', audioEnded)
   audio.value.addEventListener('timeupdate', timeupdate)
   audio.value.oncanplay = () => {
     audioPlay()
   }
-  console.log('createAudio audio.value 2', audio.value)
 }
 /**
  * createTimeupdate

@@ -2,13 +2,13 @@
 
 // 节流
 // 防止按钮多次点击，多次请求
-import { DirectiveBinding } from "vue"
+import { DirectiveBinding } from 'vue'
 
 export default {
   mounted(el: any, binding: DirectiveBinding) {
-    const time = binding.value?.time || 1000
+    const time = binding.value?.time || 300
     el.timer = null
-    el.addEventListener("click", () => {
+    el.addEventListener('click', () => {
       el.disabled = true
       if (el.timer !== null) {
         clearTimeout(el.timer)
@@ -26,6 +26,6 @@ export default {
       clearTimeout(el.timer)
       el.timer = null
     }
-    el.removeEventListener("click", () => {})
+    el.removeEventListener('click', () => {})
   },
 }

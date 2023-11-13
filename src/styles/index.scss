@@ -6,4 +6,10 @@
 html {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
+    // 取消button的默认样式
+    button {
+        border: none;
+        background-color: transparent;
+        cursor: none;
+    }
 }

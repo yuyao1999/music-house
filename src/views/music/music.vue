@@ -43,37 +43,54 @@
         </div>
         <!-- 播放按钮 -->
         <div class="flex justify-between items-center">
-          <div v-if="isLove" @click="isLove = false" class="pl-5">
-            <div class="hover:cursor-pointer animate__animated animate__heartBeat">
-              <div class="icon-love" />
+          <button @click="isLove = !isLove" v-throttle>
+            <div v-if="isLove" class="pl-5">
+              <div class="hover:cursor-pointer animate__animated animate__heartBeat">
+                <div class="icon-love" />
+              </div>
             </div>
-          </div>
-          <div v-else @click="isLove = true" class="pl-5">
-            <div class="hover:cursor-pointer animate__animated animate__bounceIn">
-              <div class="icon-love-none" />
+            <div v-else class="pl-5">
+              <div class="hover:cursor-pointer animate__animated animate__bounceIn">
+                <div class="icon-love-none" />
+              </div>
             </div>
-          </div>
+          </button>
+
           <div class="w-[50%] flex justify-between items-center">
-            <div @click="onPrev" class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn" />
-            <div
+            <button
+              @click="onPrev"
+              v-throttle
+              class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
+            />
+            <button
               v-if="!audio?.paused"
               @click="audioPause"
               class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
             />
-            <div v-else @click="audioPlay" class="hover:cursor-pointer icon-play animate__animated animate__bounceIn" />
-            <div @click="onNext" class="hover:cursor-pointer icon-next animate__animated animate__bounceIn" />
+            <button
+              v-else
+              @click="audioPlay"
+              class="hover:cursor-pointer icon-play animate__animated animate__bounceIn"
+            />
+            <button
+              @click="onNext"
+              v-throttle
+              class="hover:cursor-pointer icon-next animate__animated animate__bounceIn"
+            />
           </div>
-          <div class="pr-2" @click="onPlayMode">
+          <button class="pr-2" @click="onPlayMode" v-throttle>
             <img
               :key="playMode"
               class="w-8 h-8 hover:cursor-pointer animate__animated animate__bounceIn"
               :src="playModeList[playMode].icon"
             />
-          </div>
+          </button>
         </div>
         <!-- 歌词全屏 -->
         <div class="relative flex justify-center items-center pb-1">
-          <div :class="fullScreen ? 'text-white font-600' : 'text-gray-500'" @click="onSwitchFullScreen">词</div>
+          <button :class="fullScreen ? 'text-white font-600' : 'text-gray-500'" @click="onSwitchFullScreen" v-throttle>
+            词
+          </button>
           <img
             class="absolute right-[12px] w-5 h-5 hover:cursor-pointer animate__animated animate__bounceIn"
             src="@/assets/music/list.png"
@@ -331,6 +348,7 @@ const onScrollEnd = (diff: number) => {
 const { manualScroll, scrollToTop, initScroll } = useScroll({ onScrollEnd })
 
 const onNext = () => {
+  console.log('onNext')
   musicStore.nextMusic()
   scrollToTop(lyricsRef.value)
 }
