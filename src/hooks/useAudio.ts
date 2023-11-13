@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
+import { useToast } from '@/components/Toast'
 
 const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
@@ -32,12 +33,15 @@ const createAudio = (src: string) => {
   audio.value = new Audio(src)
   // 音乐无法播放的情况
   audio.value.onerror = () => {
-    console.log('音乐无法播放')
+    const musicStore = useMusicStore()
+    useToast().open('音乐无法播放')
     // 下一首
     setTimeout(() => {
-      const musicStore = useMusicStore()
-      musicStore.nextMusic()
-    }, 1000)
+      if (musicStore.musicList.length > 1) {
+        useToast().open('音乐无法播放，自动播放下一首')
+        musicStore.nextMusic()
+      }
+    }, 2500)
   }
   audio.value.addEventListener('ended', audioEnded)
   audio.value.addEventListener('timeupdate', timeupdate)
