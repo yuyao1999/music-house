@@ -80,9 +80,9 @@
           </div>
           <button class="pr-2" @click="onPlayMode" v-throttle>
             <img
-              :key="playMode"
+              :key="musicStore.playMode"
               class="w-8 h-8 hover:cursor-pointer animate__animated animate__bounceIn"
-              :src="playModeList[playMode].icon"
+              :src="playModeList[musicStore.playMode].icon"
             />
           </button>
         </div>
@@ -94,6 +94,7 @@
           <img
             class="absolute right-[12px] w-5 h-5 hover:cursor-pointer animate__animated animate__bounceIn"
             src="@/assets/music/list.png"
+            @click="useMusicList().open()"
           />
         </div>
       </div>
@@ -117,6 +118,7 @@ import { ILyric } from '@/types/lyric'
 import { useRoute, useRouter } from 'vue-router'
 import { isMobile } from '@/utils/is'
 import { requireImg } from '@/utils/requireImg'
+import { useMusicList } from '@/components/MusicList'
 
 const musicStore = useMusicStore()
 const { audio, createAudio, createTimeupdate, audioPlay, audioPause } = useAudio()
@@ -125,12 +127,8 @@ const { audio, createAudio, createTimeupdate, audioPlay, audioPause } = useAudio
 const isLove = ref(false)
 
 /**
- * 歌曲播放模式
- * 0 顺序
- * 1 随机
- * 2 单曲循环
+
  */
-const playMode = ref(0)
 const playModeList = [
   {
     name: '顺序',
@@ -146,7 +144,7 @@ const playModeList = [
   },
 ]
 const onPlayMode = () => {
-  playMode.value = (playMode.value + 1) % 3
+  musicStore.setPlayMode((musicStore.playMode + 1) % 3)
 }
 
 // 搜索
@@ -158,6 +156,7 @@ const getMusicSearch = (name: string) => {
       id: data.id,
       name: data.name,
       singer: data.artists[0].name,
+      album: data.album.name,
     })
     // 优化
     Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl()])

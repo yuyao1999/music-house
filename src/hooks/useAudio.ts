@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useToast } from '@/components/Toast'
 
-const audio = ref<HTMLAudioElement | null>(null)
+export const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
 
 export const useAudio = () => {
@@ -61,8 +61,30 @@ const createTimeupdate = (fn: EventListenerOrEventListenerObject) => {
  * 音频播放结束时触发
  */
 const audioEnded = () => {
-  audioPause()
-  // if (audio.value) audio.value.currentTime = 0
+  // audioPause()
+  const musicStore = useMusicStore()
+  switch (musicStore.playMode) {
+    case 0:
+      // 顺序
+      musicStore.nextMusic()
+      break
+    case 1:
+      // 随机
+      const randomIndex = Math.floor(Math.random() * musicStore.musicList.length)
+      // 防止随机到当前音乐
+      if (randomIndex === musicStore.nowIndex) {
+        musicStore.nextMusic()
+        break
+      }
+      musicStore.changeIndex(randomIndex)
+      break
+    case 2:
+      // 单曲循环
+      audioPlay()
+      break
+    default:
+      break
+  }
 }
 
 /**

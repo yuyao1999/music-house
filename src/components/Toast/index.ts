@@ -26,7 +26,7 @@ export const useToast = () => {
       app.mount(div)
       setTimeout(() => {
         show.value = false
-        setTimeout(close, 2000)
+        setTimeout(close, 1000)
       }, 2000)
     }
   }
