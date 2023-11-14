@@ -36,6 +36,7 @@ export const useToast = () => {
       app = null
       document.body.removeChild(div)
       div = null
+      show.value = true
     }
   }
   return {

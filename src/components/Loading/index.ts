@@ -1,22 +1,21 @@
 /** @format */
-import MusicList from './index.vue'
+import Loading from './index.vue'
 // 命令式组件
 import { createApp, h, ref } from 'vue'
-export const useMusicList = () => {
+export const useLoadingComponent = () => {
   let div: any = null
   let app: any = null
   const show = ref(true)
-  const duration = 550
+  const duration = 200
   const open = () => {
     if (!app) {
       div = document.createElement('div')
       document.body.appendChild(div)
       app = createApp({
         render() {
-          return h(MusicList, {
+          return h(Loading, {
             show: show.value,
             duration,
-            close,
           })
         },
       })
@@ -24,16 +23,17 @@ export const useMusicList = () => {
     }
   }
   const close = () => {
-    if (app) {
-      show.value = false
-      setTimeout(() => {
+    show.value = false
+    setTimeout(() => {
+      if (app && div) {
         app.unmount()
         app = null
         document.body.removeChild(div)
         div = null
-        show.value = true
-      }, duration)
-    }
+      }
+
+      show.value = true
+    }, duration)
   }
   return {
     open,

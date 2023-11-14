@@ -3,6 +3,8 @@
 import axios from 'axios'
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import { IResponseData } from './types'
+import { useLoading } from '@/hooks/useLoading'
+const { showLoading, hideLoading } = useLoading()
 
 export class Http {
   private service: AxiosInstance
@@ -25,17 +27,14 @@ export class Http {
         config.headers = {
           ...headersConfig,
         }
-        // let unInterceptors = ["", "/chatgpt/", "rand.music"]
-        // let nowUrl: any = config.url
-        // if (unInterceptors.includes(nowUrl)) {
-        //   return config
-        // }
-        //请求时间大于200ms 才显示加载动画
+        let unInterceptors = ['', '/chatgpt/', 'rand.music']
+        let nowUrl: any = config.url
+        if (unInterceptors.includes(nowUrl)) {
+          return config
+        }
+        showLoading()
+        // 多个请求时，以最后一个请求为准
 
-        //   this.timeFlag = true
-        //   setTimeout(() => {
-        //     this.loadingMessage("start")
-        //   }, 200)
         return config
       },
       (error) => {
@@ -43,7 +42,7 @@ export class Http {
                  1. 关闭全屏loading动画
                  2. 重定向到错误页
                */
-        // this.loadingMessage("end")
+        hideLoading()
         return Promise.reject(error) // 为了可以在代码中catch到错误信息
       }
     ) //end request.use
@@ -56,7 +55,7 @@ export class Http {
               3. 根据 response.data.code 做不同的错误处理
               4. ……
               */
-        // this.loadingMessage("end")
+        hideLoading()
         if (response.status !== 200) {
           // ElNotification({
           //   title: "提示",
@@ -75,7 +74,7 @@ export class Http {
         //   message: error,
         // })
 
-        // this.loadingMessage("end")
+        hideLoading()
         return Promise.reject(error)
       }
     ) //end response.use
