@@ -4,7 +4,9 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useAudio } from '@/hooks/useAudio'
-const { createAudio, audio } = useAudio()
+
+const { createAudio, audio, getMusicUrl } = useAudio()
+
 export const useMusicStore = defineStore(
   'music',
   () => {
@@ -33,17 +35,17 @@ export const useMusicStore = defineStore(
     const changeIndex = (index: number) => {
       console.log('changeIndex', index)
       nowIndex.value = index
-      createAudio(nowMusic.value.src || '')
+      getMusicUrl(nowMusic.value.id || '')
     }
     // 下一首
     const nextMusic = () => {
       nowIndex.value = (nowIndex.value + 1) % musicList.value.length
-      createAudio(nowMusic.value.src || '')
+      changeIndex(nowIndex.value)
     }
     // 上一首
     const prevMusic = () => {
       nowIndex.value = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
-      createAudio(nowMusic.value.src || '')
+      changeIndex(nowIndex.value)
     }
     /**
      * 播放列表
@@ -53,8 +55,13 @@ export const useMusicStore = defineStore(
       musicList.value = data
     }
     const pushPlayList = (data: IMusic) => {
-      // 不重复添加
-      if (musicList.value.findIndex((item) => item.id === data.id) !== -1) return
+      // 如果存在跳转到当前音乐
+      const index = musicList.value.findIndex((item) => item.id === data.id)
+      if (index !== -1) {
+        nowIndex.value = index
+        return
+      }
+
       musicList.value.push(data)
       nowIndex.value = musicList.value.length - 1
     }
@@ -70,13 +77,18 @@ export const useMusicStore = defineStore(
     }
 
     const removePlayList = (index: number) => {
-      musicList.value.splice(index, 1)
       if (index === nowIndex.value) {
+        musicList.value.splice(index, 1)
         nowIndex.value = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
         createAudio(nowMusic.value.src || '')
       } else {
         // 当前音乐播放的时间
         const currentTime = audio.value?.currentTime || 0
+
+        musicList.value.splice(index, 1)
+        if (index < nowIndex.value) {
+          nowIndex.value--
+        }
         if (audio.value) audio.value.currentTime = currentTime
       }
     }
