@@ -26,11 +26,29 @@ export const useAppStore = defineStore(
       }
       isDark.value = data
     }
+    /**
+     * 图片主颜色
+     */
+    const mainColor = ref('')
+    const setMainColor = (data: string) => {
+      mainColor.value = data
+    }
+    /**
+     * 暗色
+     */
+    const darkColor = ref('')
+    const setDarkColor = (data: string) => {
+      darkColor.value = data
+    }
     return {
       version,
       setVersion,
       isDark,
       setIsDark,
+      mainColor,
+      setMainColor,
+      darkColor,
+      setDarkColor,
     }
   },
   {
