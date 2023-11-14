@@ -8,6 +8,7 @@ import { musicApi } from '@/api/music'
 
 export const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
+const { open } = useToast()
 
 export const useAudio = () => {
   /**
@@ -27,13 +28,11 @@ export const useAudio = () => {
       audio.value = null
     }
     audio.value = new Audio(src)
-    console.log('audio', audio.value)
-    console.log('src', src)
     // 音乐无法播放的情况
     audio.value.onerror = (err) => {
       // 重新赋值src
       // const musicStore = useMusicStore()
-      useToast().open('音乐无法播放')
+      open('音乐无法播放')
       // 下一首
       // setTimeout(() => {
       //   if (musicStore.musicList.length > 1) {
@@ -99,7 +98,6 @@ export const useAudio = () => {
    * audio暂停
    */
   const audioPause = () => {
-    console.log('audioPause ', audio.value)
     audio.value?.pause()
     const dom: HTMLDivElement | null = document.querySelector('.music-img')
     if (dom) {

@@ -94,7 +94,7 @@
           <img
             class="absolute right-[12px] w-5 h-5 hover:cursor-pointer animate__animated animate__bounceIn"
             src="@/assets/music/list.png"
-            @click="useMusicList().open()"
+            @click="listOpen"
           />
         </div>
       </div>
@@ -120,6 +120,7 @@ import { useMusicList } from '@/components/MusicList'
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
+const { open: listOpen } = useMusicList()
 
 const { audio, createTimeupdate, audioPlay, audioPause, getMusicSearch } = useAudio()
 
