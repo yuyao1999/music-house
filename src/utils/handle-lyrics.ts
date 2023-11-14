@@ -5,6 +5,7 @@ interface IReturnLyric {
 }
 
 export const formatMusicLyrics = (lyric?: string): IReturnLyric => {
+  lyric = lyric?.trim()
   if (lyric === '') {
     return { lyric: [{ time: 0, lyric: '这个地方没有歌词！', uid: 520520 }] }
   }
@@ -14,13 +15,14 @@ export const formatMusicLyrics = (lyric?: string): IReturnLyric => {
   const lineLyric: any = lyric?.split(/\n/)
 
   // 匹配中括号里正则的
+  //匹配两位数字+冒号+两位数字+点+两到三位数字
   const regTime = /\d{2}:\d{2}.\d{2,3}/
 
   // 循环遍历歌曲数组
   for (let i = 0; i < lineLyric?.length; i++) {
     if (lineLyric[i] === '') continue
-    const time: number = formatLyricTime(lineLyric[i].match(regTime)[0])
-
+    const time: number | undefined = formatLyricTime((lineLyric[i].match(regTime) || '')[0])
+    if (time === undefined) continue
     if (lineLyric[i].split(']')[1] !== '') {
       lyricObjArr.push({
         time: time,
@@ -37,13 +39,13 @@ export const formatMusicLyrics = (lyric?: string): IReturnLyric => {
       uid: parseInt(Math.random().toString().slice(-6)),
     })
   }
-  console.log('lyricObjArr', lyricObjArr)
   return {
     lyric: lyricObjArr,
   }
 }
 
 const formatLyricTime = (time: string) => {
+  if (!time) return
   const regMin = /.*:/
   const regSec = /:.*\./
   const regMs = /\./
