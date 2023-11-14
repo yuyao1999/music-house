@@ -8,7 +8,7 @@
       leave-active-class="animate__animated animate__fadeOutDown"
     >
       <div v-if="show" class="content">
-        <div class="text-2xl font-700 mb-5">
+        <div class="text-2xl font-700 mb-5 main-color">
           当前播放
           <span class="text-base font-400">({{ musicStore.musicList.length }})</span>
         </div>
@@ -44,7 +44,10 @@
 
 <script setup lang="ts">
 import { useMusicStore } from '@/store/modules/music'
+import { useAppStore } from '@/store/modules/app'
+
 const musicStore = useMusicStore()
+const appStore = useAppStore()
 
 interface IProps {
   show: boolean
@@ -80,6 +83,7 @@ const activeFunc = (id: string | undefined) => {
     color: #fff;
     .active {
       color: #80d68cf8 !important;
+      // color: v-bind('appStore.mainColor') !important;
     }
     .icon-close {
       // 用css画一个 x
@@ -96,7 +100,7 @@ const activeFunc = (id: string | undefined) => {
         left: 0;
         width: 100%;
         height: 2px;
-        background: #ffffff8f;
+        background: v-bind('appStore.mainColor');
         transform: rotate(45deg);
       }
       &::after {
@@ -110,5 +114,8 @@ const activeFunc = (id: string | undefined) => {
       padding-left: 1rem;
     }
   }
+}
+.main-color {
+  color: v-bind('appStore.mainColor') !important;
 }
 </style>
