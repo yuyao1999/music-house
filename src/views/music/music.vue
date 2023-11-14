@@ -104,14 +104,12 @@
 </template>
 
 <script setup lang="ts">
-import { musicApi } from '@/api/music'
-import { formatMusicLyrics } from '@/utils/handle-lyrics'
 import { useScroll } from '@/hooks/useScroll'
 import { useFont } from '@/hooks/useFont'
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
-import { getImgColor, getDarkColor } from '@/utils/img'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
+import { useAppStore } from '@/store/modules/app'
 import { useAudio } from '@/hooks/useAudio'
 import { useDraggable } from '@/hooks/useDraggable'
 import { ILyric } from '@/types/lyric'
@@ -121,7 +119,9 @@ import { requireImg } from '@/utils/requireImg'
 import { useMusicList } from '@/components/MusicList'
 
 const musicStore = useMusicStore()
-const { audio, createAudio, createTimeupdate, audioPlay, audioPause } = useAudio()
+const appStore = useAppStore()
+
+const { audio, createTimeupdate, audioPlay, audioPause, getMusicSearch } = useAudio()
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
@@ -147,28 +147,6 @@ const onPlayMode = () => {
   musicStore.setPlayMode((musicStore.playMode + 1) % 3)
 }
 
-// 搜索
-const getMusicSearch = (name: string) => {
-  let keyword = name
-  musicApi.search({ keywords: keyword }).then((res: any) => {
-    const data = res.result.songs[0]
-    musicStore.pushPlayList({
-      id: data.id,
-      name: data.name,
-      singer: data.artists[0].name,
-      album: data.album.name,
-    })
-    // 优化
-    Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl()])
-      .then((res) => {
-        // console.log('Promise res', res)
-      })
-      .catch((err) => {
-        // console.log('Promise err', err)
-      })
-  })
-}
-
 // 获取路由参数
 const route = useRoute()
 const router = useRouter()
@@ -180,61 +158,6 @@ const back = () => {
 }
 
 //#region 歌曲
-
-// 图片主色调
-const mainColor = ref('')
-// 界面暗色调
-const darkColor = computed(() => {
-  return getDarkColor(mainColor.value)
-})
-
-const getMusicDetail = () => {
-  musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
-    // 错误处理返回异常
-    if (!res) {
-      return
-    }
-    const data = res.songs[0]?.al?.picUrl
-    musicStore.supplementMusic({
-      id: musicStore.nowMusic?.id,
-      cover: data,
-    })
-    getImgColor(data).then((res: any) => {
-      mainColor.value = res
-    })
-  })
-}
-//获取歌词
-const getMusicLyric = () => {
-  musicApi.getLyric({ id: musicStore.nowMusic?.id }).then((res: any) => {
-    if (!res) {
-      return
-    }
-    const { lyric } = formatMusicLyrics(res.lrc.lyric)
-    musicStore.supplementMusic({
-      id: musicStore.nowMusic?.id,
-      lyric,
-    })
-  })
-}
-//获取歌曲url
-const getMusicUrl = () => {
-  const promise = new Promise((resolve, reject) => {
-    musicApi.getMusicUrl({ id: musicStore.nowMusic?.id }).then((res: any) => {
-      if (res.code !== 200) {
-        reject(res)
-        return
-      }
-      createAudio(res.data[0].url)
-      musicStore.supplementMusic({
-        id: musicStore.nowMusic?.id,
-        src: res.data[0].url,
-      })
-      resolve(res)
-    })
-  })
-  return promise
-}
 
 const dotRef = ref<HTMLDivElement>()
 //#endregion
@@ -347,7 +270,6 @@ const onScrollEnd = (diff: number) => {
 const { manualScroll, scrollToTop, initScroll } = useScroll({ onScrollEnd })
 
 const onNext = () => {
-  console.log('onNext')
   musicStore.nextMusic()
   scrollToTop(lyricsRef.value)
 }
@@ -448,7 +370,7 @@ const progressPercent = computed(() => {
     // 向右的箭头
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-left: 8px solid v-bind('mainColor');
+    border-left: 8px solid v-bind('appStore.mainColor');
     cursor: pointer;
   }
   &::before {
@@ -462,8 +384,8 @@ const progressPercent = computed(() => {
     // 虚线
     background: repeating-linear-gradient(
       90deg,
-      v-bind('mainColor'),
-      v-bind('mainColor') 5px,
+      v-bind('appStore.mainColor'),
+      v-bind('appStore.mainColor') 5px,
       transparent 5px,
       transparent 12px
     );
@@ -483,8 +405,8 @@ const progressPercent = computed(() => {
     height: v-bind("lyricsHeight+'px'");
     // 从上到下渐变
     // background: linear-gradient(180deg, #010207, transparent);
-    background: linear-gradient(180deg, v-bind('darkColor'), transparent);
-    box-shadow: 0 -2px v-bind('darkColor');
+    background: linear-gradient(180deg, v-bind('appStore.darkColor'), transparent);
+    box-shadow: 0 -2px v-bind('appStore.darkColor');
   }
   .bottom {
     position: sticky;
@@ -492,8 +414,8 @@ const progressPercent = computed(() => {
     width: 100%;
     height: v-bind("lyricsHeight+'px'");
     // 从下到上渐变
-    background: linear-gradient(0deg, v-bind('darkColor'), transparent);
-    box-shadow: 0 1px v-bind('darkColor');
+    background: linear-gradient(0deg, v-bind('appStore.darkColor'), transparent);
+    box-shadow: 0 1px v-bind('appStore.darkColor');
   }
 
   // 隐藏滚动条
@@ -512,7 +434,7 @@ const progressPercent = computed(() => {
     overflow: hidden;
 
     &.active {
-      color: v-bind('mainColor');
+      color: v-bind('appStore.mainColor');
       height: v-bind("lyricsActiveHeight+'px'");
       // 文字垂直居中
       @apply flex items-center justify-center;
@@ -540,7 +462,7 @@ const progressPercent = computed(() => {
     left: 0;
     width: v-bind("progressPercent + '%'");
     height: 100%;
-    background: v-bind('mainColor');
+    background: v-bind('appStore.mainColor');
   }
 
   .dot {
@@ -549,7 +471,7 @@ const progressPercent = computed(() => {
     left: v-bind("progressPercent + '%'");
     width: 8px;
     height: 8px;
-    background-color: v-bind('mainColor');
+    background-color: v-bind('appStore.mainColor');
     border-radius: 50%;
     // 扩大点击区域
     &::before {
@@ -569,7 +491,7 @@ const progressPercent = computed(() => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: v-bind('mainColor');
+  background: v-bind('appStore.mainColor');
   position: relative;
   // 三角形
   &::after {
@@ -580,7 +502,7 @@ const progressPercent = computed(() => {
     border-top: 0.6rem solid transparent;
     border-bottom: 0.6rem solid transparent;
     // border-left: 0.9rem solid #fff;
-    border-left: 0.9rem solid v-bind('darkColor');
+    border-left: 0.9rem solid v-bind('appStore.darkColor');
     // 圆角
     border-radius: 0.2rem;
 
@@ -594,7 +516,7 @@ const progressPercent = computed(() => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 0.1rem solid v-bind('mainColor');
+  border: 0.1rem solid v-bind('appStore.mainColor');
   position: relative;
   // 两个竖线
   &::after {
@@ -602,7 +524,7 @@ const progressPercent = computed(() => {
     position: absolute;
     width: 0.2rem;
     height: 1.2rem;
-    background: v-bind('mainColor');
+    background: v-bind('appStore.mainColor');
     top: 50%;
     left: 40%;
     transform: translate(-50%, -50%);
@@ -612,7 +534,7 @@ const progressPercent = computed(() => {
     position: absolute;
     width: 0.2rem;
     height: 1.2rem;
-    background: v-bind('mainColor');
+    background: v-bind('appStore.mainColor');
     top: 50%;
     left: 60%;
     transform: translate(-50%, -50%);
@@ -632,7 +554,7 @@ const progressPercent = computed(() => {
     height: 0;
     border-top: 0.7rem solid transparent;
     border-bottom: 0.7rem solid transparent;
-    border-left: 1rem solid v-bind('mainColor');
+    border-left: 1rem solid v-bind('appStore.mainColor');
     // 圆角
     border-radius: 0.2rem;
     // 居中
@@ -647,7 +569,7 @@ const progressPercent = computed(() => {
     height: 0;
     border-top: 0.8rem solid transparent;
     border-bottom: 0.8rem solid transparent;
-    border-left: 0.8rem solid v-bind('mainColor');
+    border-left: 0.8rem solid v-bind('appStore.mainColor');
     // 圆角
     border-radius: 0.2rem;
     // 居中
@@ -669,7 +591,7 @@ const progressPercent = computed(() => {
     height: 0;
     border-top: 0.7rem solid transparent;
     border-bottom: 0.7rem solid transparent;
-    border-right: 1rem solid v-bind('mainColor');
+    border-right: 1rem solid v-bind('appStore.mainColor');
     // 圆角
     border-radius: 0.2rem;
     // 居中
@@ -684,7 +606,7 @@ const progressPercent = computed(() => {
     height: 0;
     border-top: 0.8rem solid transparent;
     border-bottom: 0.8rem solid transparent;
-    border-right: 0.8rem solid v-bind('mainColor');
+    border-right: 0.8rem solid v-bind('appStore.mainColor');
     // 圆角
     border-radius: 0.2rem;
     // 居中
@@ -788,21 +710,21 @@ $heartHeight: 1.2rem;
     font-weight: 700;
     width: 100%;
     text-align: center;
-    color: v-bind('mainColor');
+    color: v-bind('appStore.mainColor');
     @apply truncate;
   }
   .music-img {
     // box-shadow动画 闪动
-    box-shadow: v-bind('mainColor') 0px 0px 20px 10px;
+    box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
     animation: rotate 50s linear infinite paused, shadow 1s linear infinite alternate paused;
   }
 }
 @keyframes shadow {
   from {
-    box-shadow: v-bind('mainColor') 0px 0px 20px 10px;
+    box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
   }
   to {
-    box-shadow: v-bind('mainColor') 0px 0px 10px 0px;
+    box-shadow: v-bind('appStore.mainColor') 0px 0px 10px 0px;
   }
 }
 @keyframes rotate {
@@ -821,7 +743,7 @@ $heartHeight: 1.2rem;
   top: 0;
   // background: v-bind("musicStore.nowMusic?.cover ? 'url(' + musicStore.nowMusic?.cover + ')' : ''");
   // 渐变效果
-  background: v-bind('darkColor');
+  background: v-bind('appStore.darkColor');
 
   background-size: cover;
   background-position: center;
