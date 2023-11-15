@@ -12,6 +12,7 @@ export const useFont = (size: number): number => {
   const app = document.getElementById('app')
   const width = app?.offsetWidth || 390
   const height = app?.offsetHeight || 844
+  console.log('width', width)
   // 宽屏
   if (width > height) {
     return -1

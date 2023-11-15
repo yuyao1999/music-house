@@ -6,7 +6,7 @@ import { DirectiveBinding } from 'vue'
 
 export default {
   mounted(el: any, binding: DirectiveBinding) {
-    const time = binding.value?.time || 300
+    const time = binding.value?.time || 1000
     el.timer = null
     el.addEventListener('click', () => {
       el.disabled = true

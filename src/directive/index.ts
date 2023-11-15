@@ -17,7 +17,6 @@ Object.keys(modules).forEach((key) => {
 
 export default (app: App) => {
   mapDirective.forEach((value, key) => {
-    console.log(key, value)
     app.directive(key, value)
   })
 }

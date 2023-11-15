@@ -3,7 +3,7 @@
     <div class="page">
       <!-- 头部 -->
       <div class="flex justify-between items-center w-full">
-        <div class="icon-back hover:cursor-pointer" @click="back" />
+        <button class="icon-back hover:cursor-pointer" @click="back" v-throttle />
         <div class="flex flex-col items-center w-[80%]">
           <div class="name">{{ musicStore.nowMusic.name }}</div>
           <div>{{ musicStore.nowMusic.singer }}</div>
@@ -16,7 +16,7 @@
         class="flex justify-center items-center animate__animated animate__rotateInDownRight overflow-hidden py-9"
         @click="onSwitchFullScreen"
       >
-        <img class="w-[30vh] h-[30vh] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" />
+        <img class="w-[70vw] h-[70vw] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" />
       </div>
       <!-- 歌词 -->
       <div :class="{ 'lyrics-active': manualScroll }" @click.stop="mousedownDot">
@@ -104,14 +104,13 @@
 </template>
 
 <script setup lang="ts">
-import { useScroll } from '@/hooks/useScroll'
-import { useFont } from '@/hooks/useFont'
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAppStore } from '@/store/modules/app'
 import { useAudio } from '@/hooks/useAudio'
 import { useDraggable } from '@/hooks/useDraggable'
+import { useScroll } from '@/hooks/useScroll'
 import { ILyric } from '@/types/lyric'
 import { useRoute, useRouter } from 'vue-router'
 import { isMobile } from '@/utils/is'
@@ -151,11 +150,11 @@ const onPlayMode = () => {
 // 获取路由参数
 const route = useRoute()
 const router = useRouter()
-getMusicSearch(route.query.msg as string)
 
 const back = () => {
+  console.log('back')
   // 跳转到首页
-  router.push('/')
+  router.replace('/home')
 }
 
 //#region 歌曲
@@ -165,10 +164,16 @@ const dotRef = ref<HTMLDivElement>()
 
 //#region 页面周期
 onMounted(() => {
+  console.log('onMounted music')
+  getMusicSearch(route.query.msg as string)
   initScroll(lyricsRef.value)
   setDraggable(dotRef.value)
 })
 onUnmounted(() => {})
+
+// 实现onShow
+const onShow = () => {}
+
 //#endregion
 
 //#region 歌词
@@ -200,12 +205,14 @@ const lyricsIndex = ref(0)
 // 当前歌词居中索引
 let nowActiveIndex = 0
 // 歌词高度 40 60
-let lyricsHeight = useFont(40)
-if (lyricsHeight === -1) {
-  lyricsHeight = 40
+const lyricsHeight = ref(40)
+console.log('lyricsHeight', lyricsHeight.value)
+
+if (lyricsHeight.value === -1) {
+  lyricsHeight.value = 40
 }
 // 正在播放的歌词高度
-let lyricsActiveHeight = lyricsHeight * 1.5
+let lyricsActiveHeight = lyricsHeight.value * 1.5
 
 // 监听歌词滚动
 const handleLyricsScroll = () => {
@@ -221,7 +228,7 @@ const handleLyricsScroll = () => {
     // 滚动到中间
     if (index > nowActiveIndex && !manualScroll.value) {
       // 平滑滚动
-      const height = lyricsHeight
+      const height = lyricsHeight.value
       lyricsDom.scrollTo({
         top: (index - nowActiveIndex) * height,
         behavior: 'smooth',
@@ -257,7 +264,10 @@ const onScrollEnd = (diff: number) => {
   if (lyricsIndex.value < 4) {
     errorIndex = 4
   }
-  const index = Math.floor(diff / lyricsHeight) - errorIndex
+  // const index = Math.floor(diff / lyricsHeight.value) - errorIndex
+  const index = Math.floor(diff / lyricsHeight.value)
+  console.log('index', index)
+  console.log('lyricsIndex.value', lyricsIndex.value)
   const jumpIndex = -index + lyricsIndex.value
   // 歌曲跳转
   if (audio.value && lyricsIndex.value >= 0) {
@@ -318,7 +328,7 @@ const mousedownDot = (e: any) => {
   if (lyricsDom) {
     // 获取lyricsRef 的滚动的距离 scrollTop
     const top = e.pageY - lyricsDom.getBoundingClientRect().top + lyricsDom.scrollTop
-    const index = Math.floor(top / lyricsHeight)
+    const index = Math.floor(top / lyricsHeight.value)
     if (audio.value) {
       audio.value.currentTime = lyrics.value[index].time
       audioPlay()
@@ -645,6 +655,8 @@ const progressPercent = computed(() => {
     left: 50%;
     transform: translate(-50%, -50%) rotate(-50deg);
   }
+  //旋转45度
+  transform: rotate(-90deg);
 }
 $heartWidth: 1.2rem;
 $heartHeight: 1.2rem;

@@ -33,7 +33,6 @@ export const useMusicStore = defineStore(
      * 改变当前音乐下标
      */
     const changeIndex = (index: number) => {
-      console.log('changeIndex', index)
       nowIndex.value = index
       getMusicUrl(nowMusic.value.id || '')
     }
