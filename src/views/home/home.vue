@@ -68,23 +68,23 @@ onMounted(() => {
   console.log('onMounted')
 })
 
-const scrollY = ref(0)
-// 获取当前滚动条位置
-const getScrollY = () => {
-  scrollY.value = window.scrollY
-}
+// const scrollY = ref(0)
+// // 获取当前滚动条位置
+// const getScrollY = () => {
+//   scrollY.value = window.scrollY
+// }
 
-// 监听路由变化
-router.afterEach((to, from) => {
-  // 保持进度条的位置
-  if (from.name === 'home') {
-    getScrollY()
-  } else {
-    setTimeout(() => {
-      window.scrollTo(0, scrollY.value)
-    }, 10)
-  }
-})
+// // 监听路由变化
+// router.afterEach((to, from) => {
+//   // 保持进度条的位置
+//   if (from.name === 'home') {
+//     getScrollY()
+//   } else {
+//     setTimeout(() => {
+//       window.scrollTo(0, scrollY.value)
+//     }, 10)
+//   }
+// })
 </script>
 
 <style scoped lang="scss"></style>

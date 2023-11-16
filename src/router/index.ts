@@ -59,6 +59,14 @@ const router = createRouter({
   // createHashHistory 展示路由
   history: createWebHashHistory(),
   routes,
+  scrollBehavior(to, from) {
+    // 保留滚动位置
+    if (from.meta.keepAlive) {
+      const scrollTop = window.scrollY || 0
+      sessionStorage.setItem(from.path, scrollTop.toString())
+    }
+    return { top: Number(sessionStorage.getItem(to.path)) || 0 }
+  },
 })
 
 export default router

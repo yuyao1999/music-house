@@ -20,7 +20,7 @@
       </div>
       <!-- 歌词 -->
       <div :class="{ 'lyrics-active': manualScroll }" @click.stop="mousedownDot">
-        <div class="lyrics" ref="lyricsRef" @click.stop @click="onSwitchFullScreen">
+        <div class="lyrics" id="lyrics" ref="lyricsRef" @click.stop @click="onSwitchFullScreen">
           <div class="top" />
           <div v-for="(item, index) in lyrics" :key="item.uid" :class="{ active: index === lyricsIndex }" class="item">
             {{ item.lyric }}
@@ -116,6 +116,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { isMobile } from '@/utils/is'
 import { requireImg } from '@/utils/requireImg'
 import { useMusicList } from '@/components/MusicList'
+import { useShow } from '@/hooks/useShow'
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
@@ -125,10 +126,35 @@ const { audio, createTimeupdate, audioPlay, audioPause, getMusicSearch } = useAu
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
+//#region 页面周期
+onMounted(() => {
+  console.log('onMounted music')
+  getMusicSearch(route.query.msg as string)
+  initScroll(lyricsRef.value)
+  setDraggable(dotRef.value)
+  useShow({
+    el: lyricsRef.value,
+    onShow,
+    onHide,
+  })
+})
+onUnmounted(() => {})
+//#endregion
 
-/**
+const onShow = () => {
+  console.log('onShow')
+  // 滚动到当前歌词
+  if (lyricsRef.value) {
+    const index = getLyricsIndex(currentTime.value)
+    lyricsRef.value.scrollTo({
+      top: (index - nowActiveIndex) * lyricsHeight.value,
+    })
+  }
+}
+const onHide = () => {
+  // console.log('onHide')
+}
 
- */
 const playModeList = [
   {
     name: '顺序',
@@ -160,20 +186,6 @@ const back = () => {
 //#region 歌曲
 
 const dotRef = ref<HTMLDivElement>()
-//#endregion
-
-//#region 页面周期
-onMounted(() => {
-  console.log('onMounted music')
-  getMusicSearch(route.query.msg as string)
-  initScroll(lyricsRef.value)
-  setDraggable(dotRef.value)
-})
-onUnmounted(() => {})
-
-// 实现onShow
-const onShow = () => {}
-
 //#endregion
 
 //#region 歌词
