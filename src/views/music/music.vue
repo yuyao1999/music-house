@@ -63,7 +63,7 @@
               class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
             />
             <button
-              v-if="!audio?.paused"
+              v-if="audio?.paused === false"
               @click="audioPause"
               class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
             />
@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAppStore } from '@/store/modules/app'
 import { useAudio } from '@/hooks/useAudio'
@@ -128,7 +128,6 @@ const { audio, createTimeupdate, audioPlay, audioPause, getMusicSearch } = useAu
 const isLove = ref(false)
 //#region 页面周期
 onMounted(() => {
-  console.log('onMounted music')
   getMusicSearch(route.query.msg as string)
   initScroll(lyricsRef.value)
   setDraggable(dotRef.value)
@@ -142,7 +141,6 @@ onUnmounted(() => {})
 //#endregion
 
 const onShow = () => {
-  console.log('onShow')
   // 滚动到当前歌词
   if (lyricsRef.value) {
     const index = getLyricsIndex(currentTime.value)
@@ -178,7 +176,6 @@ const route = useRoute()
 const router = useRouter()
 
 const back = () => {
-  console.log('back')
   // 跳转到首页
   router.replace('/home')
 }
@@ -203,11 +200,11 @@ const lyricsShowCount = ref(2)
 const onSwitchFullScreen = () => {
   fullScreen.value = !fullScreen.value
   if (fullScreen.value) {
-    lyricsShowCount.value = 12
+    lyricsShowCount.value = 9
     nowActiveIndex = 4
   } else {
-    lyricsShowCount.value = 3
-    nowActiveIndex = 1
+    lyricsShowCount.value = 2
+    nowActiveIndex = 0
   }
 }
 
@@ -218,7 +215,6 @@ const lyricsIndex = ref(0)
 let nowActiveIndex = 0
 // 歌词高度 40 60
 const lyricsHeight = ref(40)
-console.log('lyricsHeight', lyricsHeight.value)
 
 if (lyricsHeight.value === -1) {
   lyricsHeight.value = 40
@@ -228,6 +224,7 @@ let lyricsActiveHeight = lyricsHeight.value * 1.5
 
 // 监听歌词滚动
 const handleLyricsScroll = () => {
+  if (manualScroll.value) return
   // 唱完一句歌词后，歌词滚动
   const index = getLyricsIndex(currentTime.value)
   if (index === lyricsIndex.value) {
@@ -238,7 +235,7 @@ const handleLyricsScroll = () => {
 
   if (lyricsDom) {
     // 滚动到中间
-    if (index > nowActiveIndex && !manualScroll.value) {
+    if (index > nowActiveIndex) {
       // 平滑滚动
       const height = lyricsHeight.value
       lyricsDom.scrollTo({
@@ -268,25 +265,28 @@ const handleTimeUpdate = () => {
 }
 createTimeupdate(handleTimeUpdate)
 
+// 空白数量
+const emptyLyricNum = 7
+
 //歌词拖动
 const onScrollEnd = (diff: number) => {
+  console.log('diff', diff)
   // 歌词滚动的距离 跳转
   // 开头没有滚动的误差
   let errorIndex = 0
-  if (lyricsIndex.value < 4) {
-    errorIndex = 4
+  if (lyricsIndex.value < emptyLyricNum) {
+    errorIndex = emptyLyricNum
   }
-  // const index = Math.floor(diff / lyricsHeight.value) - errorIndex
-  const index = Math.floor(diff / lyricsHeight.value)
-  console.log('index', index)
-  console.log('lyricsIndex.value', lyricsIndex.value)
+  const index = Math.floor(diff / lyricsHeight.value) - errorIndex
   const jumpIndex = -index + lyricsIndex.value
   // 歌曲跳转
   if (audio.value && lyricsIndex.value >= 0) {
     audio.value?.play()
     lyricsIndex.value = jumpIndex
     currentTime.value = lyrics.value[jumpIndex]?.time || audio.value.currentTime
-    audio.value.currentTime = currentTime.value + 0.1
+    let diffNext = 0.1
+    if (diff < 0) diffNext = -(lyrics.value[jumpIndex]?.time - 0.1 - lyrics.value[jumpIndex - 1]?.time)
+    audio.value.currentTime = currentTime.value + diffNext
     handleLyricsScroll()
   }
 }
@@ -294,12 +294,17 @@ const { manualScroll, scrollToTop, initScroll } = useScroll({ onScrollEnd })
 
 const onNext = () => {
   musicStore.nextMusic()
-  scrollToTop(lyricsRef.value)
 }
 const onPrev = () => {
   musicStore.prevMusic()
-  scrollToTop(lyricsRef.value)
 }
+// musicStore.nowIndex 监听  执行 scrollToTop(lyricsRef.value)
+watch(
+  () => musicStore.nowIndex,
+  () => {
+    scrollToTop(lyricsRef.value)
+  }
+)
 
 //#endregion
 

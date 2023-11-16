@@ -28,7 +28,9 @@ const setDefaultFontSize = () => {
 setDefaultFontSize()
 const throttleFn = useThrottleFn(setDefaultFontSize, 250)
 // 窗口大小改变时重新设置字体大小
-if (!isMobile()) window.addEventListener('resize', throttleFn as EventListenerOrEventListenerObject)
+if (!isMobile()) {
+  window.addEventListener('resize', throttleFn as EventListenerOrEventListenerObject)
+}
 
 setDefaultTheme()
 

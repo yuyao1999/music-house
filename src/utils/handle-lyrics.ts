@@ -4,6 +4,9 @@ interface IReturnLyric {
   lyric: ILyric[]
 }
 
+// 空白数量
+const emptyLyricNum = 7
+
 export const formatMusicLyrics = (lyric?: string): IReturnLyric => {
   lyric = lyric?.trim()
   if (lyric === '') {
@@ -31,8 +34,13 @@ export const formatMusicLyrics = (lyric?: string): IReturnLyric => {
       })
     }
   }
-  // 开头结尾加上空白 *3
-  for (let i = 0; i < 3; i++) {
+  // 开头结尾加上空白 *
+  for (let i = 0; i < emptyLyricNum; i++) {
+    lyricObjArr.unshift({
+      time: 0,
+      lyric: '',
+      uid: parseInt(Math.random().toString().slice(-6)),
+    })
     lyricObjArr.push({
       time: 99999,
       lyric: '',
