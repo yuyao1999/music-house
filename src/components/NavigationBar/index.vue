@@ -39,6 +39,7 @@ const toUrl = (url: string) => {
   @apply flex justify-around items-center;
   bottom: 0;
   background-color: #9e9a9a;
+  z-index: 0;
   .item {
     // 悬浮 手
     @apply hover:cursor-pointer;

@@ -6,6 +6,8 @@ import { isDark } from '@/utils/is'
 import { isMobile } from '@/utils/is'
 import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
+import router from './router'
+import { ref } from 'vue'
 const appStore = useAppStore()
 
 useSetZoom()
@@ -41,61 +43,42 @@ const getFirstLevelRoute = (route: any) => {
   }
   return route.matched[0]
 }
+
+const transitionName = ref('')
+router.beforeEach((to, from) => {
+  transitionName.value = ''
+  if (from.path === '/') {
+    return
+  }
+  if (to.path === '/music') {
+    transitionName.value = 'slide-up'
+    return
+  }
+  if (from.path === '/music') {
+    transitionName.value = 'slide-down'
+    return
+  }
+  const fromUrl = ['/home', '/mine']
+  // to 和 from 不能同时在 fromUrl 中
+  if (fromUrl.includes(to.path) && fromUrl.includes(from.path)) {
+    return
+  }
+
+  transitionName.value = fromUrl.includes(from.path) ? 'slide-left' : 'slide-right'
+})
 </script>
 
 <template>
   <router-view #default="{ route, Component }">
-    <Transition :name="route.name as string || ''" mode="out-in">
+    <Transition :name="transitionName">
       <keep-alive>
         <component :is="Component" :key="getFirstLevelRoute(route).name" v-if="route.meta.keepAlive" />
       </keep-alive>
     </Transition>
-    <Transition :name="route.name as string || ''">
+    <Transition :name="transitionName">
       <component :is="Component" :key="getFirstLevelRoute(route).name" v-if="!route.meta.keepAlive" />
     </Transition>
   </router-view>
 </template>
 
-<style scoped lang="scss">
-.music-enter-active {
-  // 从下往上进入
-  animation: bounceInUp 0.5s ease-in-out;
-}
-.home-leave-active {
-  animation: bounceInUp 0.1s ease-in-out reverse;
-}
-
-// .music-leave-active {
-//   animation: fadeOut 0.5s ease-in-out;
-// }
-
-// .home-enter-active {
-//   animation: fadeOut 0.3s ease-in-out;
-// }
-// .home-leave-from {
-//   animation: fadeOut 0.3s ease-in-out;
-// }
-// .home-leave-active {
-//   animation: bounceInUp 0.3s ease-in-out reverse;
-// }
-// .home-enter-from {
-//   // animation: fadeOut 0.3s ease-in-out;
-//   opacity: 1;
-// }
-@keyframes bounceInUp {
-  0% {
-    transform: translateY(100%);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-</style>
+<style scoped lang="scss"></style>

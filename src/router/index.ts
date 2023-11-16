@@ -2,16 +2,13 @@
 
 import { createRouter, createMemoryHistory, createWebHashHistory } from 'vue-router'
 import LayOut from '@/layout/index.vue'
-
+import musicVue from '@/views/music/music.vue'
 const routes = [
   {
     path: '/',
     name: 'root',
     component: LayOut,
     redirect: '/home',
-    meta: {
-      keepAlive: true,
-    },
     children: [
       {
         path: '/home',
@@ -20,6 +17,7 @@ const routes = [
         meta: {
           title: '首页',
           icon: '',
+          keepAlive: true,
         },
       },
       {
@@ -45,7 +43,7 @@ const routes = [
   {
     path: '/music',
     name: 'music',
-    component: () => import('@/views/music/music.vue'),
+    component: musicVue,
     meta: {
       title: '音乐播放器',
       icon: '',
