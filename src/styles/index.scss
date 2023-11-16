@@ -6,12 +6,21 @@
 html {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
+
     // 取消button的默认样式
     button {
         border: none;
         background-color: transparent;
         cursor: none;
     }
+
+    // 移动端取消 hover 效果
+    @media (hover: none) {
+        .hover\:cursor-pointer:hover {
+            cursor: none !important;
+        }
+    }
+
     // 美化滚动条
     ::-webkit-scrollbar {
         width: 8px;
@@ -26,7 +35,7 @@ html {
     // 动画时长
     $durationLeft: 0.1s;
     $durationRight: 0.2s;
-    $durationUp: 0.4s;
+    $durationUp: 0.3s;
     $durationDown: 0.2s;
 
     /*向左滑动*/
