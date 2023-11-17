@@ -3,7 +3,6 @@
 <template>
   <div>
     <div class="flex flex-col justify-center">
-      <div @click="toLogin">login</div>
       <div @click="toMusic">music</div>
       <input class="border w-50" type="text" v-model="msg" />
       <div>
@@ -12,7 +11,10 @@
         达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
         达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
         达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
-        达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
+        达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达
+        <div @click="toLogin">login</div>
+
+        瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
         达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
         达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
         达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦达瓦
@@ -52,8 +54,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+<script setup lang="ts" name="home">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const msg = ref('那天')
 const router = useRouter()
@@ -65,26 +67,8 @@ const toMusic = () => {
   router.push({ name: 'music', query: { msg: msg.value } })
 }
 onMounted(() => {
-  console.log('onMounted')
+  console.log('onMounted home')
 })
-
-// const scrollY = ref(0)
-// // 获取当前滚动条位置
-// const getScrollY = () => {
-//   scrollY.value = window.scrollY
-// }
-
-// // 监听路由变化
-// router.afterEach((to, from) => {
-//   // 保持进度条的位置
-//   if (from.name === 'home') {
-//     getScrollY()
-//   } else {
-//     setTimeout(() => {
-//       window.scrollTo(0, scrollY.value)
-//     }, 10)
-//   }
-// })
 </script>
 
 <style scoped lang="scss"></style>

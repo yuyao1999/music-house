@@ -2,13 +2,15 @@
 
 <script setup lang="ts">
 import { useAppStore } from '@/store/modules/app'
+import { useRouterStore } from '@/store/modules/router'
 import { isDark } from '@/utils/is'
 import { isMobile } from '@/utils/is'
 import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from './router'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 const appStore = useAppStore()
+const routerStore = useRouterStore()
 
 useSetZoom()
 
@@ -39,13 +41,7 @@ localStorage.setItem('token', '123456789')
 // console.log('import.meta.env.VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
 //#endregion
 
-const getFirstLevelRoute = (route: any) => {
-  if (!Array.isArray(route.matched) || route.matched.length === 0) {
-    return route
-  }
-  return route.matched[0]
-}
-
+const fromUrl = ['/home', '/mine']
 const transitionName = ref('')
 router.beforeEach((to, from) => {
   transitionName.value = ''
@@ -60,7 +56,6 @@ router.beforeEach((to, from) => {
     transitionName.value = 'slide-down'
     return
   }
-  const fromUrl = ['/home', '/mine']
   // to 和 from 不能同时在 fromUrl 中
   if (fromUrl.includes(to.path) && fromUrl.includes(from.path)) {
     return
@@ -68,17 +63,22 @@ router.beforeEach((to, from) => {
 
   transitionName.value = fromUrl.includes(from.path) ? 'slide-left' : 'slide-right'
 })
+
+const getFirstLevelRoute = (route: any) => {
+  console.log('app route', route)
+  if (!Array.isArray(route.matched) || route.matched.length === 0) {
+    return route
+  }
+  return route.matched[0]
+}
 </script>
 
 <template>
   <router-view #default="{ route, Component }">
     <Transition :name="transitionName">
-      <keep-alive>
-        <component :is="Component" :key="getFirstLevelRoute(route).name" v-if="route.meta.keepAlive" />
+      <keep-alive :include="routerStore.keepAliveList">
+        <component :is="Component" :key="getFirstLevelRoute(route).name" />
       </keep-alive>
-    </Transition>
-    <Transition :name="transitionName">
-      <component :is="Component" :key="getFirstLevelRoute(route).name" v-if="!route.meta.keepAlive" />
     </Transition>
   </router-view>
 </template>

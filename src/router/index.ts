@@ -1,8 +1,10 @@
 /** @format */
 
 import { createRouter, createMemoryHistory, createWebHashHistory } from 'vue-router'
+import { useRouterStore } from '@/store/modules/router'
 import LayOut from '@/layout/index.vue'
 import musicVue from '@/views/music/music.vue'
+
 const routes = [
   {
     path: '/',
@@ -17,7 +19,6 @@ const routes = [
         meta: {
           title: '首页',
           icon: '',
-          keepAlive: true,
         },
       },
       {
@@ -47,7 +48,6 @@ const routes = [
     meta: {
       title: '音乐播放器',
       icon: '',
-      keepAlive: true,
     },
   },
 ]
@@ -60,8 +60,9 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior(to, from) {
+    const routerStore = useRouterStore()
     // 保留滚动位置
-    if (from.meta.keepAlive) {
+    if (routerStore?.keepAliveList.includes(from?.name as string)) {
       const scrollTop = window.scrollY || 0
       sessionStorage.setItem(from.path, scrollTop.toString())
     }

@@ -4,11 +4,10 @@
   <div>
     <router-view #default="{ route, Component }">
       <Transition :name="transitionName">
-        <keep-alive>
-          <component :is="Component" :key="getFirstLevelRoute(route).name" v-if="route.meta.keepAlive" />
+        <keep-alive :include="routerStore.keepAliveList">
+          <component :is="Component" :key="temp(route)" />
         </keep-alive>
       </Transition>
-      <component :is="Component" :key="getFirstLevelRoute(route).name" v-if="!route.meta.keepAlive" />
     </router-view>
     <NavigationBar />
   </div>
@@ -16,15 +15,15 @@
 
 <script setup lang="ts">
 import NavigationBar from '@/components/NavigationBar/index.vue'
+import { useRouterStore } from '@/store/modules/router'
 import router from '@/router'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-const getFirstLevelRoute = (route: any) => {
-  if (!Array.isArray(route.matched) || route.matched.length === 0) {
-    return route
-  }
-  return route.matched[0]
+const routerStore = useRouterStore()
+const temp = (data: any) => {
+  console.log('data 1', data.name)
 }
+
 const transitionName = ref('')
 router.beforeEach((to, from) => {
   transitionName.value = ''
@@ -42,6 +41,10 @@ router.beforeEach((to, from) => {
   const fromUrl = ['/home', '/mine']
   // to 和 from 不能同时在 fromUrl 中
   if (fromUrl.includes(to.path) && fromUrl.includes(from.path)) {
+    return
+  }
+  // to 不在 fromUrl 中，
+  if (!fromUrl.includes(to.path)) {
     return
   }
 

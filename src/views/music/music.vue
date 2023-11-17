@@ -103,7 +103,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="music">
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
