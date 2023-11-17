@@ -103,7 +103,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="music">
+<script setup lang="ts">
 import { formatTime, getPercent, getNowTime } from '@/utils/handle-time'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
@@ -118,17 +118,21 @@ import { requireImg } from '@/utils/requireImg'
 import { useMusicList } from '@/components/MusicList'
 import { useShow } from '@/hooks/useShow'
 
+defineOptions({
+  name: 'music',
+})
+
 const musicStore = useMusicStore()
 const appStore = useAppStore()
 const { open: listOpen } = useMusicList()
 
-const { audio, createTimeupdate, audioPlay, audioPause, getMusicSearch } = useAudio()
+const { audio, createTimeupdate, audioPlay, audioPause } = useAudio()
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
 //#region 页面周期
 onMounted(() => {
-  getMusicSearch(route.query.msg as string)
+  console.log('onMounted music')
   initScroll(lyricsRef.value)
   setDraggable(dotRef.value)
   useShow({
@@ -139,10 +143,10 @@ onMounted(() => {
 })
 onUnmounted(() => {})
 //#endregion
-
 const onShow = () => {
   // 滚动到当前歌词
   if (lyricsRef.value) {
+    console.log('onShow')
     const index = getLyricsIndex(currentTime.value)
     lyricsRef.value.scrollTo({
       top: (index - nowActiveIndex) * lyricsHeight.value,

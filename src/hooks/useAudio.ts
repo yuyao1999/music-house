@@ -178,6 +178,12 @@ export const useAudio = () => {
     const musicStore = useMusicStore()
     musicApi.search({ keywords }).then((res: any) => {
       const data = res.result.songs[0]
+      // 如果存在跳转到当前音乐
+      const index = musicStore.musicList.findIndex((item) => item.id === data.id)
+      console.log('index', index)
+      if (index !== -1) {
+        return
+      }
       musicStore.pushPlayList({
         id: data.id,
         name: data.name,

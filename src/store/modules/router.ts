@@ -6,7 +6,7 @@ export const useRouterStore = defineStore(
   'router',
   () => {
     // 需要缓存的路由
-    const keepAliveList = ref<string[]>(['home', 'music'])
+    const keepAliveList = ref<string[]>(['home', 'music', 'layout'])
     return {
       keepAliveList,
     }

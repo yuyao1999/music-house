@@ -54,13 +54,6 @@ export const useMusicStore = defineStore(
       musicList.value = data
     }
     const pushPlayList = (data: IMusic) => {
-      // 如果存在跳转到当前音乐
-      const index = musicList.value.findIndex((item) => item.id === data.id)
-      if (index !== -1) {
-        nowIndex.value = index
-        return
-      }
-
       musicList.value.push(data)
       nowIndex.value = musicList.value.length - 1
     }

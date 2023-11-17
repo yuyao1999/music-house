@@ -54,15 +54,24 @@
   </div>
 </template>
 
-<script setup lang="ts" name="home">
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAudio } from '@/hooks/useAudio'
+const { getMusicSearch } = useAudio()
+
+defineOptions({
+  name: 'home',
+})
+
 const msg = ref('那天')
 const router = useRouter()
 const toLogin = () => {
   router.push({ name: 'login' })
 }
 const toMusic = () => {
+  getMusicSearch(msg.value)
+
   // 传参 msg
   router.push({ name: 'music', query: { msg: msg.value } })
 }

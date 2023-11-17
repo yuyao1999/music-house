@@ -5,7 +5,7 @@
     <router-view #default="{ route, Component }">
       <Transition :name="transitionName">
         <keep-alive :include="routerStore.keepAliveList">
-          <component :is="Component" :key="temp(route)" />
+          <component :is="Component" />
         </keep-alive>
       </Transition>
     </router-view>
@@ -17,12 +17,13 @@
 import NavigationBar from '@/components/NavigationBar/index.vue'
 import { useRouterStore } from '@/store/modules/router'
 import router from '@/router'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
+
+defineOptions({
+  name: 'layout',
+})
 
 const routerStore = useRouterStore()
-const temp = (data: any) => {
-  console.log('data 1', data.name)
-}
 
 const transitionName = ref('')
 router.beforeEach((to, from) => {

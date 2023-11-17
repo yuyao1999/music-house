@@ -4,7 +4,7 @@
   <div class="">我的</div>
 </template>
 
-<script setup lang="ts" name="mine">
+<script setup lang="ts">
 import { onMounted } from 'vue'
 onMounted(() => {
   console.log('onMounted x')

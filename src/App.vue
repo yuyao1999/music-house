@@ -77,7 +77,7 @@ const getFirstLevelRoute = (route: any) => {
   <router-view #default="{ route, Component }">
     <Transition :name="transitionName">
       <keep-alive :include="routerStore.keepAliveList">
-        <component :is="Component" :key="getFirstLevelRoute(route).name" />
+        <component :is="Component" />
       </keep-alive>
     </Transition>
   </router-view>
