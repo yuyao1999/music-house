@@ -20,7 +20,10 @@ html {
             cursor: none !important;
         }
     }
-
+    #app{
+        width: 100vw;
+    height: 100vh;
+    }
     // 美化滚动条
     ::-webkit-scrollbar {
         width: 0px;

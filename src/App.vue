@@ -26,7 +26,12 @@ const setDefaultTheme = () => {
 
 // 设置默认字体大小
 const setDefaultFontSize = () => {
-  const fontSize = useFont(16)
+  let fontSize
+  if (!isMobile()) {
+    fontSize = useFont(8)
+  } else {
+    fontSize = useFont(16)
+  }
   console.log('fontSize', fontSize)
   // 设置根元素字体大小
   document.documentElement.style.fontSize = fontSize + 'px'

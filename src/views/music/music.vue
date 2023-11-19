@@ -118,7 +118,10 @@ import { useScroll } from '@/hooks/useScroll'
 import { ILyric } from '@/types/lyric'
 import { isMobile } from '@/utils/is'
 import { requireImg } from '@/utils/requireImg'
+import { useThrottleFn } from '@/hooks/useFn'
 import { useMusicList } from '@/components/MusicList'
+import { useFont } from '@/hooks/useFont'
+
 import { useShow } from '@/hooks/useShow'
 
 const musicStore = useMusicStore()
@@ -215,10 +218,24 @@ const lyricsIndex = ref(0)
 // 当前歌词居中索引
 let nowActiveIndex = 0
 // 歌词高度 40 60
-const lyricsHeight = ref(40)
+const lyricsHeight = ref(useFont(40))
 
 if (lyricsHeight.value === -1) {
   lyricsHeight.value = 40
+}
+const setDefaultFontSize = () => {
+  const fontSize = useFont(40)
+  console.log('fontSize', fontSize)
+  if (fontSize === -1) {
+    lyricsHeight.value = 40
+  } else {
+    lyricsHeight.value = fontSize
+  }
+}
+setDefaultFontSize()
+const throttleFn = useThrottleFn(setDefaultFontSize, 250)
+if (!isMobile()) {
+  window.addEventListener('resize', throttleFn as EventListenerOrEventListenerObject)
 }
 // 正在播放的歌词高度
 let lyricsActiveHeight = lyricsHeight.value * 1.5
@@ -765,8 +782,8 @@ $heartHeight: 1.2rem;
 }
 .icon-share {
   // 分享图标
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 32px;
+  height: 32px;
   background: url('@/assets/music/icon-share.png') no-repeat center;
 }
 
