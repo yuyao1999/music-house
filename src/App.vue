@@ -3,14 +3,18 @@
 <script setup lang="ts">
 import { useAppStore } from '@/store/modules/app'
 import { useRouterStore } from '@/store/modules/router'
+import { useMusicStore } from '@/store/modules/music'
 import { isDark } from '@/utils/is'
 import { isMobile } from '@/utils/is'
 import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
-import router from './router'
-import { computed, nextTick, ref } from 'vue'
+import router from '@/router'
+import { ref } from 'vue'
+import Music from '@/views/music/music.vue'
+
 const appStore = useAppStore()
 const routerStore = useRouterStore()
+const musicStore = useMusicStore()
 
 useSetZoom()
 
@@ -38,56 +42,36 @@ setDefaultTheme()
 
 //#region temp
 localStorage.setItem('token', '123456789')
-// console.log('import.meta.env.VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
-//#endregion
 
-const fromUrl = ['/home', '/mine']
 const transitionName = ref('')
 router.beforeEach((to, from) => {
   transitionName.value = ''
-  if (from.path === '/') {
-    return
-  }
-  // 如果是 routerStore.keepAliveList 中的路由 保留滚动位置
   if (from.name === 'home') {
-    routerStore.setScrollTop('home', document.getElementById('home')?.scrollTop || 0)
-    console.log('document.getElementById', document.getElementById('home')?.scrollTop)
+    routerStore.setScrollTop('home', window.scrollY || 0)
   }
 
-  if (to.path === '/music') {
-    transitionName.value = 'slide-up'
-    return
-  }
-  if (from.path === '/music') {
-    transitionName.value = 'slide-down'
-    return
-  }
-  // to 和 from 不能同时在 fromUrl 中
-  if (fromUrl.includes(to.path) && fromUrl.includes(from.path)) {
-    return
-  }
-
+  const fromUrl = ['/home', '/mine']
   transitionName.value = fromUrl.includes(from.path) ? 'slide-left' : 'slide-right'
 })
-// router.afterEach((to, from) => {
-//   // 如果是 routerStore.keepAliveList 中的路由 保留滚动位置
-//   if (to.name === 'home') {
-//     nextTick(() => {
-//       console.log('nextTick', routerStore.scrollTop['home'])
-//       document.getElementById('home')?.scrollTo(0, routerStore.scrollTop['home'])
-//     })
-//   }
-// })
+
+const onAfterLeave = () => {
+  window.scrollTo(0, routerStore.scrollTop['home'])
+}
 </script>
 
 <template>
-  <router-view #default="{ Component }">
-    <Transition :name="transitionName">
-      <keep-alive :include="routerStore.keepAliveList">
-        <component :is="Component" />
-      </keep-alive>
+  <div>
+    <Transition name="up-down">
+      <Music v-show="musicStore.show" />
     </Transition>
-  </router-view>
+    <router-view #default="{ Component }">
+      <Transition :name="transitionName" @after-leave="onAfterLeave">
+        <keep-alive :include="routerStore.keepAliveList">
+          <component :is="Component" />
+        </keep-alive>
+      </Transition>
+    </router-view>
+  </div>
 </template>
 
 <style scoped lang="scss"></style>

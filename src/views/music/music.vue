@@ -63,13 +63,15 @@
               class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
             />
             <button
-              v-if="audio?.paused === false"
+              v-show="audio?.paused === false"
               @click="audioPause"
+              v-throttle
               class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
             />
             <button
-              v-else
+              v-show="audio?.paused !== false"
               @click="audioPlay"
+              v-throttle
               class="hover:cursor-pointer icon-play animate__animated animate__bounceIn"
             />
             <button
@@ -91,11 +93,13 @@
           <button :class="fullScreen ? 'text-white font-600' : 'text-gray-500'" @click="onSwitchFullScreen" v-throttle>
             词
           </button>
-          <img
-            class="absolute right-[12px] w-5 h-5 hover:cursor-pointer animate__animated animate__bounceIn"
-            src="@/assets/music/list.png"
+          <button
             @click="listOpen"
-          />
+            v-throttle
+            class="absolute right-[12px] w-5 h-5 hover:cursor-pointer animate__animated animate__bounceIn"
+          >
+            <img src="@/assets/music/list.png" />
+          </button>
         </div>
       </div>
     </div>
@@ -112,15 +116,10 @@ import { useAudio } from '@/hooks/useAudio'
 import { useDraggable } from '@/hooks/useDraggable'
 import { useScroll } from '@/hooks/useScroll'
 import { ILyric } from '@/types/lyric'
-import { useRoute, useRouter } from 'vue-router'
 import { isMobile } from '@/utils/is'
 import { requireImg } from '@/utils/requireImg'
 import { useMusicList } from '@/components/MusicList'
 import { useShow } from '@/hooks/useShow'
-
-defineOptions({
-  name: 'music',
-})
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
@@ -176,12 +175,10 @@ const onPlayMode = () => {
 }
 
 // 获取路由参数
-const route = useRoute()
-const router = useRouter()
 
 const back = () => {
   // 跳转到首页
-  router.replace('/home')
+  musicStore.setShow(false)
 }
 
 //#region 歌曲
@@ -391,6 +388,50 @@ const progressPercent = computed(() => {
 </script>
 
 <style scoped lang="scss">
+.bg {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  // background: v-bind("musicStore.nowMusic?.cover ? 'url(' + musicStore.nowMusic?.cover + ')' : ''");
+  // 渐变效果
+  background: v-bind('appStore.darkColor');
+
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  z-index: 8;
+  transform: scale(1.05);
+}
+.page {
+  // 占满屏幕
+  position: fixed;
+  z-index: 9;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  padding: 20px;
+  color: #fff;
+  @apply flex flex-col justify-between;
+  // 不可选中
+  user-select: none;
+  overflow: hidden;
+  .name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    width: 100%;
+    text-align: center;
+    color: v-bind('appStore.mainColor');
+    @apply truncate;
+  }
+  .music-img {
+    // box-shadow动画 闪动
+    box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
+    animation: rotate 50s linear infinite paused, shadow 1s linear infinite alternate paused;
+  }
+}
 .lyrics-active {
   position: relative;
   &::after {
@@ -729,30 +770,6 @@ $heartHeight: 1.2rem;
   background: url('@/assets/music/icon-share.png') no-repeat center;
 }
 
-.page {
-  // 占满屏幕
-  height: 100vh;
-  width: 100vw;
-  padding: 20px;
-  color: #fff;
-  @apply flex flex-col justify-between;
-  // 不可选中
-  user-select: none;
-  overflow: hidden;
-  .name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    width: 100%;
-    text-align: center;
-    color: v-bind('appStore.mainColor');
-    @apply truncate;
-  }
-  .music-img {
-    // box-shadow动画 闪动
-    box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
-    animation: rotate 50s linear infinite paused, shadow 1s linear infinite alternate paused;
-  }
-}
 @keyframes shadow {
   from {
     box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
@@ -768,21 +785,5 @@ $heartHeight: 1.2rem;
   to {
     transform: rotate(360deg);
   }
-}
-.bg {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  left: 0;
-  top: 0;
-  // background: v-bind("musicStore.nowMusic?.cover ? 'url(' + musicStore.nowMusic?.cover + ')' : ''");
-  // 渐变效果
-  background: v-bind('appStore.darkColor');
-
-  background-size: cover;
-  background-position: center;
-  filter: blur(5px);
-  z-index: -1;
-  transform: scale(1.05);
 }
 </style>

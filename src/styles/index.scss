@@ -169,21 +169,23 @@ html {
             opacity: 1;
         }
     }
-    .slide-up-enter-active {
+    .up-down-enter-active {
         position: fixed;
         top: 0;
         left: 0;
+        z-index: 99;
         width: 100vw;
         height: 100vh;
         animation: slideInUp $durationUp linear forwards;
     }
-    .slide-up-leave-active {
+    .up-down-leave-active {
         position: fixed;
         top: 0;
         left: 0;
+         z-index: 99;
         width: 100vw;
         height: 100vh;
-        animation: slideOutUp $durationUp linear forwards;
+        animation: slideOutDown $durationUp linear forwards;
     }
     // 向下滑动
     @keyframes slideInDown {
@@ -192,14 +194,12 @@ html {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
         }
         to {
             transform: translate3d(0, 0, 0);
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 0;
         }
     }
     @keyframes slideOutDown {
@@ -218,20 +218,5 @@ html {
             opacity: 1;
         }
     }
-    .slide-down-enter-active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        animation: slideInDown $durationDown linear forwards;
-    }
-    .slide-down-leave-active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        animation: slideOutDown $durationDown linear forwards;
-    }
+   
 }

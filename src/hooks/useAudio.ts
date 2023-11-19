@@ -87,6 +87,10 @@ export const useAudio = () => {
    * audio播放
    */
   const audioPlay = () => {
+    if (!audio.value) {
+      return
+    }
+    console.log('audioPlay', audio.value)
     audio.value?.play()
     const dom: HTMLDivElement | null = document.querySelector('.music-img')
     if (dom) {

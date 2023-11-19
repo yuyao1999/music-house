@@ -10,6 +10,11 @@ export const useMusicList = () => {
   const open = () => {
     if (!app) {
       div = document.createElement('div')
+      // 动画执行中不允许点击
+      div.style.pointerEvents = 'none'
+      setTimeout(() => {
+        div.style.pointerEvents = 'auto'
+      }, duration)
       document.body.appendChild(div)
       app = createApp({
         render() {
@@ -24,8 +29,13 @@ export const useMusicList = () => {
     }
   }
   const close = () => {
-    if (app) {
-      show.value = false
+    show.value = false
+    // 动画执行中不允许点击
+    div.style.pointerEvents = 'none'
+    setTimeout(() => {
+      div.style.pointerEvents = 'auto'
+    }, duration)
+    if (app && div) {
       setTimeout(() => {
         app.unmount()
         app = null

@@ -5,17 +5,21 @@ import { ref, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useAudio } from '@/hooks/useAudio'
 
-const { createAudio, audio, getMusicUrl } = useAudio()
-
 export const useMusicStore = defineStore(
   'music',
   () => {
+    //
+    const show = ref<boolean>(false)
+    const setShow = (flag: boolean) => {
+      show.value = flag
+    }
     /**
      歌曲播放模式
      * 0 顺序
      * 1 随机
      * 2 单曲循环
      */
+    const { createAudio, audio, getMusicUrl } = useAudio()
     const playMode = ref<number>(0)
     const setPlayMode = (mode: number) => {
       playMode.value = mode
@@ -89,6 +93,8 @@ export const useMusicStore = defineStore(
     }
 
     return {
+      show,
+      setShow,
       playMode,
       setPlayMode,
       nowMusic,

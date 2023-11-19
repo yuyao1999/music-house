@@ -1,9 +1,7 @@
 /** @format */
 
 import { createRouter, createMemoryHistory, createWebHashHistory } from 'vue-router'
-import { useRouterStore } from '@/store/modules/router'
 import LayOut from '@/layout/index.vue'
-import musicVue from '@/views/music/music.vue'
 
 const routes = [
   {
@@ -38,15 +36,6 @@ const routes = [
     component: () => import('@/views/login/login.vue'),
     meta: {
       title: '登录',
-      icon: '',
-    },
-  },
-  {
-    path: '/music',
-    name: 'music',
-    component: musicVue,
-    meta: {
-      title: '音乐播放器',
       icon: '',
     },
   },

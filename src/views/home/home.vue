@@ -36,6 +36,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAudio } from '@/hooks/useAudio'
 import { useShow } from '@/hooks/useShow'
+import { useMusicStore } from '@/store/modules/music'
+
+const musicStore = useMusicStore()
 
 const { getMusicSearch } = useAudio()
 defineOptions({
@@ -46,38 +49,19 @@ const onShow = () => {
   console.log('onShow')
 }
 const onHide = () => {
-  console.log('onHide', document.getElementById('home')?.scrollTop)
-}
-const scrollY = ref(0)
-// 获取当前滚动条位置
-const getScrollY = () => {
-  console.log('123123 ', document.getElementById('home')?.scrollTop)
-  scrollY.value = document.getElementById('home')?.scrollTop
+  console.log('onHide')
 }
 
 const msg = ref('那天')
 const router = useRouter()
-
-// 监听路由变化
-router.afterEach((to, from) => {
-  // 保持进度条的位置
-  if (from.name === 'home') {
-    getScrollY()
-  }
-  if (to.name === 'home') {
-    console.log('scrollY.value', scrollY.value)
-    document.getElementById('home')?.scrollTo(0, scrollY.value)
-  }
-})
 
 const toLogin = () => {
   router.push({ name: 'login' })
 }
 const toMusic = () => {
   getMusicSearch(msg.value)
-
+  musicStore.setShow(true)
   // 传参 msg
-  router.push({ name: 'music', query: { msg: msg.value } })
 }
 const homeRef = ref<HTMLDivElement>()
 onMounted(() => {
