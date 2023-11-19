@@ -1,3 +1,5 @@
+import { onUnmounted } from 'vue'
+
 interface Options {
   el: HTMLElement | undefined
   onShow?: () => void
@@ -11,7 +13,6 @@ interface Options {
  * @param {function} options.onHide 隐藏时的回调
  */
 export const useShow = (options: Options) => {
-  console.log('options.el 1', options.el)
   const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       options.onShow?.()
@@ -21,4 +22,9 @@ export const useShow = (options: Options) => {
   })
   if (!options.el) return
   observer.observe(options.el)
+  onUnmounted(() => {
+    setTimeout(() => {
+      observer.disconnect()
+    }, 1000)
+  })
 }

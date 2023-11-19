@@ -2,17 +2,17 @@
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-export const useRouterStore = defineStore(
-  'router',
-  () => {
-    // 需要缓存的路由
-    const keepAliveList = ref<string[]>(['home', 'music', 'layout'])
-    return {
-      keepAliveList,
-    }
-  },
-  {
-    // 开启数据持久化
-    persist: true,
+export const useRouterStore = defineStore('router', () => {
+  // 需要缓存的路由
+  const keepAliveList = ref<string[]>(['home', 'music', 'layout'])
+  // 需要缓存的路由的滚动位置
+  const scrollTop = ref<{ [key: string]: number }>({})
+  const setScrollTop = (name: string, top: number) => {
+    scrollTop.value[name] = top
   }
-)
+  return {
+    keepAliveList,
+    scrollTop,
+    setScrollTop,
+  }
+})

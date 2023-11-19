@@ -154,7 +154,7 @@ const onShow = () => {
   }
 }
 const onHide = () => {
-  // console.log('onHide')
+  console.log('onHide')
 }
 
 const playModeList = [

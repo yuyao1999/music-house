@@ -6,7 +6,7 @@ import { getImgColor, getDarkColor } from '@/utils/img'
 import { useToast } from '@/components/Toast'
 import { musicApi } from '@/api/music'
 
-export const audio = ref<HTMLAudioElement | null>(null)
+const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
 const { open } = useToast()
 
@@ -182,7 +182,14 @@ export const useAudio = () => {
       const index = musicStore.musicList.findIndex((item) => item.id === data.id)
       console.log('index', index)
       if (index !== -1) {
-        return
+        console.log('audio.value?.paused', audio.value?.paused)
+        if (audio.value?.paused !== undefined) {
+          return
+        }
+        if (audio.value?.paused === undefined) {
+          getMusicUrl(data.id)
+          return
+        }
       }
       musicStore.pushPlayList({
         id: data.id,

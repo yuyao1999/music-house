@@ -8,7 +8,7 @@ import { isMobile } from '@/utils/is'
 import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from './router'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 const appStore = useAppStore()
 const routerStore = useRouterStore()
 
@@ -48,6 +48,12 @@ router.beforeEach((to, from) => {
   if (from.path === '/') {
     return
   }
+  // 如果是 routerStore.keepAliveList 中的路由 保留滚动位置
+  if (from.name === 'home') {
+    routerStore.setScrollTop('home', document.getElementById('home')?.scrollTop || 0)
+    console.log('document.getElementById', document.getElementById('home')?.scrollTop)
+  }
+
   if (to.path === '/music') {
     transitionName.value = 'slide-up'
     return
@@ -63,18 +69,19 @@ router.beforeEach((to, from) => {
 
   transitionName.value = fromUrl.includes(from.path) ? 'slide-left' : 'slide-right'
 })
-
-const getFirstLevelRoute = (route: any) => {
-  console.log('app route', route)
-  if (!Array.isArray(route.matched) || route.matched.length === 0) {
-    return route
-  }
-  return route.matched[0]
-}
+// router.afterEach((to, from) => {
+//   // 如果是 routerStore.keepAliveList 中的路由 保留滚动位置
+//   if (to.name === 'home') {
+//     nextTick(() => {
+//       console.log('nextTick', routerStore.scrollTop['home'])
+//       document.getElementById('home')?.scrollTo(0, routerStore.scrollTop['home'])
+//     })
+//   }
+// })
 </script>
 
 <template>
-  <router-view #default="{ route, Component }">
+  <router-view #default="{ Component }">
     <Transition :name="transitionName">
       <keep-alive :include="routerStore.keepAliveList">
         <component :is="Component" />

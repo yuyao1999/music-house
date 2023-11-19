@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <div class="content">
+  <div class="content" @click.prevent>
     <div v-for="item in list" :key="item.name">
       <div class="item" @click="toUrl(item.url)">
         {{ item.name }}
@@ -35,11 +35,9 @@ const toUrl = (url: string) => {
 
 <style scoped lang="scss">
 .content {
-  @apply fixed  w-full h-[5%];
-  @apply flex justify-around items-center;
-  bottom: 0;
+  @apply w-full h-full flex justify-around items-center;
   background-color: #9e9a9a;
-  z-index: 0;
+  z-index: 1;
   .item {
     // 悬浮 手
     @apply hover:cursor-pointer;
