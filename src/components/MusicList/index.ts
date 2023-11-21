@@ -1,7 +1,9 @@
 /** @format */
-import MusicList from './index.vue'
 // 命令式组件
+import MusicList from './index.vue'
 import { createApp, h, ref } from 'vue'
+import { setBack } from '@/utils/app-back'
+
 export const useMusicList = () => {
   let div: any = null
   let app: any = null
@@ -26,6 +28,7 @@ export const useMusicList = () => {
         },
       })
       app.mount(div)
+      setBack(close)
     }
   }
   const close = () => {
@@ -45,6 +48,7 @@ export const useMusicList = () => {
       }, duration)
     }
   }
+
   return {
     open,
     close,

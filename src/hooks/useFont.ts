@@ -12,17 +12,14 @@ export const useFont = (size: number): number => {
   const app = document.getElementById('app')
   const width = app?.offsetWidth || 390
   const height = app?.offsetHeight || 844
-  console.log('width', width)
-  console.log('height', height)
   // 宽屏
   if (width > height) {
     return -1
   }
   const currentSize = width! / height!
   const res = size * (currentSize / baseSize)
-  console.log('res', res)
-  if (!useIsMobile() && res > 12) {
-    return 12
+  if (!useIsMobile() && res > 30) {
+    return 30
   }
   if (res > 40) {
     return 40

@@ -3,7 +3,7 @@
 <template>
   <div class="w-full">
     <router-view #default="{ Component }">
-      <div class="mb-[10vh] w-full">
+      <div class="pb-[10vh] w-full">
         <Transition @after-leave="onAfterLeave">
           <keep-alive :include="routerStore.keepAliveList">
             <component :is="Component" />
@@ -20,8 +20,6 @@
 <script setup lang="ts">
 import NavigationBar from '@/components/NavigationBar/index.vue'
 import { useRouterStore } from '@/store/modules/router'
-import router from '@/router'
-import { nextTick } from 'vue'
 
 const routerStore = useRouterStore()
 defineOptions({

@@ -16,7 +16,7 @@
         class="flex justify-center items-center animate__animated animate__rotateInDownRight overflow-hidden py-9"
         @click="onSwitchFullScreen"
       >
-        <img class="w-[70vw] h-[70vw] rounded-[50%] music-img" :src="musicStore.nowMusic.cover" />
+        <img class="w-[65vw] h-[65vw] max-h-100 max-w-100 rounded-[50%] music-img" :src="musicStore.nowMusic.cover" />
       </div>
       <!-- 歌词 -->
       <div :class="{ 'lyrics-active': manualScroll }" @click.stop="mousedownDot">
@@ -121,6 +121,7 @@ import { requireImg } from '@/utils/requireImg'
 import { useThrottleFn } from '@/hooks/useFn'
 import { useMusicList } from '@/components/MusicList'
 import { useFont } from '@/hooks/useFont'
+import { setBack } from '@/utils/app-back'
 
 import { useShow } from '@/hooks/useShow'
 
@@ -146,6 +147,7 @@ onMounted(() => {
 onUnmounted(() => {})
 //#endregion
 const onShow = () => {
+  setBack(back)
   // 滚动到当前歌词
   if (lyricsRef.value) {
     console.log('onShow')
@@ -180,7 +182,7 @@ const onPlayMode = () => {
 // 获取路由参数
 
 const back = () => {
-  // 跳转到首页
+  console.log('music back')
   musicStore.setShow(false)
 }
 

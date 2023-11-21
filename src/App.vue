@@ -9,7 +9,7 @@ import { isMobile } from '@/utils/is'
 import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from '@/router'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import Music from '@/views/music/music.vue'
 
 const appStore = useAppStore()
@@ -26,12 +26,7 @@ const setDefaultTheme = () => {
 
 // 设置默认字体大小
 const setDefaultFontSize = () => {
-  let fontSize
-  if (!isMobile()) {
-    fontSize = useFont(8)
-  } else {
-    fontSize = useFont(16)
-  }
+  const fontSize = useFont(16)
   console.log('fontSize', fontSize)
   // 设置根元素字体大小
   document.documentElement.style.fontSize = fontSize + 'px'
@@ -60,7 +55,9 @@ router.beforeEach((to, from) => {
 })
 
 const onAfterLeave = () => {
-  window.scrollTo(0, routerStore.scrollTop['home'])
+  nextTick(() => {
+    window.scrollTo(0, routerStore.scrollTop['home'])
+  })
 }
 </script>
 

@@ -7,7 +7,7 @@ import directive from './directive'
 // 权限
 import './permission'
 // h5 返回上一页
-import '@/utils/app-back.js'
+import '@/utils/app-back'
 // 注入路由
 import router from './router'
 // 引入状态管理
