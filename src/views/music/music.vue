@@ -442,6 +442,7 @@ const progressPercent = computed(() => {
   user-select: none;
   overflow: hidden;
   .music-name {
+    position: relative;
     width: 100%;
     font-size: 1.5rem;
     font-weight: 700;

@@ -1,16 +1,12 @@
 <template>
-  <div>
-    <span v-if="textValue.length > max" class="content">
-      <span class="scroll1">
-        {{ textValue }}
-      </span>
-      <span class="scroll2">
-        {{ textValue }}
-      </span>
-    </span>
-    <span v-else>
+  <div v-if="textValue.length > max" class="content">
+    <div class="scroll1">{{ textValue }}</div>
+    <div class="scroll2">
       {{ textValue }}
-    </span>
+    </div>
+  </div>
+  <div v-else class="content">
+    {{ textValue }}
   </div>
 </template>
 
@@ -32,6 +28,9 @@ watch(
   (val) => {
     if (val) {
       textValue.value = val
+      if (val.length > props.max) {
+        textValue.value = val + '\xa0\xa0\xa0\xa0\xa0\xa0'
+      }
     }
   },
   {
@@ -41,33 +40,32 @@ watch(
 </script>
 
 <style scoped lang="scss">
-$time: 10s;
+$time: 5s;
 // 无缝滚动
 .content {
   width: 100%;
   height: 100%;
-  display: inline-block;
+  line-height: 120%;
   overflow: hidden;
   white-space: nowrap;
-  .scroll1,
+  text-align: center;
+
+  .scroll1 {
+    display: inline-block;
+    animation: scroll $time linear infinite;
+  }
   .scroll2 {
     display: inline-block;
     animation: scroll $time linear infinite;
   }
-  .scroll1 {
-    animation-delay: 0s;
-  }
-  .scroll2 {
-    animation-delay: $time / 2;
-  }
 }
 
 @keyframes scroll {
-  0% {
-    transform: translateX(10%);
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  100% {
-    transform: translateX(-110%);
+  to {
+    transform: translate3d(-100%, 0, 0);
   }
 }
 </style>
