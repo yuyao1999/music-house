@@ -49,14 +49,12 @@ router.beforeEach((to, from) => {
   if (from.name === 'home') {
     routerStore.setScrollTop('home', window.scrollY || 0)
   }
-
   const fromUrl = ['/home', '/mine']
   transitionName.value = fromUrl.includes(from.path) ? 'slide-left' : 'slide-right'
 })
-
 const onAfterLeave = () => {
   nextTick(() => {
-    window.scrollTo(0, routerStore.scrollTop['home'])
+    window.scrollTo(0, routerStore.scrollTop['home'] || 0)
   })
 }
 </script>

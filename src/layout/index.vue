@@ -20,13 +20,23 @@
 <script setup lang="ts">
 import NavigationBar from '@/components/NavigationBar/index.vue'
 import { useRouterStore } from '@/store/modules/router'
+import { nextTick } from 'vue'
+import router from '@/router'
 
 const routerStore = useRouterStore()
 defineOptions({
   name: 'layout',
 })
+
+let namePage = ''
+router.beforeEach((to, from) => {
+  namePage = to.name as string
+})
 const onAfterLeave = () => {
-  window.scrollTo(0, routerStore.scrollTop['home'])
+  console.log('routerStore.scrollTop[namePage]', routerStore.scrollTop[namePage])
+  nextTick(() => {
+    window.scrollTo(0, routerStore.scrollTop[namePage] || 0)
+  })
 }
 </script>
 

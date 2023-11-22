@@ -4,8 +4,11 @@
       <!-- 头部 -->
       <div class="flex justify-between items-center w-full">
         <button class="icon-back hover:cursor-pointer" @click="back" v-throttle />
-        <div class="flex flex-col items-center w-[80%]">
-          <div class="name">{{ musicStore.nowMusic.name }}</div>
+        <div class="flex flex-col items-center w-[80%] overflow-hidden">
+          <div class="music-name">
+            <scrollText :text="musicStore.nowMusic.name" />
+          </div>
+
           <div>{{ musicStore.nowMusic.singer }}</div>
         </div>
         <div class="icon-share" />
@@ -122,6 +125,7 @@ import { useThrottleFn } from '@/hooks/useFn'
 import { useMusicList } from '@/components/MusicList'
 import { useFont } from '@/hooks/useFont'
 import { setBack } from '@/utils/app-back'
+import scrollText from '@/components/scrollText/index.vue'
 
 import { useShow } from '@/hooks/useShow'
 
@@ -437,14 +441,13 @@ const progressPercent = computed(() => {
   // 不可选中
   user-select: none;
   overflow: hidden;
-  .name {
+  .music-name {
+    width: 100%;
     font-size: 1.5rem;
     font-weight: 700;
-    width: 100%;
-    text-align: center;
     color: v-bind('appStore.mainColor');
-    @apply truncate;
   }
+
   .music-img {
     // box-shadow动画 闪动
     box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
