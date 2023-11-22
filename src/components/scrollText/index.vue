@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<IProps>(), {
 })
 // 文字超出滚动 无缝衔接
 const textValue = ref('')
-
+const time = ref(10)
 watch(
   () => props.text,
   (val) => {
@@ -30,6 +30,7 @@ watch(
       textValue.value = val
       if (val.length > props.max) {
         textValue.value = val + '\xa0\xa0\xa0\xa0\xa0\xa0'
+        time.value = val.length * 0.5
       }
     }
   },
@@ -40,7 +41,7 @@ watch(
 </script>
 
 <style scoped lang="scss">
-$time: 5s;
+$time: v-bind("time+'s'");
 // 无缝滚动
 .content {
   width: 100%;
