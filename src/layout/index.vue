@@ -1,15 +1,13 @@
 <!-- @format -->
 
 <template>
-  <div class="w-full">
+  <div class="w-full h-[90vh]">
     <router-view #default="{ Component }">
-      <div class="pb-[10vh] w-full">
-        <Transition @after-leave="onAfterLeave">
-          <keep-alive :include="routerStore.keepAliveList">
-            <component :is="Component" />
-          </keep-alive>
-        </Transition>
-      </div>
+      <Transition @after-leave="onAfterLeave">
+        <keep-alive :include="routerStore.keepAliveList">
+          <component :is="Component" />
+        </keep-alive>
+      </Transition>
     </router-view>
     <div class="h-[10vh] fixed bottom-0 w-full">
       <NavigationBar />

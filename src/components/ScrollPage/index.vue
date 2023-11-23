@@ -5,6 +5,7 @@
       <div class="scroll-item" v-for="(item, index) in data" :key="index">
         <img :src="item.img" alt="" />
         <p>{{ item.name }}</p>
+        <slot name="music" />
       </div>
       <div v-if="bottomTips">没有更多了~</div>
     </div>
@@ -13,7 +14,7 @@
 
 <script setup lang="ts">
 import { useDraggable } from '@/hooks/useDraggable'
-import { onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
 interface IData {
   name: string
@@ -28,7 +29,11 @@ const props = defineProps<IProps>()
 onMounted(() => {
   console.log('onMounted scrollPage')
   setDraggable(scrollRef.value)
-  contentHeight = scrollRef.value?.clientHeight || 0
+
+  setTimeout(() => {
+    contentHeight = scrollRef.value?.offsetHeight || 0
+    console.log('contentHeight 2', contentHeight)
+  }, transitionTime)
 })
 
 // 滑动距离切换的值
@@ -119,22 +124,25 @@ watch(
 
 <style scoped lang="scss">
 .scroll-content {
+  overflow: hidden;
   width: 100%;
   height: 100%;
-  position: relative;
-  overflow: hidden;
   .scroll-item {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     cursor: pointer;
     img {
       width: 100%;
-      height: 90%;
+      height: 50%;
       object-fit: cover;
       -webkit-user-drag: none;
+    }
+    p {
+      margin-top: 10px;
     }
   }
 }

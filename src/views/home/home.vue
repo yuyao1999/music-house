@@ -1,19 +1,18 @@
 <!-- @format -->
 
 <template>
-  <div ref="homeRef">
-    <div class="flex flex-col justify-center">
-      <input class="border w-50" type="text" v-model="msg" />
-      <div>
-        <div @click="toMusic">music</div>
-      </div>
-      <div>
-        <div @click="toLogin">login</div>
-      </div>
-      <div class="h-[50vh]">
-        <ScrollPage :data="data" />
-      </div>
-    </div>
+  <div ref="homeRef" class="w-full h-full">
+    <ScrollPage :data="data">
+      <template #music>
+        <input class="border w-50" type="text" v-model="msg" />
+        <div>
+          <div @click="toMusic">music</div>
+        </div>
+        <div>
+          <div @click="toLogin">login</div>
+        </div>
+      </template>
+    </ScrollPage>
   </div>
 </template>
 

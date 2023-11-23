@@ -63,9 +63,6 @@ const onAfterLeave = () => {
 
 <template>
   <div>
-    <Transition name="up-down">
-      <Music v-show="musicStore.show" />
-    </Transition>
     <router-view #default="{ Component }">
       <Transition :name="transitionName" @after-leave="onAfterLeave">
         <keep-alive :include="routerStore.keepAliveList">
@@ -73,6 +70,9 @@ const onAfterLeave = () => {
         </keep-alive>
       </Transition>
     </router-view>
+    <Transition name="up-down">
+      <Music v-show="musicStore.show" />
+    </Transition>
   </div>
 </template>
 
