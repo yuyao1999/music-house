@@ -16,6 +16,8 @@ const appStore = useAppStore()
 const routerStore = useRouterStore()
 const musicStore = useMusicStore()
 
+musicStore.setShow(false)
+
 useSetZoom()
 
 // 根据浏览器当前主题设置系统主题色

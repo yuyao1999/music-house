@@ -45,6 +45,16 @@ export const useMusicStore = defineStore(
 
     // 下一首
     const nextMusic = () => {
+      if (playMode.value === 1) {
+        const randomIndex = Math.floor(Math.random() * musicList.value.length)
+        // 防止随机到当前音乐
+        if (randomIndex === nowIndex.value) {
+          nextMusic()
+          return
+        }
+        changeIndex(randomIndex)
+        return
+      }
       nowIndex.value = (nowIndex.value + 1) % musicList.value.length
       changeIndex(nowIndex.value)
     }
