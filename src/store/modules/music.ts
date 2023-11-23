@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useAudio } from '@/hooks/useAudio'
+import { debounce } from '@/utils/debounce'
 
 export const useMusicStore = defineStore(
   'music',
@@ -36,10 +37,12 @@ export const useMusicStore = defineStore(
     /**
      * 改变当前音乐下标
      */
-    const changeIndex = (index: number) => {
+    const changeIndex = debounce((index: number) => {
+      if (index === nowIndex.value) return
       nowIndex.value = index
       getMusicUrl(nowMusic.value.id || '')
-    }
+    })
+
     // 下一首
     const nextMusic = () => {
       nowIndex.value = (nowIndex.value + 1) % musicList.value.length
