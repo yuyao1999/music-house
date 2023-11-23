@@ -1,11 +1,12 @@
 <template>
   <div class="scroll-content">
     <div class="w-full h-full" ref="scrollRef">
-      <div v-if="topTips">已经到顶了</div>
+      <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in data" :key="index">
         <img :src="item.img" alt="" />
         <p>{{ item.name }}</p>
       </div>
+      <div v-if="bottomTips">没有更多了~</div>
     </div>
   </div>
 </template>
@@ -22,65 +23,67 @@ interface IData {
 interface IProps {
   data: IData[]
 }
-defineProps<IProps>()
+const props = defineProps<IProps>()
 
 onMounted(() => {
   console.log('onMounted scrollPage')
   setDraggable(scrollRef.value)
+  contentHeight = scrollRef.value?.clientHeight || 0
 })
 
 // 滑动距离切换的值
-const scrollValue = 30
+const scrollValue = 50
 // 动画时间
-const transitionTime = 300
-const onDragStart = () => {
-  console.log('onDragStart')
-  console.log('top', top.value)
-}
+const transitionTime = 500
+// 动画正在执行
+let isTransition = false
+// 容器高度
+let contentHeight = 0
+
+const onDragStart = () => {}
 const onDragEnd = () => {
   if (!scrollRef.value) return
-  console.log('onDragEnd')
-  console.log('top', top.value)
-  if (topTips.value) {
-    // 滚动到顶部 动画
-    scrollRef.value.style.transform = `translateY(0px)`
-    // 过度动画
-    scrollRef.value.style.transition = `transform 0.3s ease`
+  // 优化代码
+  if (topTips.value || bottomTips.value) {
+    // 滚动到顶部或底部 动画
+    let distance
+    if (topTips.value) {
+      distance = 0
+    } else {
+      distance = (props.data.length - 1) * contentHeight
+    }
+    scrollRef.value.style.transform = `translateY(-${distance}px)`
+    scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
+    isTransition = true
+
     setTimeout(() => {
       if (!scrollRef.value) return
       scrollRef.value.style.transition = ``
+      isTransition = false
+      top.value = 0
+      topTips.value = false
+      bottomTips.value = false
     }, transitionTime)
-    top.value = 0
-    topTips.value = false
+
     return
   }
-  // 差值超过 scrollValue 时，切换数据 切换动画
-  // 向下是负数 向上是正数 超过时切换数据 滑动一个数据的高度
   if (top.value < -scrollValue) {
-    console.log('向下滑动')
     // 向下滑动
     showIndex.value++
-    // 切换到下一个数据的位置
-    scrollRef.value.style.transform = `translateY(-${showIndex.value * 100}%)`
-    // 过度动画
-    scrollRef.value.style.transition = `transform 0.3s ease`
-    setTimeout(() => {
-      if (!scrollRef.value) return
-      scrollRef.value.style.transition = ``
-    }, transitionTime)
   } else if (top.value > scrollValue) {
-    console.log('向上滑动')
     // 向上滑动
     showIndex.value--
-    // 切换到上一个数据的位置
-    scrollRef.value.style.transform = `translateY(-${showIndex.value * 100}%)`
-    // 过度动画
-    scrollRef.value.style.transition = `transform 0.3s ease`
-    setTimeout(() => {
-      if (!scrollRef.value) return
-      scrollRef.value.style.transition = ``
-    }, transitionTime)
   }
+  // 切换到下一个数据的位置
+  isTransition = true
+  scrollRef.value.style.transform = `translateY(-${showIndex.value * contentHeight}px)`
+  // 过度动画
+  scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
+  setTimeout(() => {
+    if (!scrollRef.value) return
+    scrollRef.value.style.transition = ``
+    isTransition = false
+  }, transitionTime)
   top.value = 0
 }
 const { setDraggable, top } = useDraggable({
@@ -93,6 +96,7 @@ const scrollRef = ref<HTMLDivElement>()
 // 当前展示的数据下标
 const showIndex = ref(0)
 const topTips = ref(false)
+const bottomTips = ref(false)
 
 watch(
   () => top.value,
@@ -100,9 +104,15 @@ watch(
     if (!scrollRef.value) return
     if (showIndex.value === 0 && top.value > 30) {
       topTips.value = true
-    } else {
-      scrollRef.value.style.transform = `translateY(${top.value}px)`
+      return
+    } else if (showIndex.value === props.data.length - 1 && top.value < -30) {
+      bottomTips.value = true
+      return
     }
+    if (isTransition) return
+    let distance
+    distance = showIndex.value * contentHeight + -top.value
+    scrollRef.value.style.transform = `translateY(${-distance}px)`
   }
 )
 </script>
@@ -116,6 +126,16 @@ watch(
   .scroll-item {
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    img {
+      width: 100%;
+      height: 90%;
+      object-fit: cover;
+      -webkit-user-drag: none;
+    }
   }
 }
 </style>
