@@ -55,13 +55,13 @@ export const useMusicStore = defineStore(
         changeIndex(randomIndex)
         return
       }
-      nowIndex.value = (nowIndex.value + 1) % musicList.value.length
-      changeIndex(nowIndex.value)
+      const nextIndex = (nowIndex.value + 1) % musicList.value.length
+      changeIndex(nextIndex)
     }
     // 上一首
     const prevMusic = () => {
-      nowIndex.value = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
-      changeIndex(nowIndex.value)
+      const prevIndex = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
+      changeIndex(prevIndex)
     }
     /**
      * 播放列表
