@@ -48,11 +48,9 @@ localStorage.setItem('token', '123456789')
 const transitionName = ref('')
 router.beforeEach((to, from) => {
   transitionName.value = ''
-  if (from.name === 'home') {
-    routerStore.setScrollTop('home', window.scrollY || 0)
-  }
+  if (!from.name) return
   const fromUrl = ['/home', '/mine']
-  transitionName.value = fromUrl.includes(from.path) ? 'slide-left' : 'slide-right'
+  transitionName.value = fromUrl.includes(from.path) ? '' : 'slide-right'
 })
 const onAfterLeave = () => {
   nextTick(() => {

@@ -110,7 +110,7 @@ const bottomTips = ref(false)
 watch(
   () => top.value,
   () => {
-    if (!scrollRef.value) return
+    if (!scrollRef.value || top.value === 0) return
     if (showIndex.value === 0 && top.value > 30) {
       topTips.value = true
       return
