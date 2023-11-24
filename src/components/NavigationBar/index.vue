@@ -36,7 +36,8 @@ const toUrl = (url: string) => {
 <style scoped lang="scss">
 .content {
   @apply w-full h-full flex justify-around items-center;
-  background-color: #9e9a9a;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e5e5;
   z-index: 1;
   .item {
     // 悬浮 手

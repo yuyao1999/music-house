@@ -38,6 +38,12 @@ const data = ref([
     img: 'https://p1.music.126.net/xEHCPvJXUVXbMJUefadIxA==/54975581404753.jpg',
   },
 ])
+for (let i = 4; i < 100; i++) {
+  data.value.push({
+    name: i.toString(),
+    img: 'https://p1.music.126.net/xEHCPvJXUVXbMJUefadIxA==/54975581404753.jpg',
+  })
+}
 
 const musicStore = useMusicStore()
 

@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <div class="w-full h-[90vh]">
+  <div class="w-full h-[93vh]">
     <router-view #default="{ Component }">
       <Transition @after-leave="onAfterLeave">
         <keep-alive :include="routerStore.keepAliveList">
@@ -9,7 +9,7 @@
         </keep-alive>
       </Transition>
     </router-view>
-    <div class="h-[10vh] fixed bottom-0 w-full">
+    <div class="h-[7vh] fixed bottom-0 w-full">
       <NavigationBar />
     </div>
   </div>

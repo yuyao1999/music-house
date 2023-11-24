@@ -31,7 +31,11 @@ onMounted(() => {
   setDraggable(scrollRef.value)
 
   setTimeout(() => {
-    contentHeight = scrollRef.value?.offsetHeight || 0
+    // contentHeight = scrollRef.value?.offsetHeight || 500
+    // 使用offsetHeight获取元素的高度时，会发现获取的都是整数值，其实这是js自动对其进行了四舍五入，这就导致了获取的结果会出现偏差，使用getComputedStyle，就可以解决这个问题
+    const style = getComputedStyle(scrollRef.value!)
+    console.log('style', style.height)
+    contentHeight = parseFloat(style.height) || 500
     console.log('contentHeight 2', contentHeight)
   }, transitionTime)
 })
@@ -136,13 +140,14 @@ watch(
     justify-content: space-between;
     cursor: pointer;
     img {
+      margin-top: 2rem;
       width: 100%;
       height: 50%;
       object-fit: cover;
       -webkit-user-drag: none;
     }
     p {
-      margin-top: 10px;
+      margin-top: 2rem;
     }
   }
 }
