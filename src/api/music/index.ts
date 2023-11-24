@@ -38,6 +38,12 @@ class Music {
   getLyric(params: any) {
     return this.http.get('/lyric', params)
   }
+  /**
+   * 获取mv
+   */
+  getMv(params: any) {
+    return this.http.get('/mv/url', params)
+  }
 }
 const musicApi = new Music()
 export { musicApi }

@@ -4,6 +4,7 @@
   <div ref="mine">
     11111111111
     <br />
+    <div @click="music">music</div>
     很多大厂 App
     列表在滑动过程中，再次左滑或者右滑还是能切换页面，这点体验还是比较好的，因为不用等到页面停止再左滑右滑切换页面，体验很丝滑，比如QQ联系人那个ViewPager嵌套列表就支持。
     写文章之前先聊一下其他的愉悦身心吧。最近总是在安卓群里或者B站里听到行情不好，找工作难，互联网没救了，寒冬来了，要饿死了这样的消极言论。其实大环境这样我们作为代码人也很难去改变，该学习还是得学习该吃饭睡觉还是得吃饭睡觉，该玩还是得玩。就如太阳东升西落、四时更替、风雨雷电我们都无法去改变，只能去适应，太阳升起就劳作太阳落下就休息，天要下雨就撑把伞，季节更替就添补衣裳，人法地，地法天，天法道，道法自然，人在自然面前何其渺小，只能去适应和顺乎自然，就业大环境也是如此没有什么不能去适应的，物竞天择适者生存，只要有了适应能力，就算互联网行业不复存在，我们凭借着适应能力，也能在其他领域很好的生存下来。上天有好生之德，大自然有这么多东西，想要饿死一个人还真是有点难，所以也不要过多的杞人忧天，该咋样还是得咋样，就业大环境自然会在该好的时候好起来，我们只要写好自己的代码，好好学习，通过代码拿到属于我们自己应有的就好了，不属于自己的一毫而莫取。
@@ -38,7 +39,10 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useShow } from '@/hooks/useShow'
 import { useRouter } from 'vue-router'
+import { useMusicStore } from '@/store/modules/music'
+import { useAudio } from '@/hooks/useAudio'
 
+const { getMusicSearch } = useAudio()
 onMounted(() => {
   console.log('onMounted 我的')
   useShow({
@@ -61,6 +65,11 @@ const mine = ref<HTMLDivElement>()
 const router = useRouter()
 const toLogin = () => {
   router.push({ name: 'login' })
+}
+const musicStore = useMusicStore()
+const music = () => {
+  getMusicSearch('大小')
+  musicStore.setShow(true)
 }
 </script>
 

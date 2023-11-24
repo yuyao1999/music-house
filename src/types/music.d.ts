@@ -29,4 +29,16 @@ export type IMusic = {
    * 歌词
    */
   lyric?: ILyric[]
+  /**
+   * 视频id
+   */
+  mvid?: number
+  /**
+   * 视频地址
+   */
+  mvSrc?: string
+  /**
+   * 播放了多少秒
+   */
+  currentTime?: number
 }

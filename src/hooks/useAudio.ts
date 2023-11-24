@@ -200,6 +200,7 @@ export const useAudio = () => {
         name: data.name,
         singer: data.artists[0].name,
         album: data.album.name,
+        mvid: data.mvid,
       })
       // 优化
       Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl(data.id)])
