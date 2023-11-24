@@ -12,7 +12,7 @@
           当前播放
           <span class="text-base font-400">({{ musicStore.musicList.length }})</span>
         </div>
-        <div class="h-[80%] overflow-auto">
+        <div class="h-[80%] overflow-auto" ref="listRef">
           <div
             v-for="(item, index) in musicStore.musicList"
             @click="musicStore.changeIndex(index)"
@@ -45,6 +45,8 @@
 <script setup lang="ts">
 import { useMusicStore } from '@/store/modules/music'
 import { useAppStore } from '@/store/modules/app'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useShow } from '@/hooks/useShow'
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
@@ -59,6 +61,25 @@ defineProps<IProps>()
 const activeFunc = (id: string | undefined) => {
   return musicStore.nowMusic.id === id
 }
+const onShow = () => {
+  if (!listRef.value) return
+  const index = musicStore.nowIndex
+  if (index < 4) return
+  const itemHeight = (listRef.value?.children[0] as any).offsetHeight || 0
+  const scrollTop = index * itemHeight - itemHeight / 2
+  listRef.value?.scrollTo({
+    top: scrollTop,
+  })
+}
+const onHide = () => {}
+const listRef = ref<HTMLDivElement>()
+onMounted(() => {
+  useShow({
+    el: listRef.value,
+    onShow,
+    onHide,
+  })
+})
 </script>
 
 <style scoped lang="scss">
