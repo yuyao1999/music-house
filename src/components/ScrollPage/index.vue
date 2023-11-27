@@ -1,20 +1,12 @@
 <template>
   <div class="scroll-content">
-    <div class="w-full h-full" ref="scrollRef">
-      <div v-if="topTips">已经到顶了~</div>
-      <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
-        <p>{{ item.name }}</p>
-        <video
-          v-if="index === showIndex && item.mvid"
-          ref="videoRef"
-          :src="item.mvSrc"
-          class="video"
-          controls
-          :muted="muted"
-        />
-        <slot name="music" />
+    <div class="crosswise" ref="scrollRef">
+      <div class="scroll-item">
+        <ScrollImg />
       </div>
-      <div v-if="bottomTips">没有更多了~</div>
+      <div class="scroll-item">
+        <ScrollVideo />
+      </div>
     </div>
   </div>
 </template>
@@ -23,45 +15,28 @@
 import { useDraggable } from '@/hooks/useDraggable'
 import { onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
-import { musicApi } from '@/api/music'
+import ScrollImg from '@/components/ScrollImg/index.vue'
+import ScrollVideo from '@/components/ScrollVideo/index.vue'
 
 const musicStore = useMusicStore()
-const videoRef = ref()
-const getVideo = async () => {
-  console.log('id', musicStore.musicList[showIndex.value].mvid)
-  if (musicStore.musicList[showIndex.value].mvid === 0) return
-  const res: any = await musicApi.getMv({ id: musicStore.musicList[showIndex.value].mvid })
-  console.log('res', res)
-  const dom: any = videoRef.value[0]
-  console.log('dom', dom)
-  // dom!.src = res.data.url
-  musicStore.supplementMusic({
-    id: musicStore.musicList[showIndex.value].id,
-    mvSrc: res.data.url,
-  })
-  // 用户操作后才能播放
-  dom!.play()
+
+interface IProps {
+  /**
+   * 列表
+   */
+  tabsList: string[]
+  /**
+   * 当前所在的索引
+   */
+  currentIndex: number
 }
-const muted = ref(true)
-// 打开声音
-const openVoice = () => {
-  console.log('openVoice')
-  const dom: any = videoRef.value[0]
-  dom!.muted = false
-  muted.value = false
-  document.body.removeEventListener('click', openVoice)
-}
-document.body.addEventListener('click', openVoice)
+const props = defineProps<IProps>()
 
 onMounted(() => {
-  console.log('onMounted scrollPage')
   setDraggable(scrollRef.value)
   setTimeout(() => {
-    // contentHeight = scrollRef.value?.offsetHeight || 500
-    // 使用offsetHeight获取元素的高度时，会发现获取的都是整数值，其实这是js自动对其进行了四舍五入，这就导致了获取的结果会出现偏差，使用getComputedStyle，就可以解决这个问题
     const style = getComputedStyle(scrollRef.value!)
-    contentHeight = parseFloat(style.height) || 500
-    getVideo()
+    contentHeight = parseFloat(style.width) || 500
   }, transitionTime)
 })
 
@@ -74,9 +49,11 @@ let isTransition = false
 // 容器高度
 let contentHeight = 0
 
-const onDragStart = () => {}
+const onDragStart = () => {
+  console.log('onDragStart page')
+}
 const onDragEnd = () => {
-  if (!scrollRef.value || top.value === 0) return
+  if (!scrollRef.value || left.value === 0) return
   // 优化代码
   if (topTips.value || bottomTips.value) {
     // 滚动到顶部或底部 动画
@@ -86,7 +63,7 @@ const onDragEnd = () => {
     } else {
       distance = (musicStore.musicList.length - 1) * contentHeight
     }
-    scrollRef.value.style.transform = `translateY(-${distance}px)`
+    scrollRef.value.style.transform = `translateX(-${distance}px)`
     scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
     isTransition = true
 
@@ -94,52 +71,35 @@ const onDragEnd = () => {
       if (!scrollRef.value) return
       scrollRef.value.style.transition = ``
       isTransition = false
-      top.value = 0
+      left.value = 0
       topTips.value = false
       bottomTips.value = false
     }, transitionTime)
 
     return
   }
-  // 如果即不向上滑动也不向下滑动 则不做视频处理
-  const nextFlag = top.value > scrollValue || top.value < -scrollValue
 
-  if (top.value < -scrollValue) {
-    // 向下滑动
+  if (left.value < -scrollValue) {
+    // 向左滑动
     showIndex.value++
-    getVideo()
-  } else if (top.value > scrollValue) {
-    // 向上滑动
+  } else if (left.value > scrollValue) {
+    // 向右滑动
     showIndex.value--
-  }
-  const dom: any = videoRef.value[0]
-  if (dom && nextFlag) {
-    // 记录当前播放时间
-    musicStore.supplementMusic({
-      id: musicStore.musicList[showIndex.value].id,
-      currentTime: dom.currentTime,
-    })
   }
   // 切换到下一个数据的位置
   isTransition = true
-  scrollRef.value.style.transform = `translateY(-${showIndex.value * contentHeight}px)`
+  scrollRef.value.style.transform = `translateX(-${showIndex.value * contentHeight}px)`
   // 过度动画
   scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
   setTimeout(() => {
     if (!scrollRef.value) return
     scrollRef.value.style.transition = ``
     isTransition = false
-    const dom: any = videoRef.value[0]
-    // 跳转到已经播放的时间
-    if (dom && nextFlag) {
-      dom.currentTime = musicStore.musicList[showIndex.value]?.currentTime || 0
-      dom.play()
-    }
   }, transitionTime)
-  top.value = 0
+  left.value = 0
 }
-const { setDraggable, top } = useDraggable({
-  axis: 'y',
+const { setDraggable, left } = useDraggable({
+  axis: 'x',
   onDragStart,
   onDragEnd,
 })
@@ -149,54 +109,48 @@ const scrollRef = ref<HTMLDivElement>()
 const showIndex = ref(0)
 const topTips = ref(false)
 const bottomTips = ref(false)
-
 watch(
-  () => top.value,
+  () => left.value,
   () => {
-    if (!scrollRef.value || top.value === 0) return
-    if (showIndex.value === 0 && top.value > 30) {
+    console.log('left', left.value)
+    if (!scrollRef.value || left.value === 0) return
+    if (showIndex.value === 0 && left.value > 30) {
       topTips.value = true
       return
-    } else if (showIndex.value === musicStore.musicList.length - 1 && top.value < -30) {
+    } else if (showIndex.value === props.tabsList.length - 1 && left.value < -30) {
       bottomTips.value = true
       return
     }
     if (isTransition) return
     let distance
-    distance = showIndex.value * contentHeight + -top.value
-    scrollRef.value.style.transform = `translateY(${-distance}px)`
+    distance = showIndex.value * contentHeight + -left.value
+    scrollRef.value.style.transform = `translateX(${-distance}px)`
   }
 )
 </script>
 
 <style scoped lang="scss">
-.scroll-content {
-  overflow: hidden;
+.crosswise {
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+}
+.scroll-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 
-  user-select:none .video {
-    width: 100%;
-    object-fit: cover;
-    z-index: 1;
-  }
   .scroll-item {
+    position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+    flex-shrink: 0;
+
     cursor: pointer;
-    img {
-      margin-top: 2rem;
-      width: 100%;
-      height: 50%;
-      object-fit: cover;
-      -webkit-user-drag: none;
-    }
+    padding: 50px;
     p {
-      margin-top: 2rem;
+      margin-left: 2rem;
     }
   }
 }

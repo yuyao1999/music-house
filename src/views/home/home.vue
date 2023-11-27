@@ -1,18 +1,9 @@
 <!-- @format -->
 
 <template>
-  <div ref="homeRef" class="w-full h-full">
-    <ScrollPage :data="data">
-      <template #music>
-        <input class="border w-50" type="text" v-model="msg" />
-        <div>
-          <div @click="toMusic">music</div>
-        </div>
-        <div>
-          <div @click="toLogin">login</div>
-        </div>
-      </template>
-    </ScrollPage>
+  <div ref="homeRef" class="w-full h-full bg-dark-300">
+    <Tabs :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
+    <ScrollPage :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
   </div>
 </template>
 
@@ -23,6 +14,13 @@ import { useAudio } from '@/hooks/useAudio'
 import { useShow } from '@/hooks/useShow'
 import { useMusicStore } from '@/store/modules/music'
 import ScrollPage from '@/components/ScrollPage/index.vue'
+import Tabs from '@/components/Tabs/index.vue'
+
+const tabsList = ref(['图文', 'MV'])
+const currentIndex = ref(0)
+const changeIndex = (index: number) => {
+  currentIndex.value = index
+}
 
 const data = ref([
   {
