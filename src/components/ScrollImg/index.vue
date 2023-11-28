@@ -125,7 +125,7 @@ const onDragEnd = () => {
   }, transitionTime)
   top.value = 0
 }
-const { setDraggable, top } = useDraggable({
+const { setDraggable, top, setDragDirection } = useDraggable({
   axis: 'y',
   onDragStart,
   onDragEnd,
@@ -140,7 +140,6 @@ const bottomTips = ref(false)
 watch(
   () => top.value,
   () => {
-    console.log('top', top.value)
     if (!scrollRef.value || top.value === 0) return
     if (showIndex.value === 0 && top.value > 30) {
       topTips.value = true
@@ -153,6 +152,7 @@ watch(
     let distance
     distance = showIndex.value * contentHeight + -top.value
     scrollRef.value.style.transform = `translateY(${-distance}px)`
+    setDragDirection('y')
   }
 )
 </script>

@@ -4,6 +4,7 @@
   <div ref="mine">
     11111111111
     <br />
+    <input type="text" v-model="text" />
     <div @click="music">music</div>
     很多大厂 App
     列表在滑动过程中，再次左滑或者右滑还是能切换页面，这点体验还是比较好的，因为不用等到页面停止再左滑右滑切换页面，体验很丝滑，比如QQ联系人那个ViewPager嵌套列表就支持。
@@ -41,6 +42,7 @@ import { useShow } from '@/hooks/useShow'
 import { useRouter } from 'vue-router'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
+import { getStatusBarColor, setStatusBarColor } from '@/utils/app-setting'
 
 const { getMusicSearch } = useAudio()
 onMounted(() => {
@@ -54,11 +56,14 @@ onMounted(() => {
 onUnmounted(() => {
   // console.log('onUnmounted 我的')
 })
+const tempBarColor = getStatusBarColor()
 const onShow = () => {
-  // console.log('onShow')
+  console.log('onShow mine')
+  setStatusBarColor('#FFFFFF')
 }
 const onHide = () => {
-  // console.log('onHide')
+  console.log('onHide mine', tempBarColor)
+  setStatusBarColor(tempBarColor)
 }
 const mine = ref<HTMLDivElement>()
 
@@ -66,9 +71,10 @@ const router = useRouter()
 const toLogin = () => {
   router.push({ name: 'login' })
 }
+const text = ref('1')
 const musicStore = useMusicStore()
 const music = () => {
-  getMusicSearch('大小')
+  getMusicSearch(text.value)
   musicStore.setShow(true)
 }
 </script>

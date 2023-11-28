@@ -86,6 +86,7 @@ const onDragEnd = () => {
     // 向右滑动
     showIndex.value--
   }
+  emits('changeIndex', showIndex.value)
   // 切换到下一个数据的位置
   isTransition = true
   scrollRef.value.style.transform = `translateX(-${showIndex.value * contentHeight}px)`
@@ -98,7 +99,7 @@ const onDragEnd = () => {
   }, transitionTime)
   left.value = 0
 }
-const { setDraggable, left } = useDraggable({
+const { setDraggable, left, setDragDirection } = useDraggable({
   axis: 'x',
   onDragStart,
   onDragEnd,
@@ -112,7 +113,6 @@ const bottomTips = ref(false)
 watch(
   () => left.value,
   () => {
-    console.log('left', left.value)
     if (!scrollRef.value || left.value === 0) return
     if (showIndex.value === 0 && left.value > 30) {
       topTips.value = true
@@ -125,8 +125,27 @@ watch(
     let distance
     distance = showIndex.value * contentHeight + -left.value
     scrollRef.value.style.transform = `translateX(${-distance}px)`
+    setDragDirection('x')
   }
 )
+const emits = defineEmits<{ (e: 'changeIndex', value: number): void }>()
+
+// 切换到指定的索引
+const changeScroll = (index: number) => {
+  if (!scrollRef.value) return
+  showIndex.value = index
+  scrollRef.value.style.transform = `translateX(-${showIndex.value * contentHeight}px)`
+  scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
+  isTransition = true
+  setTimeout(() => {
+    if (!scrollRef.value) return
+    scrollRef.value.style.transition = ``
+    isTransition = false
+  }, transitionTime)
+}
+defineExpose({
+  changeScroll,
+})
 </script>
 
 <style scoped lang="scss">

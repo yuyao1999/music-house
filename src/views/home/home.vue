@@ -3,7 +3,7 @@
 <template>
   <div ref="homeRef" class="w-full h-full bg-dark-300">
     <Tabs :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
-    <ScrollPage :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
+    <ScrollPage ref="scrollPageRef" :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
   </div>
 </template>
 
@@ -16,10 +16,13 @@ import { useMusicStore } from '@/store/modules/music'
 import ScrollPage from '@/components/ScrollPage/index.vue'
 import Tabs from '@/components/Tabs/index.vue'
 
+const scrollPageRef = ref<InstanceType<typeof ScrollPage>>()
+
 const tabsList = ref(['图文', 'MV'])
 const currentIndex = ref(0)
 const changeIndex = (index: number) => {
   currentIndex.value = index
+  scrollPageRef.value?.changeScroll(index)
 }
 
 const data = ref([
@@ -49,7 +52,6 @@ const { getMusicSearch } = useAudio()
 defineOptions({
   name: 'home',
 })
-
 const onShow = () => {
   console.log('onShow')
 }

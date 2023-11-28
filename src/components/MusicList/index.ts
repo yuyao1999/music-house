@@ -2,7 +2,7 @@
 // 命令式组件
 import MusicList from './index.vue'
 import { createApp, h, ref } from 'vue'
-import { setBack } from '@/utils/app-back'
+import { setBack } from '@/utils/app-setting'
 
 export const useMusicList = () => {
   let div: any = null

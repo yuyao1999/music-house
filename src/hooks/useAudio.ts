@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/modules/app'
 import { getImgColor, getDarkColor } from '@/utils/img'
 import { useToast } from '@/components/Toast'
 import { musicApi } from '@/api/music'
+import { setStatusBarColor } from '@/utils/app-setting'
 
 const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
@@ -127,7 +128,9 @@ export const useAudio = () => {
       })
       getImgColor(data).then((res: any) => {
         appStore.setMainColor(res)
-        appStore.setDarkColor(getDarkColor(res))
+        const dark = getDarkColor(res)
+        appStore.setDarkColor(dark)
+        setStatusBarColor(dark)
       })
     })
   }

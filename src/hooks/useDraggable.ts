@@ -1,6 +1,11 @@
 import { ref } from 'vue'
 import { isMobile } from '@/utils/is'
 
+// 全局只允许x y 同时只能有一个元素在拖动
+let dragDirection: 'x' | 'y' | '' = ''
+const setDragDirection = (axis: 'x' | 'y' | '') => {
+  dragDirection = axis
+}
 interface Options {
   onDragStart?: () => void
   onDragEnd?: () => void
@@ -39,12 +44,14 @@ export const useDraggable = (options: Options) => {
     const currentY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     const diffX = currentX - startX.value
     const diffY = currentY - startY.value
-    if (options.axis === 'x') {
+
+    if (options.axis === 'x' && (options.axis === dragDirection || dragDirection === '')) {
       left.value += diffX
     }
-    if (options.axis === 'y') {
+    if (options.axis === 'y' && (options.axis === dragDirection || dragDirection === '')) {
       top.value += diffY
     }
+
     if (options.axis === 'both') {
       left.value += diffX
       top.value += diffY
@@ -54,6 +61,7 @@ export const useDraggable = (options: Options) => {
   }
   const handleDragEnd = (e: MouseEvent | TouchEvent) => {
     isDragging.value = false
+    setDragDirection('')
     options.onDragEnd?.()
     if (!isMobile()) {
       draggable.value?.removeEventListener('mouseup', handleDragEnd)
@@ -118,5 +126,6 @@ export const useDraggable = (options: Options) => {
     top,
     resetPosition,
     setPosition,
+    setDragDirection,
   }
 }
