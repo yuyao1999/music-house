@@ -160,6 +160,15 @@ defineExpose({
   height: 100%;
   overflow: hidden;
 
+  // 取消长按的背景色
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+
+  -webkit-user-select: none;
+
+  -moz-user-focus: none;
+
+  -moz-user-select: none;
+
   .scroll-item {
     position: relative;
     width: 100%;
