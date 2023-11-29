@@ -42,7 +42,7 @@ import { useShow } from '@/hooks/useShow'
 import { useRouter } from 'vue-router'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
-import { getStatusBarColor, setStatusBarColor } from '@/utils/app-setting'
+import { setStatusBarColor } from '@/utils/app-setting'
 
 const { getMusicSearch } = useAudio()
 onMounted(() => {
@@ -56,14 +56,12 @@ onMounted(() => {
 onUnmounted(() => {
   // console.log('onUnmounted 我的')
 })
-const tempBarColor = getStatusBarColor()
 const onShow = () => {
   console.log('onShow mine')
   setStatusBarColor('#FFFFFF')
 }
 const onHide = () => {
-  console.log('onHide mine', tempBarColor)
-  setStatusBarColor(tempBarColor)
+  console.log('onHide mine')
 }
 const mine = ref<HTMLDivElement>()
 

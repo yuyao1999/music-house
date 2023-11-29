@@ -126,7 +126,7 @@ import { useMusicList } from '@/components/MusicList'
 import { useFont } from '@/hooks/useFont'
 import { setBack } from '@/utils/app-setting'
 import scrollText from '@/components/scrollText/index.vue'
-import { getStatusBarColor, setStatusBarColor } from '@/utils/app-setting'
+import { setStatusBarColor } from '@/utils/app-setting'
 
 import { useShow } from '@/hooks/useShow'
 
@@ -151,7 +151,6 @@ onMounted(() => {
 })
 onUnmounted(() => {})
 //#endregion
-const tempBarColor = getStatusBarColor()
 const onShow = () => {
   setBack(back)
   // 滚动到当前歌词
@@ -164,8 +163,8 @@ const onShow = () => {
   }
 }
 const onHide = () => {
-  console.log('onHide')
-  setStatusBarColor(tempBarColor)
+  console.log('onHide music')
+  setStatusBarColor('#FFFFFF')
 }
 
 const playModeList = [

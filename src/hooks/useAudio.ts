@@ -189,6 +189,8 @@ export const useAudio = () => {
       const index = musicStore.musicList.findIndex((item) => item.id === data.id)
       console.log('index', index)
       if (index !== -1) {
+        const appStore = useAppStore()
+        setStatusBarColor(appStore.darkColor)
         console.log('audio.value?.paused', audio.value?.paused)
         if (audio.value?.paused !== undefined) {
           return

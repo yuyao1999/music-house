@@ -31,7 +31,6 @@ document.addEventListener('plusready', function () {
     }
   })
 })
-let statusBarColor = '#2D2D2D'
 
 const colorRgbToHex = (rgbStr: string) => {
   //十六进制颜色值的正则表达式
@@ -61,20 +60,14 @@ const colorRgbToHex = (rgbStr: string) => {
 }
 export const setStatusBarColor = (color: string) => {
   if (!window.plus) return
-  console.log('color', color)
   if (color.indexOf('rgb') === -1) {
     plus.navigator.setStatusBarBackground(color) // 设置状态栏颜色
-    statusBarColor = color
   } else {
+    // rgb转16进制
     plus.navigator.setStatusBarBackground(colorRgbToHex(color)) // 设置状态栏颜色
-    statusBarColor = colorRgbToHex(color)
   }
 }
-export const getStatusBarColor = () => {
-  if (!window.plus) return '#2D2D2D'
-  return statusBarColor
-}
-setStatusBarColor('#2D2D2D')
+
 // plus声明
 declare const plus: any
 declare global {
