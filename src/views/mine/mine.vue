@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <div ref="mine">
+  <div ref="mine" class="statusBarHeightPaddingTop">
     11111111111
     <br />
     <input type="text" v-model="text" />
@@ -42,7 +42,6 @@ import { useShow } from '@/hooks/useShow'
 import { useRouter } from 'vue-router'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
-import { setStatusBarColor } from '@/utils/app-setting'
 
 const { getMusicSearch } = useAudio()
 onMounted(() => {
@@ -58,7 +57,6 @@ onUnmounted(() => {
 })
 const onShow = () => {
   console.log('onShow mine')
-  setStatusBarColor('#FFFFFF')
 }
 const onHide = () => {
   console.log('onHide mine')

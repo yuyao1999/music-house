@@ -15,7 +15,6 @@ import { useShow } from '@/hooks/useShow'
 import { useMusicStore } from '@/store/modules/music'
 import ScrollPage from '@/components/ScrollPage/index.vue'
 import Tabs from '@/components/Tabs/index.vue'
-import { setStatusBarColor } from '@/utils/app-setting'
 
 const scrollPageRef = ref<InstanceType<typeof ScrollPage>>()
 
@@ -55,7 +54,6 @@ defineOptions({
 })
 const onShow = () => {
   console.log('onShow home')
-  setStatusBarColor('#2D2D2D')
 }
 const onHide = () => {
   console.log('onHide')

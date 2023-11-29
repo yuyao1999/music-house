@@ -5,7 +5,6 @@ import { useAppStore } from '@/store/modules/app'
 import { getImgColor, getDarkColor } from '@/utils/img'
 import { useToast } from '@/components/Toast'
 import { musicApi } from '@/api/music'
-import { setStatusBarColor } from '@/utils/app-setting'
 
 const audio = ref<HTMLAudioElement | null>(null)
 let timeupdate: EventListenerOrEventListenerObject
@@ -130,7 +129,6 @@ export const useAudio = () => {
         appStore.setMainColor(res)
         const dark = getDarkColor(res)
         appStore.setDarkColor(dark)
-        setStatusBarColor(dark)
       })
     })
   }
@@ -190,7 +188,6 @@ export const useAudio = () => {
       console.log('index', index)
       if (index !== -1) {
         const appStore = useAppStore()
-        setStatusBarColor(appStore.darkColor)
         console.log('audio.value?.paused', audio.value?.paused)
         if (audio.value?.paused !== undefined) {
           return

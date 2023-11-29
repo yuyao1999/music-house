@@ -7,6 +7,8 @@ export const setBack = (func: Function) => {
 }
 let count = 0
 document.addEventListener('plusready', function () {
+  setStatusBarHeight()
+  setNavigationBar()
   let webview = plus.webview.currentWebview()
   plus.key.addEventListener('backbutton', function () {
     if (back.length) {
@@ -68,6 +70,31 @@ export const setStatusBarColor = (color: string) => {
   }
 }
 
+// 设置沉浸式状态栏 高度
+export const setStatusBarHeight = () => {
+  if (!window.plus) return
+  const statusBarHeight = plus.navigator.getStatusbarHeight()
+  console.log('statusBarHeight', statusBarHeight)
+  // tabs
+  const tabs: any = document.querySelector('.tabs')
+  console.log('tabs', tabs)
+  if (tabs) {
+    tabs.style.top = statusBarHeight + 'px'
+  }
+  const style = document.createElement('style')
+  style.innerHTML = `.statusBarHeightPaddingTop {padding-top: ${statusBarHeight}px}`
+  document.getElementsByTagName('head')[0].appendChild(style)
+}
+// 设置（底部导航栏）
+export const setNavigationBar = () => {
+  if (!window.plus) return
+  const Color = plus.android.importClass('android.graphics.Color')
+  plus.android.importClass('android.view.Window')
+  const mainActivity = plus.android.runtimeMainActivity()
+  const window_android = mainActivity.getWindow()
+  // 设置导航栏背景色纯黑
+  window_android.setNavigationBarColor(Color.parseColor('#000000'))
+}
 // plus声明
 declare const plus: any
 declare global {

@@ -2,7 +2,7 @@
   <div>
     <div class="page">
       <!-- 头部 -->
-      <div class="flex justify-between items-center w-full">
+      <div class="flex justify-between items-center w-full statusBarHeightPaddingTop">
         <button class="icon-back hover:cursor-pointer" @click="back" v-throttle />
         <div class="flex flex-col items-center w-[80%] overflow-hidden">
           <div class="music-name">
@@ -126,7 +126,6 @@ import { useMusicList } from '@/components/MusicList'
 import { useFont } from '@/hooks/useFont'
 import { setBack } from '@/utils/app-setting'
 import scrollText from '@/components/scrollText/index.vue'
-import { setStatusBarColor } from '@/utils/app-setting'
 
 import { useShow } from '@/hooks/useShow'
 
@@ -164,7 +163,6 @@ const onShow = () => {
 }
 const onHide = () => {
   console.log('onHide music')
-  setStatusBarColor('#FFFFFF')
 }
 
 const playModeList = [
