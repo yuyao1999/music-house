@@ -54,31 +54,7 @@ const onDragStart = () => {
 }
 const onDragEnd = () => {
   if (!scrollRef.value || left.value === 0) return
-  // 优化代码
-  if (topTips.value || bottomTips.value) {
-    // 滚动到顶部或底部 动画
-    let distance
-    if (topTips.value) {
-      distance = 0
-    } else {
-      distance = (musicStore.musicList.length - 1) * contentHeight
-    }
-    scrollRef.value.style.transform = `translateX(-${distance}px)`
-    scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
-    isTransition = true
-
-    setTimeout(() => {
-      if (!scrollRef.value) return
-      scrollRef.value.style.transition = ``
-      isTransition = false
-      left.value = 0
-      topTips.value = false
-      bottomTips.value = false
-    }, transitionTime)
-
-    return
-  }
-
+  if (showIndex.value === props.tabsList.length - 1 && left.value < 0) return
   if (left.value < -scrollValue) {
     // 向左滑动
     showIndex.value++
@@ -108,24 +84,24 @@ const { setDraggable, left, setDragDirection } = useDraggable({
 const scrollRef = ref<HTMLDivElement>()
 // 当前展示的数据下标
 const showIndex = ref(0)
-const topTips = ref(false)
-const bottomTips = ref(false)
 watch(
   () => left.value,
   () => {
     if (!scrollRef.value || left.value === 0) return
-    if (showIndex.value === 0 && left.value > 30) {
-      topTips.value = true
+    if (showIndex.value === 0 && left.value > 0) {
+      left.value = 0
+      setDragDirection('x')
       return
-    } else if (showIndex.value === props.tabsList.length - 1 && left.value < -30) {
-      bottomTips.value = true
+    } else if (showIndex.value === props.tabsList.length - 1 && left.value < 0) {
+      left.value = 0
+      setDragDirection('x')
       return
     }
     if (isTransition) return
+    setDragDirection('x')
     let distance
     distance = showIndex.value * contentHeight + -left.value
     scrollRef.value.style.transform = `translateX(${-distance}px)`
-    setDragDirection('x')
   }
 )
 const emits = defineEmits<{ (e: 'changeIndex', value: number): void }>()
@@ -162,11 +138,8 @@ defineExpose({
 
   // 取消长按的背景色
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-
   -webkit-user-select: none;
-
   -moz-user-focus: none;
-
   -moz-user-select: none;
 
   .scroll-item {

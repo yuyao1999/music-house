@@ -4,7 +4,7 @@
       <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
         <span class="text-sky-50">111</span>
-        <img :src="item.cover" alt="" />
+        <img class="img" :src="item.cover" alt="" />
       </div>
       <div v-if="bottomTips">没有更多了~</div>
     </div>
@@ -178,6 +178,17 @@ watch(
     cursor: pointer;
     p {
       margin-top: 2rem;
+    }
+    .img {
+      width: 20rem;
+      height: 20rem;
+      object-fit: cover;
+      // 不允许用户拖动
+      -webkit-user-drag: none;
+      -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+      -webkit-user-select: none;
+      -moz-user-focus: none;
+      -moz-user-select: none;
     }
   }
 }
