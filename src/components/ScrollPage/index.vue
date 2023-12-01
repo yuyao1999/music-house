@@ -7,6 +7,9 @@
       <div class="scroll-item">
         <ScrollVideo />
       </div>
+      <!-- <div class="scroll-item">
+        <ScrollVideo />
+      </div> -->
     </div>
   </div>
 </template>
@@ -87,6 +90,8 @@ const showIndex = ref(0)
 watch(
   () => left.value,
   () => {
+    emits('setLeft', left.value)
+
     if (!scrollRef.value || left.value === 0) return
     if (showIndex.value === 0 && left.value > 0) {
       left.value = 0
@@ -104,7 +109,10 @@ watch(
     scrollRef.value.style.transform = `translateX(${-distance}px)`
   }
 )
-const emits = defineEmits<{ (e: 'changeIndex', value: number): void }>()
+const emits = defineEmits<{
+  (e: 'changeIndex', value: number): void
+  (e: 'setLeft', value: number): void
+}>()
 
 // 切换到指定的索引
 const changeScroll = (index: number) => {
@@ -147,9 +155,8 @@ defineExpose({
     width: 100%;
     height: 100%;
     flex-shrink: 0;
-
+    background: #010101;
     cursor: pointer;
-    padding: 50px;
     p {
       margin-left: 2rem;
     }

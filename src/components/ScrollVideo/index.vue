@@ -3,7 +3,7 @@
     <div class="w-full h-full" ref="scrollRef">
       <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
-        <span class="text-sky-50">666</span>
+        <span class="name">{{ item.name }}</span>
         <video
           v-if="index === showIndex && item?.mvid"
           ref="videoRef"
@@ -97,6 +97,15 @@ const onDragEnd = () => {
   }
   // 如果即不向上滑动也不向下滑动 则不做视频处理
   const nextFlag = top.value > scrollValue || top.value < -scrollValue
+  const dom: any = videoRef.value?.[0]
+  if (dom && nextFlag) {
+    // 记录当前播放时间
+    musicStore.supplementMusic({
+      id: musicStore.musicList[showIndex.value]?.id,
+      currentTime: dom.currentTime,
+    })
+    console.log('dom.currentTime', dom.currentTime)
+  }
 
   if (top.value < -scrollValue) {
     // 向下滑动
@@ -106,14 +115,7 @@ const onDragEnd = () => {
     // 向上滑动
     showIndex.value--
   }
-  const dom: any = videoRef.value?.[0]
-  if (dom && nextFlag) {
-    // 记录当前播放时间
-    musicStore.supplementMusic({
-      id: musicStore.musicList[showIndex.value]?.id,
-      currentTime: dom.currentTime,
-    })
-  }
+
   // 切换到下一个数据的位置
   isTransition = true
   scrollRef.value.style.transform = `translateY(-${showIndex.value * contentHeight}px)`
@@ -170,13 +172,10 @@ watch(
   overflow: hidden;
   width: 100%;
   height: 100%;
+  user-select: none;
 
-  user-select:none .video {
-    width: 100%;
-    object-fit: cover;
-    z-index: 1;
-  }
   .scroll-item {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
@@ -184,8 +183,21 @@ watch(
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    background: #010101;
     p {
       margin-top: 2rem;
+    }
+    .name {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+    }
+    .video {
+      width: 100%;
+      height: fit-content;
+      object-fit: cover;
     }
   }
 }

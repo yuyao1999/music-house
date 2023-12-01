@@ -3,7 +3,7 @@
     <div class="w-full h-full" ref="scrollRef">
       <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
-        <span class="text-sky-50">111</span>
+        <span class="text-sky-50">{{ item.name }}</span>
         <img class="img" :src="item.cover" alt="" />
       </div>
       <div v-if="bottomTips">没有更多了~</div>

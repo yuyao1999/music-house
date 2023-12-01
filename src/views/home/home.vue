@@ -2,8 +2,14 @@
 
 <template>
   <div ref="homeRef" class="w-full h-full bg-dark-300">
-    <Tabs :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
-    <ScrollPage ref="scrollPageRef" :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" />
+    <Tabs :tabsList="tabsList" :currentIndex="currentIndex" @changeIndex="changeIndex" :left="left" />
+    <ScrollPage
+      ref="scrollPageRef"
+      :tabsList="tabsList"
+      :currentIndex="currentIndex"
+      @changeIndex="changeIndex"
+      @setLeft="setLeft"
+    />
   </div>
 </template>
 
@@ -17,14 +23,27 @@ import ScrollPage from '@/components/ScrollPage/index.vue'
 import Tabs from '@/components/Tabs/index.vue'
 
 const scrollPageRef = ref<InstanceType<typeof ScrollPage>>()
+const left = ref(50)
 
+// const tabsList = ref(['图文', 'MV', '达娃大'])
 const tabsList = ref(['图文', 'MV'])
 const currentIndex = ref(0)
 const changeIndex = (index: number) => {
   currentIndex.value = index
   scrollPageRef.value?.changeScroll(index)
 }
-
+const setLeft = (value: number) => {
+  // 2对应1倍 3对应0.5倍 4对应0.25倍
+  const error = 1 / (tabsList.value.length - 1)
+  if (value === 0) {
+    left.value = 50
+    return
+  } else if (value < 0) {
+    left.value = 50 + -(value * error)
+  } else {
+    left.value = 50 - value * error
+  }
+}
 const data = ref([
   {
     name: '1',

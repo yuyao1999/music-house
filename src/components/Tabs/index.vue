@@ -27,6 +27,10 @@ interface IProps {
    * 当前所在的索引
    */
   currentIndex: number
+  /**
+   * 下标所在的位置
+   */
+  left: number
 }
 defineProps<IProps>()
 
@@ -51,20 +55,23 @@ const changeIndex = (index: number) => {
   height: 3rem;
   .tabs-item {
     font-size: 1rem;
-    color: #fff;
+    color: #ffffffab;
     position: relative;
     &.active {
+      color: #fff;
       font-weight: bold;
-      font-size: 1.1rem;
+      transition: all 0.3s linear;
     }
     .active-bottom {
       position: absolute;
       bottom: -0.5rem;
       width: 70%;
-      left: 50%;
+      // props.left是父组件传递过来的 0 对应50% 1对应100%
+      left: v-bind("left+ '%'");
       transform: translateX(-50%);
       height: 0.16rem;
       background-color: #fff;
+      transition: all 0.3s;
     }
   }
 }
