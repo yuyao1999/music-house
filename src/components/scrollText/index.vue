@@ -1,11 +1,11 @@
 <template>
-  <div v-if="textValue.length > max" class="content">
+  <div v-if="textValue.length > max" class="content-scroll-text">
     <div class="scroll1">{{ textValue }}</div>
     <div class="scroll2">
       {{ textValue }}
     </div>
   </div>
-  <div v-else class="content">
+  <div v-else class="content-scroll-text">
     {{ textValue }}
   </div>
 </template>
@@ -43,13 +43,11 @@ watch(
 <style scoped lang="scss">
 $time: v-bind("time+'s'");
 // 无缝滚动
-.content {
+.content-scroll-text {
   width: 100%;
   height: 100%;
-  line-height: 120%;
   overflow: hidden;
   white-space: nowrap;
-  text-align: center;
 
   .scroll1 {
     display: inline-block;

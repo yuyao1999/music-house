@@ -6,7 +6,7 @@
         <button class="icon-back hover:cursor-pointer" @click="back" v-throttle />
         <div class="flex flex-col items-center w-[80%] overflow-hidden">
           <div class="music-name">
-            <scrollText :text="musicStore.nowMusic.name" />
+            <scrollText :text="musicStore.nowMusic.name" class="text-center" />
           </div>
 
           <div>{{ musicStore.nowMusic.singer }}</div>

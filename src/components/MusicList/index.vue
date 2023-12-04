@@ -19,20 +19,35 @@
             :key="item.id"
             class="flex justify-between items-center mb-3 cursor-pointer"
           >
-            <div class="flex items-center gap-3">
-              <div class="text-base text-gray-500 font-400" :class="{ 'text-current': activeFunc(item.id) }">
+            <div class="flex items-center gap-3 basis-[90%] overflow-hidden">
+              <div
+                class="text-base text-gray-500 font-400 w-4 flex-shrink-0"
+                :class="{ 'text-current': activeFunc(item.id) }"
+              >
                 {{ index + 1 }}
               </div>
               <div>
-                <div class="text-xl text-gray-300 font-600" :class="{ active: activeFunc(item.id) }">
+                <!-- <div class="text-xl text-gray-300 font-600" :class="{ active: activeFunc(item.id) }">
                   {{ item.name }}
                 </div>
                 <div class="text-base text-gray-500 font-400" :class="{ active: activeFunc(item.id) }">
                   {{ item.singer }} - {{ item.album }}
-                </div>
+                </div> -->
+                <scrollText
+                  class="text-xl text-gray-300 font-600 w-full"
+                  :class="{ active: activeFunc(item.id) }"
+                  :text="item.name"
+                  :max="11"
+                />
+                <scrollText
+                  class="text-base text-gray-500 font-400 w-full"
+                  :class="{ active: activeFunc(item.id) }"
+                  :text="item.singer + '-' + item.album"
+                  :max="14"
+                />
               </div>
             </div>
-            <div @click.stop="musicStore.removePlayList(index)" class="close">
+            <div @click.stop="musicStore.removePlayList(index)" class="close basis-[10%]">
               <div class="icon-close" />
             </div>
           </div>
@@ -47,6 +62,7 @@ import { useMusicStore } from '@/store/modules/music'
 import { useAppStore } from '@/store/modules/app'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useShow } from '@/hooks/useShow'
+import scrollText from '@/components/scrollText/index.vue'
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
