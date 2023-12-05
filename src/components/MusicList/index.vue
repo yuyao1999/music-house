@@ -4,7 +4,7 @@
       name="custom-classes"
       :appear="true"
       :duration="duration"
-      enter-active-class="animate__animated animate__bounceInUp"
+      enter-active-class="animate__animated animate__fadeInUp"
       leave-active-class="animate__animated animate__fadeOutDown"
     >
       <div v-if="show" class="content">
