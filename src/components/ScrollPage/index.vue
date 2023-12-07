@@ -7,9 +7,9 @@
       <div class="scroll-item">
         <ScrollVideo />
       </div>
-      <!-- <div class="scroll-item">
+      <div class="scroll-item">
         <ScrollVideo />
-      </div> -->
+      </div>
     </div>
   </div>
 </template>

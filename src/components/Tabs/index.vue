@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 interface IProps {
   /**
    * 列表
@@ -39,17 +39,52 @@ const emits = defineEmits<{ (e: 'changeIndex', value: number): void }>()
 const changeIndex = (index: number) => {
   emits('changeIndex', index)
 }
-const leftComputed = computed(() => {
-  // 2对应1倍 3对应0.5倍 4对应0.25倍
-  const error = 1 / (props.tabsList.length - 1)
-  if (props.left === 0) {
-    return 50
-  } else if (props.left < 0) {
-    return 50 + -(props.left * error)
+// 获取每个item的宽度
+const itemWidth = ref<any>([])
+// 每个item距离左边的距离
+const itemLeftDistance = ref<any>([])
+onMounted(() => {
+  const tabsItem = document.querySelectorAll('.tabs-item')
+  tabsItem.forEach((item: any) => {
+    itemWidth.value.push(item.clientWidth)
+    itemLeftDistance.value.push(item.offsetLeft)
+  })
+})
+// active-bottom 宽度
+const activeBottomWidth = ref(20)
+// 屏幕宽度
+const screenWidth = document.body.clientWidth
+const unitDistance = computed(() => {
+  let space = 0
+  if (props.currentIndex === props.tabsList.length - 1) {
+    space = itemLeftDistance.value[props.currentIndex] - itemLeftDistance.value[props.currentIndex - 1]
   } else {
-    return 50 - props.left * error
+    space = itemLeftDistance.value[props.currentIndex + 1] - itemLeftDistance.value[props.currentIndex]
+  }
+  return space / screenWidth
+})
+const leftComputed = computed(() => {
+  const startLeft =
+    itemLeftDistance.value[props.currentIndex] + itemWidth.value[props.currentIndex] / 2 - activeBottomWidth.value / 2
+  // 动态变化根据props.left的值来变化
+  if (props.left == 0) {
+    return startLeft || 0
+  }
+  const space = Math.abs(props.left) * unitDistance.value
+  if (props.left < 0) {
+    // 向左滑动
+    return startLeft + space
+  } else {
+    // 向右滑动
+    return startLeft - space
   }
 })
+watch(
+  () => props.currentIndex,
+  (value: number) => {
+    activeBottomWidth.value = 10 * props.tabsList[value].length
+  }
+)
 </script>
 
 <style scoped lang="scss">
@@ -68,7 +103,6 @@ const leftComputed = computed(() => {
   .tabs-item {
     font-size: 1rem;
     color: #ffffffab;
-    position: relative;
     &.active {
       color: #fff;
       font-weight: bold;
@@ -76,11 +110,9 @@ const leftComputed = computed(() => {
     }
     .active-bottom {
       position: absolute;
-      bottom: -0.5rem;
-      width: 70%;
-      // props.left是父组件传递过来的 0 对应50% 1对应100%
-      left: v-bind("leftComputed+ '%'");
-      transform: translateX(-50%);
+      bottom: 0;
+      width: v-bind("activeBottomWidth + 'px'");
+      left: v-bind("leftComputed+ 'px'");
       height: 0.16rem;
       background-color: #fff;
       transition: all 0.3s;
