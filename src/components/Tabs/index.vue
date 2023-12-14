@@ -94,7 +94,7 @@ watch(
   left: 0;
   width: 100%;
   background-color: transparent;
-  z-index: 999;
+  z-index: 20;
   display: flex;
   justify-content: space-around;
   padding: 0 5rem;

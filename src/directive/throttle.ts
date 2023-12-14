@@ -9,7 +9,6 @@ export default {
     const time = binding.value?.time || 1000
     el.timer = null
     el.addEventListener('click', () => {
-      console.log('click')
       el.disabled = true
       if (el.timer !== null) {
         clearTimeout(el.timer)

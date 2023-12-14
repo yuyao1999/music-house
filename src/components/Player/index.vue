@@ -66,13 +66,13 @@
               class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
             />
             <button
-              v-show="audio?.paused === false"
+              v-show="audioPlayFlag"
               @click="audioPause"
               v-throttle
               class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
             />
             <button
-              v-show="audio?.paused !== false"
+              v-show="!audioPlayFlag"
               @click="audioPlay"
               v-throttle
               class="hover:cursor-pointer icon-play animate__animated animate__bounceIn"
@@ -133,7 +133,7 @@ const musicStore = useMusicStore()
 const appStore = useAppStore()
 const { open: listOpen } = useMusicList()
 
-const { audio, createTimeupdate, audioPlay, audioPause } = useAudio()
+const { audio, audioPlayFlag, createTimeupdate, audioPlay, audioPause } = useAudio()
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
@@ -188,6 +188,7 @@ const onPlayMode = () => {
 const back = () => {
   console.log('music back')
   musicStore.setShow(false)
+  musicStore.setMiniShow(true)
 }
 
 //#region 歌曲
@@ -424,13 +425,13 @@ const progressPercent = computed(() => {
   background-size: cover;
   background-position: center;
   filter: blur(5px);
-  z-index: 8;
+  z-index: 98;
   transform: scale(1.05);
 }
 .page {
   // 占满屏幕
   position: fixed;
-  z-index: 9;
+  z-index: 99;
   top: 0;
   left: 0;
   height: 100vh;

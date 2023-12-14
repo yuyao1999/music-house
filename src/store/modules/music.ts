@@ -14,6 +14,10 @@ export const useMusicStore = defineStore(
     const setShow = (flag: boolean) => {
       show.value = flag
     }
+    const miniShow = ref<boolean>(true)
+    const setMiniShow = (flag: boolean) => {
+      miniShow.value = flag
+    }
     /**
      歌曲播放模式
      * 0 顺序
@@ -108,6 +112,8 @@ export const useMusicStore = defineStore(
     return {
       show,
       setShow,
+      miniShow,
+      setMiniShow,
       playMode,
       setPlayMode,
       nowMusic,

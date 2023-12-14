@@ -7,6 +7,8 @@ import { useToast } from '@/components/Toast'
 import { musicApi } from '@/api/music'
 
 const audio = ref<HTMLAudioElement | null>(null)
+// audio是否播放
+const audioPlayFlag = ref(false)
 let timeupdate: EventListenerOrEventListenerObject
 const { open } = useToast()
 
@@ -90,8 +92,8 @@ export const useAudio = () => {
     if (!audio.value) {
       return
     }
-    console.log('audioPlay', audio.value)
     audio.value?.play()
+    audioPlayFlag.value = true
     const dom: HTMLDivElement | null = document.querySelector('.music-img')
     if (dom) {
       dom.style.animationPlayState = 'running'
@@ -103,6 +105,7 @@ export const useAudio = () => {
    */
   const audioPause = () => {
     audio.value?.pause()
+    audioPlayFlag.value = false
     const dom: HTMLDivElement | null = document.querySelector('.music-img')
     if (dom) {
       dom.style.animationPlayState = 'paused'
@@ -187,7 +190,6 @@ export const useAudio = () => {
       const index = musicStore.musicList.findIndex((item) => item.id === data.id)
       console.log('index', index)
       if (index !== -1) {
-        const appStore = useAppStore()
         console.log('audio.value?.paused', audio.value?.paused)
         if (audio.value?.paused !== undefined) {
           return
@@ -218,6 +220,7 @@ export const useAudio = () => {
     createAudio,
     createTimeupdate,
     audio,
+    audioPlayFlag,
     audioPlay,
     audioPause,
     getMusicSearch,

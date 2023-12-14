@@ -25,8 +25,8 @@ import Tabs from '@/components/Tabs/index.vue'
 const scrollPageRef = ref<InstanceType<typeof ScrollPage>>()
 const left = ref(0)
 
-const tabsList = ref(['图文', 'MV', '达娃大'])
-// const tabsList = ref(['图文', 'MV'])
+// const tabsList = ref(['图文', 'MV', '达娃大'])
+const tabsList = ref(['图文', 'MV'])
 const currentIndex = ref(0)
 const changeIndex = (index: number) => {
   currentIndex.value = index

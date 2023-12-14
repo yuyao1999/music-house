@@ -10,7 +10,8 @@ import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from '@/router'
 import { nextTick, ref } from 'vue'
-import Music from '@/views/music/music.vue'
+import Music from '@/components/Player/index.vue'
+import MiniPlayer from '@/components/MiniPlayer/index.vue'
 
 const appStore = useAppStore()
 const routerStore = useRouterStore()
@@ -68,6 +69,7 @@ const onAfterLeave = () => {
         </keep-alive>
       </Transition>
     </router-view>
+    <MiniPlayer v-show="musicStore.miniShow" />
     <Transition name="up-down">
       <Music v-show="musicStore.show" />
     </Transition>

@@ -2,8 +2,8 @@
 
 <template>
   <div class="content" @click.prevent>
-    <div v-for="item in list" :key="item.name">
-      <div class="item" @click="toUrl(item.url)">
+    <div v-for="(item, index) in list" :key="item.name">
+      <div class="item" @click="toUrl(item.url, index)" :class="{ active: index === nowIndex }">
         {{ item.name }}
       </div>
     </div>
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 const router = useRouter()
 
 //#region 导航栏
@@ -27,7 +28,9 @@ const list = [
     url: '/mine',
   },
 ]
-const toUrl = (url: string) => {
+const nowIndex = ref(0)
+const toUrl = (url: string, index: number) => {
+  nowIndex.value = index
   router.replace(url)
 }
 //#endregion
@@ -36,12 +39,16 @@ const toUrl = (url: string) => {
 <style scoped lang="scss">
 .content {
   @apply w-full h-full flex justify-around items-center;
-  background-color: #ffffff;
-  border-top: 1px solid #e5e5e5;
+  background-color: #181818;
+  border-top: 1px solid #5f5f5f;
+  color: #8f8f8f;
   z-index: 1;
   .item {
     // 悬浮 手
     @apply hover:cursor-pointer;
+  }
+  .active {
+    color: #ffffff !important;
   }
 }
 </style>

@@ -3,8 +3,20 @@
     <div class="w-full h-full" ref="scrollRef">
       <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
-        <span class="text-sky-50">{{ item.name }}</span>
-        <img class="img" :src="item.cover" alt="" />
+        <div class="p-5 pt-16 w-full h-full flex flex-col items-center">
+          <img class="img" :src="item.cover" alt="" />
+          <div class="text">
+            {{ text }}
+          </div>
+        </div>
+        <div class="user">
+          <!-- 头像 -->
+          <img class="head" src="https://p2.music.126.net/CXr_rIaxkW5kwlIJHd8qSw==/109951168937694185.jpg" />
+          <!-- 点赞 -->
+          <div class="text-white text-m mt-1">点赞</div>
+          <!-- 收藏 -->
+          <div class="text-white text-m mt-1">收藏</div>
+        </div>
       </div>
       <div v-if="bottomTips">没有更多了~</div>
     </div>
@@ -16,7 +28,14 @@ import { useDraggable } from '@/hooks/useDraggable'
 import { onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { musicApi } from '@/api/music'
+import { useAudio } from '@/hooks/useAudio'
 
+const { getMusicUrl } = useAudio()
+
+const text = `他是校园说唱社里最装b的，
+他是校园歌唱比赛拿倒数第一的，
+他是穿挺潮但是拍子卡不齐的”
+幸好我是女的不然我就破防了🥺`
 const musicStore = useMusicStore()
 const videoRef = ref()
 const getVideo = async () => {
@@ -30,16 +49,6 @@ const getVideo = async () => {
   // 用户操作后才能播放
   dom?.play()
 }
-const muted = ref(true)
-// 打开声音
-const openVoice = () => {
-  const dom: any = videoRef.value?.[0]
-  if (!dom) return
-  dom!.muted = false
-  muted.value = false
-  document.body.removeEventListener('click', openVoice)
-}
-document.body.addEventListener('click', openVoice)
 
 onMounted(() => {
   setDraggable(scrollRef.value)
@@ -50,6 +59,7 @@ onMounted(() => {
     contentHeight = parseFloat(style.height) || 500
     getVideo()
   }, transitionTime)
+  getMusicUrl(musicStore.nowMusic.id || '0')
 })
 
 // 滑动距离切换的值
@@ -169,6 +179,7 @@ watch(
     z-index: 1;
   }
   .scroll-item {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
@@ -176,19 +187,45 @@ watch(
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    p {
-      margin-top: 2rem;
-    }
     .img {
       width: 20rem;
       height: 20rem;
       object-fit: cover;
+      border-radius: 1rem;
       // 不允许用户拖动
       -webkit-user-drag: none;
       -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
       -webkit-user-select: none;
       -moz-user-focus: none;
       -moz-user-select: none;
+    }
+    .text {
+      color: #ffffff;
+      white-space: pre-wrap;
+      font-size: 1rem;
+      line-height: 1.8rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 8;
+      margin-top: 10rem;
+      font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+    }
+    .user {
+      position: absolute;
+      right: 1rem;
+      top: 45%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      .head {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+      }
     }
   }
 }
