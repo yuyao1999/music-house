@@ -1,22 +1,33 @@
 <template>
   <div class="content" @click="openMusic">
     <img class="img" :src="musicStore.nowMusic.cover" />
-    <div class="flex-1 ml-4">
-      <div class="text-sm text-white">{{ musicStore.nowMusic.name }}</div>
-      <div class="text-xs text-white">{{ musicStore.nowMusic.singer }}</div>
+    <div class="flex-1 ml-4 w-[60%]">
+      <scrollText class="text-text-lg text-white font-bold" :text="musicStore.nowMusic.name" :max="15" />
+      <scrollText
+        class="text-xs text-gray-300"
+        :text="musicStore.nowMusic?.singer + ' - ' + musicStore.nowMusic?.album"
+        :max="20"
+      />
     </div>
     <button
       v-show="audioPlayFlag"
       @click.stop="audioPause"
       v-throttle
-      class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn"
+      class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn ml-5"
     />
     <button
       v-show="!audioPlayFlag"
       @click.stop="audioPlay"
       v-throttle
-      class="hover:cursor-pointer icon-play animate__animated animate__bounceIn"
+      class="hover:cursor-pointer icon-play animate__animated animate__bounceIn ml-5"
     />
+    <button
+      @click.stop="listOpen"
+      v-throttle
+      class="w-5 h-5 ml-3 hover:cursor-pointer animate__animated animate__bounceIn"
+    >
+      <img src="@/assets/music/list.png" />
+    </button>
   </div>
 </template>
 
@@ -25,7 +36,7 @@ import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
 import { useMusicList } from '@/components/MusicList'
 import { useAppStore } from '@/store/modules/app'
-import { watch, ref } from 'vue'
+import scrollText from '@/components/scrollText/index.vue'
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
@@ -61,8 +72,8 @@ const openMusic = () => {
 
 .icon-play {
   // 播放图标 圆形 css绘制
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background: v-bind('appStore.mainColor');
   position: relative;
@@ -86,8 +97,8 @@ const openMusic = () => {
   }
 }
 .icon-pause {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   border: 0.1rem solid v-bind('appStore.mainColor');
   position: relative;
@@ -96,7 +107,7 @@ const openMusic = () => {
     content: '';
     position: absolute;
     width: 0.2rem;
-    height: 1.2rem;
+    height: 1rem;
     background: v-bind('appStore.mainColor');
     top: 50%;
     left: 40%;
@@ -106,7 +117,7 @@ const openMusic = () => {
     content: '';
     position: absolute;
     width: 0.2rem;
-    height: 1.2rem;
+    height: 1rem;
     background: v-bind('appStore.mainColor');
     top: 50%;
     left: 60%;

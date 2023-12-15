@@ -2,7 +2,7 @@
   <div class="body-yy" @click.self="close">
     <transition
       name="custom-classes"
-      :appear="true"
+      appear
       :duration="duration"
       enter-active-class="animate__animated animate__fadeInUp"
       leave-active-class="animate__animated animate__fadeOutDown"
@@ -106,7 +106,7 @@ onMounted(() => {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 99;
+  z-index: 999;
   .content {
     position: fixed;
     z-index: 2;

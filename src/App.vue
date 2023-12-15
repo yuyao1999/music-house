@@ -69,7 +69,9 @@ const onAfterLeave = () => {
         </keep-alive>
       </Transition>
     </router-view>
-    <MiniPlayer v-show="musicStore.miniShow" />
+    <Transition appear enter-active-class="animate__animated animate__bounceInLeft">
+      <MiniPlayer v-show="musicStore.miniShow" />
+    </Transition>
     <Transition name="up-down">
       <Music v-show="musicStore.show" />
     </Transition>

@@ -41,4 +41,8 @@ export type IMusic = {
    * 播放了多少秒
    */
   currentTime?: number
+  /**
+   * 内容
+   */
+  content?: string
 }

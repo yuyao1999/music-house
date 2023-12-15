@@ -11,7 +11,7 @@
         <div>
           {{ item }}
         </div>
-        <div :class="{ 'active-bottom': index === currentIndex }" />
+        <div v-if="leftComputed !== 0" :class="{ 'active-bottom': index === currentIndex }" />
       </div>
     </div>
   </div>

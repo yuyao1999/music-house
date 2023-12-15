@@ -139,7 +139,6 @@ const { audio, audioPlayFlag, createTimeupdate, audioPlay, audioPause } = useAud
 const isLove = ref(false)
 //#region 页面周期
 onMounted(() => {
-  console.log('onMounted music')
   initScroll(lyricsRef.value)
   setDraggable(dotRef.value)
   useShow({
@@ -154,16 +153,13 @@ const onShow = () => {
   setBack(back)
   // 滚动到当前歌词
   if (lyricsRef.value) {
-    console.log('onShow')
     const index = getLyricsIndex(currentTime.value)
     lyricsRef.value.scrollTo({
       top: (index - nowActiveIndex) * lyricsHeight.value,
     })
   }
 }
-const onHide = () => {
-  console.log('onHide music')
-}
+const onHide = () => {}
 
 const playModeList = [
   {
@@ -186,7 +182,6 @@ const onPlayMode = () => {
 // 获取路由参数
 
 const back = () => {
-  console.log('music back')
   musicStore.setShow(false)
   musicStore.setMiniShow(true)
 }
@@ -232,7 +227,6 @@ if (lyricsHeight.value === -1) {
 }
 const setDefaultFontSize = () => {
   const fontSize = useFont(40)
-  console.log('fontSize', fontSize)
   if (fontSize === -1) {
     lyricsHeight.value = 40
   } else {
@@ -295,7 +289,6 @@ const emptyLyricNum = 7
 
 //歌词拖动
 const onScrollEnd = (diff: number) => {
-  console.log('diff', diff)
   // 歌词滚动的距离 跳转
   // 开头没有滚动的误差
   let errorIndex = 0

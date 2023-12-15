@@ -1,10 +1,10 @@
 <template>
   <div class="scroll-content">
     <div class="crosswise" ref="scrollRef">
-      <div class="scroll-item">
+      <div class="scroll-item statusBarHeightPaddingTop">
         <ScrollImg />
       </div>
-      <div class="scroll-item">
+      <div class="scroll-item statusBarHeightPaddingTop">
         <ScrollVideo />
       </div>
       <!-- <div class="scroll-item">
