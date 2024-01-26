@@ -21,6 +21,7 @@ interface Options {
  */
 export const useDraggable = (options: Options) => {
   const isDragging = ref(false)
+  const isDisabled = ref(false)
   const startX = ref(0)
   const startY = ref(0)
   const left = ref(0)
@@ -33,17 +34,29 @@ export const useDraggable = (options: Options) => {
       draggable.value?.addEventListener('mouseleave', handleDragEnd)
     }
     isDragging.value = true
+    isDisabled.value = false
     startX.value = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     startY.value = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     options.onDragStart?.()
   }
+
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging.value) return
+    console.log('isDisabled.value', isDisabled.value)
+    if (!isDragging.value || isDisabled.value) return
     // 元素移动
     const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     const currentY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     const diffX = currentX - startX.value
     const diffY = currentY - startY.value
+    // x y 的夹角
+    const angle = Math.abs(Math.atan(diffY / diffX) * (180 / Math.PI))
+    console.log('angle', angle)
+    // 只允许 0-20 70-90 之间的角度
+    if (angle > 20 && angle < 70 && options.axis !== 'both') {
+      isDisabled.value = true
+      return
+    }
+    // 只让他运行一次
 
     if (options.axis === 'x' && (options.axis === dragDirection || dragDirection === '')) {
       left.value += diffX
