@@ -10,7 +10,7 @@
       >
         <div class="flex items-center gap-1">
           {{ item }}
-          <div v-if="index === 0 && currentIndex === 0">
+          <div v-show="index === 0 && currentIndex === 0">
             <svg
               t="1706147573771"
               class="icon"
@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 interface IProps {
   /**
    * 列表
@@ -63,12 +63,19 @@ const itemWidth = ref<any>([])
 // 每个item距离左边的距离
 const itemLeftDistance = ref<any>([])
 onMounted(() => {
+  getWidth()
+})
+
+const getWidth = () => {
   const tabsItem = document.querySelectorAll('.tabs-item')
+  itemWidth.value = []
+  itemLeftDistance.value = []
   tabsItem.forEach((item: any) => {
     itemWidth.value.push(item.clientWidth)
     itemLeftDistance.value.push(item.offsetLeft)
   })
-})
+}
+
 // active-bottom 宽度
 const activeBottomWidth = ref(20)
 // 屏幕宽度
@@ -101,7 +108,10 @@ const leftComputed = computed(() => {
 watch(
   () => props.currentIndex,
   (value: number) => {
-    activeBottomWidth.value = 10 * props.tabsList[value].length
+    nextTick(() => {
+      getWidth()
+      activeBottomWidth.value = 10 * props.tabsList[value].length
+    })
   }
 )
 </script>
