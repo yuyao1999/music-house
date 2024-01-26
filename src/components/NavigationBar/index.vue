@@ -39,12 +39,11 @@ const toUrl = (url: string, index: number) => {
 <style scoped lang="scss">
 .content {
   @apply w-full h-full flex justify-around items-center;
-  background-color: #181818;
+  background-color: #000000;
   border-top: 1px solid #5f5f5f;
   color: #8f8f8f;
   z-index: 1;
   .item {
-    // 悬浮 手
     @apply hover:cursor-pointer;
   }
   .active {

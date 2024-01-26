@@ -2,14 +2,14 @@
   <div class="scroll-content">
     <div class="crosswise" ref="scrollRef">
       <div class="scroll-item statusBarHeightPaddingTop">
-        <ScrollImg />
+        <ScrollImg v-if="appStore.homeMode === 0" />
+        <div class="home-list" v-else>
+          <HomeList :list="musicStore.musicList" />
+        </div>
       </div>
       <div class="scroll-item statusBarHeightPaddingTop">
         <ScrollVideo />
       </div>
-      <!-- <div class="scroll-item">
-        <ScrollVideo />
-      </div> -->
     </div>
   </div>
 </template>
@@ -20,7 +20,10 @@ import { onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import ScrollImg from '@/components/ScrollImg/index.vue'
 import ScrollVideo from '@/components/ScrollVideo/index.vue'
+import HomeList from '@/components/HomeList/index.vue'
+import { useAppStore } from '@/store/modules/app'
 
+const appStore = useAppStore()
 const musicStore = useMusicStore()
 
 interface IProps {
@@ -38,6 +41,7 @@ const props = defineProps<IProps>()
 onMounted(() => {
   setDraggable(scrollRef.value)
   setTimeout(() => {
+    if (!scrollRef.value) return
     const style = getComputedStyle(scrollRef.value!)
     contentHeight = parseFloat(style.width) || 500
   }, transitionTime)
@@ -61,11 +65,12 @@ const onDragEnd = () => {
   if (left.value < -scrollValue) {
     // 向左滑动
     showIndex.value++
+    emits('changeIndex', showIndex.value)
   } else if (left.value > scrollValue) {
     // 向右滑动
     showIndex.value--
+    emits('changeIndex', showIndex.value)
   }
-  emits('changeIndex', showIndex.value)
   // 切换到下一个数据的位置
   isTransition = true
   scrollRef.value.style.transform = `translateX(-${showIndex.value * contentHeight}px)`
@@ -91,7 +96,6 @@ watch(
   () => left.value,
   () => {
     emits('setLeft', left.value)
-
     if (!scrollRef.value || left.value === 0) return
     if (showIndex.value === 0 && left.value > 0) {
       left.value = 0
@@ -113,10 +117,17 @@ const emits = defineEmits<{
   (e: 'changeIndex', value: number): void
   (e: 'setLeft', value: number): void
 }>()
-
 // 切换到指定的索引
 const changeScroll = (index: number) => {
   if (!scrollRef.value) return
+  console.log('changeScroll', index)
+  if (props.currentIndex === index) {
+    if (props.currentIndex === 0 && appStore.homeMode === 0) {
+      appStore.setHomeMode(1)
+    } else {
+      appStore.setHomeMode(0)
+    }
+  }
   showIndex.value = index
   scrollRef.value.style.transform = `translateX(-${showIndex.value * contentHeight}px)`
   scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
@@ -161,5 +172,11 @@ defineExpose({
       margin-left: 2rem;
     }
   }
+}
+.home-list {
+  color: white;
+  margin-top: 8vh;
+  padding: 1.5rem;
+  height: 100%;
 }
 </style>

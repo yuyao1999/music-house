@@ -1,14 +1,16 @@
 <!-- @format -->
 
 <template>
-  <div class="w-full h-[93vh]">
-    <router-view #default="{ Component }">
-      <Transition>
-        <keep-alive :include="routerStore.keepAliveList">
-          <component :is="Component" />
-        </keep-alive>
-      </Transition>
-    </router-view>
+  <div>
+    <div class="relative w-full h-[93vh] overflow-y-scroll overflow-x-hidden">
+      <router-view #default="{ Component }">
+        <Transition>
+          <keep-alive :include="routerStore.keepAliveList">
+            <component :is="Component" />
+          </keep-alive>
+        </Transition>
+      </router-view>
+    </div>
     <div class="h-[7vh] sticky bottom-0 w-full">
       <NavigationBar />
     </div>

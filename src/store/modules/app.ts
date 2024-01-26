@@ -40,6 +40,13 @@ export const useAppStore = defineStore(
     const setDarkColor = (data: string) => {
       darkColor.value = data
     }
+    /**
+     * 首页展示模式 0:全屏 1:列表
+     */
+    const homeMode = ref(0)
+    const setHomeMode = (data: number) => {
+      homeMode.value = data
+    }
     return {
       version,
       setVersion,
@@ -49,6 +56,8 @@ export const useAppStore = defineStore(
       setMainColor,
       darkColor,
       setDarkColor,
+      homeMode,
+      setHomeMode,
     }
   },
   {

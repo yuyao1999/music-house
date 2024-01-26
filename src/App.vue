@@ -12,10 +12,23 @@ import router from '@/router'
 import { nextTick, ref } from 'vue'
 import Music from '@/components/Player/index.vue'
 import MiniPlayer from '@/components/MiniPlayer/index.vue'
+import { useUserStore } from '@/store/modules/user'
 
 const appStore = useAppStore()
 const routerStore = useRouterStore()
 const musicStore = useMusicStore()
+const userStore = useUserStore()
+
+userStore.setUserData({
+  id: '1',
+  username: '小明',
+  mobile: '123456789',
+  avatar: 'https://p2.music.126.net/CXr_rIaxkW5kwlIJHd8qSw==/109951168937694185.jpg',
+  profile: '的哇大大我打',
+  like: 500,
+  fans: 0,
+  follow: 10,
+})
 
 musicStore.setShow(false)
 
