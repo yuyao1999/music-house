@@ -134,7 +134,7 @@ const onDragEnd = () => {
   }, transitionTime)
   top.value = 0
 }
-const { setDraggable, top, setDragDirection } = useDraggable({
+const { setDraggable, top } = useDraggable({
   axis: 'y',
   onDragStart,
   onDragEnd,
@@ -162,7 +162,6 @@ watch(
     let distance
     distance = showIndex.value * contentHeight + -top.value
     scrollRef.value.style.transform = `translateY(${-distance}px)`
-    setDragDirection('y')
   }
 )
 </script>

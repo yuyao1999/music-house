@@ -83,7 +83,7 @@ const onDragEnd = () => {
   }, transitionTime)
   left.value = 0
 }
-const { setDraggable, left, setDragDirection } = useDraggable({
+const { setDraggable, left } = useDraggable({
   axis: 'x',
   onDragStart,
   onDragEnd,
@@ -99,15 +99,12 @@ watch(
     if (!scrollRef.value || left.value === 0) return
     if (showIndex.value === 0 && left.value > 0) {
       left.value = 0
-      setDragDirection('x')
       return
     } else if (showIndex.value === props.tabsList.length - 1 && left.value < 0) {
       left.value = 0
-      setDragDirection('x')
       return
     }
     if (isTransition) return
-    setDragDirection('x')
     let distance
     distance = showIndex.value * contentHeight + -left.value
     scrollRef.value.style.transform = `translateX(${-distance}px)`

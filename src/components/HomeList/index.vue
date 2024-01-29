@@ -60,7 +60,7 @@ defineProps<IProps>()
 const onDragEnd = () => {
   top.value = 0
 }
-const { setDraggable, top, setDragDirection } = useDraggable({
+const { setDraggable, top } = useDraggable({
   axis: 'y',
   onDragEnd,
 })
@@ -72,7 +72,6 @@ watch(
   () => top.value,
   () => {
     if (!scrollRef.value || top.value === 0) return
-    setDragDirection('y')
   }
 )
 

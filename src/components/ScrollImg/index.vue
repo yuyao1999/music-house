@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-content">
+  <div class="scroll-content" @click.self>
     <div class="w-full h-full" ref="scrollRef">
       <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
@@ -51,7 +51,9 @@ let isTransition = false
 // 容器高度
 let contentHeight = 0
 
-const onDragStart = () => {}
+const onDragStart = () => {
+  console.log('onDragStart img')
+}
 const onDragEnd = () => {
   if (!scrollRef.value || top.value === 0) return
   // 优化代码
@@ -98,7 +100,7 @@ const onDragEnd = () => {
   }, transitionTime)
   top.value = 0
 }
-const { setDraggable, top, setDragDirection } = useDraggable({
+const { setDraggable, top } = useDraggable({
   axis: 'y',
   onDragStart,
   onDragEnd,
@@ -125,7 +127,6 @@ watch(
     let distance
     distance = showIndex.value * contentHeight + -top.value
     scrollRef.value.style.transform = `translateY(${-distance}px)`
-    setDragDirection('y')
   }
 )
 </script>

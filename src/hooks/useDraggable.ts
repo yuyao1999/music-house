@@ -3,9 +3,7 @@ import { isMobile } from '@/utils/is'
 
 // 全局只允许x y 同时只能有一个元素在拖动
 let dragDirection: 'x' | 'y' | '' = ''
-const setDragDirection = (axis: 'x' | 'y' | '') => {
-  dragDirection = axis
-}
+
 interface Options {
   onDragStart?: () => void
   onDragEnd?: () => void
@@ -21,7 +19,6 @@ interface Options {
  */
 export const useDraggable = (options: Options) => {
   const isDragging = ref(false)
-  const isDisabled = ref(false)
   const startX = ref(0)
   const startY = ref(0)
   const left = ref(0)
@@ -34,29 +31,37 @@ export const useDraggable = (options: Options) => {
       draggable.value?.addEventListener('mouseleave', handleDragEnd)
     }
     isDragging.value = true
-    isDisabled.value = false
+    isFirst = true
     startX.value = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     startY.value = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     options.onDragStart?.()
   }
-
+  let isFirst = true
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    console.log('isDisabled.value', isDisabled.value)
-    if (!isDragging.value || isDisabled.value) return
+    if (!isDragging.value) return
     // 元素移动
     const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
     const currentY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
     const diffX = currentX - startX.value
     const diffY = currentY - startY.value
-    // x y 的夹角
-    const angle = Math.abs(Math.atan(diffY / diffX) * (180 / Math.PI))
-    console.log('angle', angle)
-    // 只允许 0-20 70-90 之间的角度
-    if (angle > 20 && angle < 70 && options.axis !== 'both') {
-      isDisabled.value = true
-      return
+    if (isFirst) {
+      // x y 的夹角
+      const angle = Math.abs(Math.atan(diffY / diffX) * (180 / Math.PI))
+      // 0-20为x轴 70-90为y轴
+      if (angle >= 0 && angle <= 20) {
+        dragDirection = 'x'
+      }
+      if (angle >= 70 && angle <= 90) {
+        dragDirection = 'y'
+      }
+      // 只允许 0-20 70-90 之间的角度
+      if (angle > 20 && angle < 70 && options.axis !== 'both') {
+        isDragging.value = false
+        return
+      }
     }
-    // 只让他运行一次
+
+    isFirst = false
 
     if (options.axis === 'x' && (options.axis === dragDirection || dragDirection === '')) {
       left.value += diffX
@@ -74,7 +79,7 @@ export const useDraggable = (options: Options) => {
   }
   const handleDragEnd = (e: MouseEvent | TouchEvent) => {
     isDragging.value = false
-    setDragDirection('')
+    dragDirection = ''
     options.onDragEnd?.()
     if (!isMobile()) {
       draggable.value?.removeEventListener('mouseup', handleDragEnd)
@@ -139,6 +144,5 @@ export const useDraggable = (options: Options) => {
     top,
     resetPosition,
     setPosition,
-    setDragDirection,
   }
 }

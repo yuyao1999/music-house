@@ -129,6 +129,7 @@ watch(
   padding: 0 5rem;
   align-items: center;
   height: 3rem;
+  cursor: pointer;
   .tabs-item {
     font-size: 1rem;
     color: #ffffffab;
