@@ -14,7 +14,7 @@ export const useMusicStore = defineStore(
     const setShow = (flag: boolean) => {
       show.value = flag
     }
-    const miniShow = ref<boolean>(true)
+    const miniShow = ref<boolean>(false)
     const setMiniShow = (flag: boolean) => {
       miniShow.value = flag
     }
