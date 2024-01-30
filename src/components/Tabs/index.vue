@@ -29,8 +29,25 @@
             </svg>
           </div>
         </div>
-
         <div v-if="leftComputed !== 0" :class="{ 'active-bottom': index === currentIndex }" />
+      </div>
+      <div class="search" @click="toSearch">
+        <svg
+          t="1706603763744"
+          class="icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="8243"
+          width="20"
+          height="20"
+        >
+          <path
+            d="M496 96C275.09 96 96 275.08 96 496s179.09 400 400 400 400-179.08 400-400S716.91 96 496 96z m0-96c273.93 0 496 222.07 496 496 0 119.69-42.4 229.48-112.99 315.17l130.93 130.89c18.75 18.75 18.75 49.14 0 67.88-17.57 17.57-45.38 18.67-64.24 3.29l-3.65-3.29-130.88-130.93C725.48 949.6 615.69 992 496 992 222.07 992 0 769.93 0 496S222.07 0 496 0z"
+            fill="#FFFFFF"
+            p-id="8244"
+          ></path>
+        </svg>
       </div>
     </div>
   </div>
@@ -38,6 +55,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const toSearch = () => {
+  router.push('/search')
+}
+
 interface IProps {
   /**
    * 列表
@@ -147,6 +171,16 @@ watch(
       background-color: #fff;
       transition: all 0.3s;
     }
+  }
+  .search {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3rem;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>
