@@ -3,10 +3,10 @@
 <template>
   <div>
     <div class="bg" />
-    <div class="px-7 flex flex-col gap-4">
-      <div class="flex justify-between items-center mt-[14vh]">
+    <div class="px-7 flex flex-col gap-4 relative z-2">
+      <div class="flex justify-between items-center mt-[10vh]">
         <div class="flex items-center gap-5">
-          <img class="w-20 rounded-full border-3 border-[#9A9899]" :src="userStore.avatar" />
+          <img class="w-20 rounded-full border-2 border-[#878787]" :src="userStore.avatar" />
           <div class="text-light-500 font-bold text-2xl">
             {{ userStore.username }}
           </div>
@@ -31,18 +31,18 @@
       <div class="text-[#ECEBEC]">
         {{ userStore.profile }}
       </div>
-      <div class="flex justify-around items-center text-[#FFFFFF] text-xl">
+      <div class="flex justify-around items-center text-[#FFFFFF] text-xl font-bold">
         <div class="flex flex-col items-center gap-1">
           <div>{{ userStore.like }}</div>
-          <div class="text-[#A5ACB4] text-sm">获赞</div>
+          <div class="text-[#f9f2f2] text-sm">获赞</div>
         </div>
         <div class="flex flex-col items-center gap-1">
           <div>{{ userStore.follow }}</div>
-          <div class="text-[#A5ACB4] text-sm">关注</div>
+          <div class="text-[#f9f2f2] text-sm">关注</div>
         </div>
         <div class="flex flex-col items-center gap-1">
           <div>{{ userStore.fans }}</div>
-          <div class="text-[#A5ACB4] text-sm">粉丝</div>
+          <div class="text-[#f9f2f2] text-sm">粉丝</div>
         </div>
       </div>
     </div>
@@ -130,34 +130,34 @@ const music = () => {
   left: 0;
   width: 100%;
   height: 40%;
-  background: v-bind("userStore?.avatar ? 'url(' + userStore?.avatar + ')' : '#000000'") no-repeat center;
+  background: v-bind("userStore.avatar ? 'url(' + userStore.avatar + ')' : '#000000'") no-repeat center;
   filter: blur(40px);
   background-position: center center;
   scale: 1.5;
-  z-index: -1;
+  z-index: 1;
 }
 .card {
+  position: relative;
   margin-top: 2vh;
-  z-index: 2;
+  z-index: 3;
   width: 100%;
-  height: 60vh;
-  background: #fff;
+  background: #3a3e3f;
   border-radius: 30px 30px 0 0;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
   padding: 1.4rem;
 
   .active {
     font-size: 1.3rem;
     font-weight: bolder;
+    color: #fcfafa;
   }
   .none {
     font-weight: normal;
-    color: #3c3c3c;
+    color: #9fa5a7;
   }
 
   .home-list {
-    color: black;
+    color: rgb(255, 255, 255);
   }
 }
 </style>
