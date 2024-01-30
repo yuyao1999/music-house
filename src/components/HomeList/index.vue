@@ -1,6 +1,6 @@
 <template>
   <div class="body" ref="scrollRef">
-    <div class="card" v-for="item in list" :key="item.id">
+    <div class="card" v-for="(item, index) in list" :key="item.id">
       <div class="flex items-center gap-5">
         <div class="head">
           <img
@@ -40,14 +40,23 @@
       <div class="content">
         {{ item.content }}
       </div>
+      <div class="music cursor-pointer" @click="toPlay(index)">
+        <img :src="item.cover" class="cover" />
+        <div>
+          <div class="name">{{ item.name }}</div>
+          <div class="singer">{{ item.singer }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { useDraggable } from '@/hooks/useDraggable'
+import { ref } from 'vue'
 import { IMusic } from '@/types/music'
+import { useMusicStore } from '@/store/modules/music'
+
+const musicStore = useMusicStore()
 
 interface IProps {
   /**
@@ -57,29 +66,17 @@ interface IProps {
 }
 defineProps<IProps>()
 
-const onDragEnd = () => {
-  top.value = 0
-}
-const { setDraggable, top } = useDraggable({
-  axis: 'y',
-  onDragEnd,
-})
 const scrollRef = ref<HTMLDivElement | undefined>()
-onMounted(() => {
-  setDraggable(scrollRef.value)
-})
-watch(
-  () => top.value,
-  () => {
-    if (!scrollRef.value || top.value === 0) return
-  }
-)
 
 const follow = () => {
   console.log('follow')
 }
 const toUser = () => {
   console.log('toUser')
+}
+const toPlay = (index: number) => {
+  musicStore.setMiniShow(true)
+  musicStore.changeIndex(index)
 }
 </script>
 
@@ -91,6 +88,7 @@ const toUser = () => {
   overflow-y: scroll;
   padding-bottom: 10vh;
   .card {
+    padding-bottom: 2rem;
     margin-bottom: 2rem;
     .head {
       position: relative;
@@ -119,6 +117,32 @@ const toUser = () => {
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 10;
       font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+    }
+    .music {
+      margin-top: 1rem;
+      background-color: #384147;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-radius: 10px;
+      padding: 0.5rem;
+      .cover {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 10px;
+      }
+      .name {
+        font-size: 1.15rem;
+        color: #fff;
+        font-weight: bold;
+      }
+      .singer {
+        font-size: 1rem;
+        color: #b9b9b9;
+      }
+    }
+    &:not(:last-child) {
+      border-bottom: 0.5px solid #f0f1f52a;
     }
   }
 }
