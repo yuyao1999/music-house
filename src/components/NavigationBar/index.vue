@@ -4,7 +4,12 @@
   <div class="content" @click.prevent>
     <div v-for="(item, index) in list" :key="item.name">
       <div class="item" @click="toUrl(item.url, index)" :class="{ active: index === nowIndex }">
-        {{ item.name }}
+        <span v-if="item.icon">
+          <div v-html="item.icon" />
+        </span>
+        <span v-else>
+          {{ item.name }}
+        </span>
       </div>
     </div>
   </div>
@@ -12,26 +17,40 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useMusicStore } from '@/store/modules/music'
 import { ref } from 'vue'
 const router = useRouter()
-
+const musicStore = useMusicStore()
 //#region 导航栏
 const list = [
   {
     name: '首页',
-    icon: 'home',
+    icon: '',
     url: '/home',
   },
   {
+    name: '发布',
+    icon: `
+<svg t="1706498134069" class="icon" viewBox="0 0 1024 1024" version="1.1"
+xmlns="http://www.w3.org/2000/svg" p-id="5274"
+width="50" height="50">
+<path d="M512 123.4c-214.6 0-388.6 174-388.6 388.6s174 388.6 388.6 388.6 388.6-174 388.6-388.6-174-388.6-388.6-388.6z m165.2 446.9H570.3v106.9c0 32.2-26.1 58.3-58.3 58.3-32.2 0-58.3-26.1-58.3-58.3V570.3H346.8c-32.2 0-58.3-26.1-58.3-58.3 0-32.2 26.1-58.3 58.3-58.3h106.9V346.8c0-32.2 26.1-58.3 58.3-58.3 32.2 0 58.3 26.1 58.3 58.3v106.9h106.9c32.2 0 58.3 26.1 58.3 58.3 0 32.2-26.1 58.3-58.3 58.3z" fill="#B2B2B2" p-id="5275"></path></svg>
+    `,
+    url: '/publish',
+  },
+  {
     name: '我的',
-    icon: 'mine',
+    icon: '',
     url: '/mine',
   },
 ]
 const nowIndex = ref(0)
 const toUrl = (url: string, index: number) => {
   nowIndex.value = index
-  router.replace(url)
+  if (url === '/publish') {
+    musicStore.setMiniShow(false)
+    router.push(url)
+  } else router.replace(url)
 }
 //#endregion
 </script>
