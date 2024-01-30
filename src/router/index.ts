@@ -39,6 +39,34 @@ const routes = [
       icon: '',
     },
   },
+  {
+    path: '/publish',
+    name: 'publish',
+    component: () => import('@/views/publish/publish.vue'),
+    meta: {
+      title: '发布',
+      icon: '',
+    },
+  },
+  {
+    path: '/search',
+    name: 'search',
+    component: () => import('@/views/search/search.vue'),
+    meta: {
+      title: '搜索',
+      icon: '',
+    },
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: () => import('@/views/404/404.vue'),
+    meta: {
+      title: '404',
+      icon: '',
+    },
+  },
+  { path: '/:pathMatch(.*)', redirect: '/404', name: 'notMatch' },
 ]
 
 const router = createRouter({
