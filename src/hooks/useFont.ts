@@ -23,9 +23,6 @@ export const useFont = (size: number): number => {
   if (useIsMobile() && height < 740) {
     return 13
   }
-  if (!useIsMobile() && res > 30) {
-    return 30
-  }
   if (res > 40) {
     return 40
   }

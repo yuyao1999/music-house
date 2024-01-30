@@ -1,0 +1,1 @@
+scp -r ./dist/* springboot:/home/yy/music/
