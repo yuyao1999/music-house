@@ -25,6 +25,7 @@ export const useDraggable = (options: Options) => {
   const top = ref(0)
 
   const handleDragStart = (e: MouseEvent | TouchEvent) => {
+    e.preventDefault()
     if (!isMobile()) {
       draggable.value?.addEventListener('mousemove', handleDragMove)
       draggable.value?.addEventListener('mouseup', handleDragEnd)
@@ -32,16 +33,17 @@ export const useDraggable = (options: Options) => {
     }
     isDragging.value = true
     isFirst = true
-    startX.value = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
-    startY.value = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
+    startX.value = e instanceof MouseEvent ? e.screenX : e.touches[0].pageX
+    console.log('startX', startX.value)
+    startY.value = e instanceof MouseEvent ? e.screenY : e.touches[0].pageY
     options.onDragStart?.()
   }
   let isFirst = true
   const handleDragMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging.value) return
     // 元素移动
-    const currentX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX
-    const currentY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY
+    const currentX = e instanceof MouseEvent ? e.screenX : e.touches[0].pageX
+    const currentY = e instanceof MouseEvent ? e.screenY : e.touches[0].pageY
     const diffX = currentX - startX.value
     const diffY = currentY - startY.value
     if (isFirst) {
@@ -63,10 +65,10 @@ export const useDraggable = (options: Options) => {
 
     isFirst = false
 
-    if (options.axis === 'x' && (options.axis === dragDirection || dragDirection === '')) {
+    if (options.axis === 'x' && options.axis === dragDirection) {
       left.value += diffX
     }
-    if (options.axis === 'y' && (options.axis === dragDirection || dragDirection === '')) {
+    if (options.axis === 'y' && options.axis === dragDirection) {
       top.value += diffY
     }
 
