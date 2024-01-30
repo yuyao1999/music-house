@@ -3,14 +3,14 @@
     <div class="w-full h-full" ref="scrollRef">
       <div v-if="topTips">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
-        <div class="p-5 pb-[10vh] pt-16 w-full h-full flex flex-col items-center">
+        <div class="p-5 pt-16 w-full h-full flex flex-col items-center">
           <img class="img" :src="item.cover" alt="" />
           <div class="text">
-            <div class="text-font">
-              {{ item.content }}
-            </div>
+            {{ item.content }}
           </div>
           <UserHead />
+          <!-- 取消静音 -->
+          <div class="unmute" v-if="index === 0 && mute" @click="onUnmute">点击取消静音</div>
         </div>
       </div>
       <div v-if="bottomTips">没有更多了~</div>
@@ -29,6 +29,43 @@ const { getMusicUrl } = useAudio()
 
 const musicStore = useMusicStore()
 
+musicStore.setShow(false)
+if (musicStore.musicList.length > 0) {
+  musicStore.setMiniShow(true)
+}
+
+// 获取是否允许音频自动播放
+const checkAudioPermission = () => {
+  const audio = new Audio()
+  audio.autoplay = true
+  audio.muted = true
+  audio.play()
+  return new Promise((resolve) => {
+    audio.oncanplay = () => {
+      console.log('oncanplay')
+      resolve(true)
+    }
+    audio.onplay = () => {
+      console.log('onplay')
+      resolve(true)
+    }
+    audio.onpause = () => {
+      console.log('onpause')
+      resolve(false)
+    }
+  })
+}
+
+const mute = ref(true)
+checkAudioPermission().then((res) => {
+  mute.value = !res
+})
+const onUnmute = () => {
+  mute.value = false
+  console.log('onUnmute')
+  getMusicUrl(musicStore.nowMusic.id || '0')
+}
+
 onMounted(() => {
   setDraggable(scrollRef.value)
   setTimeout(() => {
@@ -38,7 +75,7 @@ onMounted(() => {
     const style = getComputedStyle(scrollRef.value!)
     contentHeight = parseFloat(style.height) || 500
   }, transitionTime)
-  getMusicUrl(musicStore.nowMusic.id || '0')
+  mute && getMusicUrl(musicStore.nowMusic.id || '0')
   musicStore.changeIndex(showIndex.value)
 })
 
@@ -165,24 +202,30 @@ watch(
     }
     .text {
       width: 80vw;
-      height: 50vh;
       margin-top: 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+
       padding-right: 2rem;
-      .text-font {
-        color: #ffffff;
-        white-space: pre-wrap;
-        font-size: 1.15rem;
-        line-height: 1.8rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 10;
-        font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
-      }
+      color: #ffffff;
+      white-space: pre-wrap;
+      font-size: 1rem;
+      line-height: 1.8rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 8;
+      font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+    }
+    .unmute {
+      position: absolute;
+      bottom: 10vh;
+      right: 0;
+      padding: 0.5rem 1rem;
+      background: #41c453bd;
+      color: #fff;
+      border-radius: 0.5rem 0 0 0.5rem;
+      font-size: 1rem;
+      z-index: 9999;
     }
   }
 }
