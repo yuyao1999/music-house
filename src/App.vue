@@ -30,8 +30,6 @@ userStore.setUserData({
   follow: 10,
 })
 
-musicStore.setShow(false)
-
 useSetZoom()
 
 // 根据浏览器当前主题设置系统主题色
@@ -71,10 +69,17 @@ const onAfterLeave = () => {
     window.scrollTo(0, routerStore.scrollTop['home'] || 0)
   })
 }
+// const isFullScreen = ref(false)
+// // 全屏
+// const fullScreen = () => {
+//   isFullScreen.value = true
+//   document.documentElement.requestFullscreen()
+// }
 </script>
 
 <template>
   <div>
+    <!-- <view v-if="!isFullScreen" class="full" @click="fullScreen">点击全屏显示</view> -->
     <router-view #default="{ Component }">
       <Transition :name="transitionName" @after-leave="onAfterLeave">
         <keep-alive :include="routerStore.keepAliveList">
@@ -91,4 +96,18 @@ const onAfterLeave = () => {
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  background: #000000bd;
+  color: #fff;
+  text-align: center;
+  line-height: 100vh;
+  font-size: 2rem;
+}
+</style>
