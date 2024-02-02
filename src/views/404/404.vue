@@ -79,7 +79,6 @@
 <script setup lang="ts">
 import { useMusicStore } from '@/store/modules/music'
 const musicStore = useMusicStore()
-musicStore.setMiniShow(false)
 
 const toIndex = () => {
   window.location.href = '/'
