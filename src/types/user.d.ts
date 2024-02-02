@@ -4,10 +4,10 @@ export type IUser = {
   id: string
   username: string
   mobile: string
-  avatar: string
-  profile: string
-  like: number
-  follow: number
-  fans: number
+  photo: string
+  photo: string
+  like_count: number
+  follow_count: number
+  fans_count: number
   [key: string]: any
 }

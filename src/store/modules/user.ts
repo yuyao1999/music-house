@@ -12,21 +12,21 @@ export const useUserStore = defineStore(
      */
     const id = ref('')
     const username = ref('未登录')
-    const mobile = ref('')
-    const avatar = ref('')
-    const profile = ref('')
-    const like = ref(0)
-    const follow = ref(0)
-    const fans = ref(0)
+    const photo = ref('')
+    const signature = ref('')
+    const background = ref('')
+    const like_count = ref(0)
+    const follow_count = ref(0)
+    const fans_count = ref(0)
     const setUserData = (data: IUser) => {
       data?.id && (id.value = data.id)
       data?.username && (username.value = data.username)
-      data?.mobile && (mobile.value = data.mobile)
-      data?.avatar && (avatar.value = data.avatar)
-      data?.profile && (profile.value = data.profile)
-      like.value = data?.like ?? like.value
-      follow.value = data?.follow ?? follow.value
-      fans.value = data?.fans ?? fans.value
+      data?.photo && (photo.value = data.photo)
+      data?.signature && (signature.value = data.signature)
+      data?.background && (background.value = data.background)
+      like_count.value = data?.like_count ?? like_count.value
+      follow_count.value = data?.follow_count ?? follow_count.value
+      fans_count.value = data?.fans_count ?? fans_count.value
     }
     /**
      * 清空用户数据
@@ -34,21 +34,19 @@ export const useUserStore = defineStore(
     const clearUserData = () => {
       id.value = ''
       username.value = ''
-      mobile.value = ''
-      avatar.value = ''
+      photo.value = ''
     }
     //#endregion
 
     return {
       id,
       username,
-      avatar,
-      profile,
-      like,
-      follow,
-      fans,
+      photo,
+      signature,
+      like_count,
+      follow_count,
+      fans_count,
       setUserData,
-      mobile,
       clearUserData,
     }
   },
