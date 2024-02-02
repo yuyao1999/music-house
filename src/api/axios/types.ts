@@ -1,8 +1,9 @@
 /** @format */
 
-export interface IResponseData<T> {
-  result: T
-  code: number
+export interface IResponseData {
+  data: any
+  msg: string
+  ok: boolean
 }
 
 export const codeMessage: { [key: number]: string } = {
