@@ -9,10 +9,9 @@ import { isMobile } from '@/utils/is'
 import { useFont, useSetZoom } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from '@/router'
-import { nextTick, ref } from 'vue'
+import { ref } from 'vue'
 import Music from '@/components/Player/index.vue'
 import { userApi } from '@/api/user'
-
 import { useUserStore } from '@/store/modules/user'
 
 const appStore = useAppStore()
@@ -39,7 +38,6 @@ const refreshToken = () => {
   })
 }
 refreshToken()
-
 useSetZoom()
 
 // 根据浏览器当前主题设置系统主题色
@@ -56,6 +54,7 @@ const setDefaultFontSize = () => {
   document.documentElement.style.fontSize = fontSize + 'px'
 }
 setDefaultFontSize()
+
 const throttleFn = useThrottleFn(setDefaultFontSize, 250)
 // 窗口大小改变时重新设置字体大小
 if (!isMobile()) {
@@ -70,24 +69,12 @@ router.beforeEach((to, from) => {
   const fromUrl = ['/home', '/mine']
   transitionName.value = fromUrl.includes(from.path) ? '' : 'slide-right'
 })
-const onAfterLeave = () => {
-  nextTick(() => {
-    window.scrollTo(0, routerStore.scrollTop['home'] || 0)
-  })
-}
-// const isFullScreen = ref(false)
-// // 全屏
-// const fullScreen = () => {
-//   isFullScreen.value = true
-//   document.documentElement.requestFullscreen()
-// }
 </script>
 
 <template>
   <div>
-    <!-- <view v-if="!isFullScreen" class="full" @click="fullScreen">点击全屏显示</view> -->
     <router-view #default="{ Component }">
-      <Transition :name="transitionName" @after-leave="onAfterLeave">
+      <Transition :name="transitionName">
         <keep-alive :include="routerStore.keepAliveList">
           <component :is="Component" />
         </keep-alive>
