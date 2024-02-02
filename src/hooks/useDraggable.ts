@@ -25,7 +25,6 @@ export const useDraggable = (options: Options) => {
   const top = ref(0)
 
   const handleDragStart = (e: MouseEvent | TouchEvent) => {
-    e.preventDefault()
     if (!isMobile()) {
       draggable.value?.addEventListener('mousemove', handleDragMove)
       draggable.value?.addEventListener('mouseup', handleDragEnd)
@@ -49,15 +48,15 @@ export const useDraggable = (options: Options) => {
     if (isFirst) {
       // x y 的夹角
       const angle = Math.abs(Math.atan(diffY / diffX) * (180 / Math.PI))
-      // 0-20为x轴 70-90为y轴
+      // 0-20为x轴 50-90为y轴
       if (angle >= 0 && angle <= 20) {
         dragDirection = 'x'
       }
-      if (angle >= 70 && angle <= 90) {
+      if (angle >= 50 && angle <= 90) {
         dragDirection = 'y'
       }
-      // 只允许 0-20 70-90 之间的角度
-      if (angle > 20 && angle < 70 && options.axis !== 'both') {
+      // 只允许 0-20 50-90 之间的角度
+      if (angle > 20 && angle < 50 && options.axis !== 'both') {
         isDragging.value = false
         return
       }
