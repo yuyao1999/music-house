@@ -32,6 +32,12 @@ class User {
   getUserInfo(data: any) {
     return this.http.post('/user/info', data)
   }
+  /**
+   * 跟新token
+   */
+  refreshToken(data: any) {
+    return this.http.post('/user/refresh_token', data)
+  }
 }
 const userApi = new User()
 export { userApi }

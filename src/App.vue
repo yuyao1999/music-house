@@ -25,6 +25,21 @@ userApi.getUserInfo({}).then((res: any) => {
   userStore.setUserData(res || {})
 })
 
+const refreshToken = () => {
+  const token = localStorage.getItem('token')
+  const expire = localStorage.getItem('expire') || 0
+  const nowTime = new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+  if (token && !(nowTime > new Date(expire))) {
+    return
+  }
+  userApi.refreshToken({}).then((res: any) => {
+    if (!res) return
+    localStorage.setItem('token', res.token)
+    localStorage.setItem('expire', res.expire)
+  })
+}
+refreshToken()
+
 useSetZoom()
 
 // 根据浏览器当前主题设置系统主题色

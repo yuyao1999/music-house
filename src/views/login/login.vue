@@ -126,6 +126,7 @@ const onLogin = () => {
       open(res.msg)
       if (res.ok) {
         localStorage.setItem('token', res.data?.token)
+        localStorage.setItem('expire', res.data?.expire)
         userStore.setUserData(res.data?.user)
         setTimeout(() => {
           router.push({
