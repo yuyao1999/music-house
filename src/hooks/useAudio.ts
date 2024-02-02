@@ -182,39 +182,30 @@ export const useAudio = () => {
   /**
    * 搜索音乐
    */
-  const getMusicSearch = (keywords: string) => {
+  const getMusicSearch = (data: any) => {
     const musicStore = useMusicStore()
-    musicApi.search({ keywords }).then((res: any) => {
-      const data = res.result.songs[0]
-      // 如果存在跳转到当前音乐
-      const index = musicStore.musicList.findIndex((item) => item.id === data.id)
-      console.log('index', index)
-      if (index !== -1) {
-        console.log('audio.value?.paused', audio.value?.paused)
-        if (audio.value?.paused !== undefined) {
-          return
-        }
-        if (audio.value?.paused === undefined) {
-          getMusicUrl(data.id)
-          return
-        }
-      }
-      musicStore.pushPlayList({
-        id: data.id,
-        name: data.name,
-        singer: data.artists[0].name,
-        album: data.album.name,
-        mvid: data.mvid,
-      })
-      // 优化
-      Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl(data.id)])
-        .then((res) => {
-          // console.log('Promise res', res)
-        })
-        .catch((err) => {
-          // console.log('Promise err', err)
-        })
+    // 如果存在跳转到当前音乐
+    const index = musicStore.musicList.findIndex((item) => item.id === data.id)
+    console.log('index', index)
+    if (index !== -1) {
+      musicStore.changeIndex(index)
+      return
+    }
+    musicStore.pushPlayList({
+      id: data.id,
+      name: data.name,
+      singer: data.artists[0].name,
+      album: data.album.name,
+      mvid: data.mvid,
     })
+    // 优化
+    Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl(data.id)])
+      .then((res) => {
+        // console.log('Promise res', res)
+      })
+      .catch((err) => {
+        // console.log('Promise err', err)
+      })
   }
   return {
     createAudio,
