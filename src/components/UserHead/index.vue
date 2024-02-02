@@ -74,7 +74,7 @@ const toUser = () => {
 .user {
   position: absolute;
   right: 5vw;
-  top: 88vw;
+  top: 40vh;
   display: flex;
   flex-direction: column;
   align-items: center;

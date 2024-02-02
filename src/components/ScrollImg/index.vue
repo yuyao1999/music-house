@@ -187,6 +187,7 @@ watch(
     cursor: pointer;
     .img {
       width: 20rem;
+      max-width: 80vw;
       object-fit: cover;
       border-radius: 1rem;
       // 不允许用户拖动
@@ -198,7 +199,7 @@ watch(
     }
     .text {
       width: 80vw;
-      margin-top: 3rem;
+      margin-top: 1.5rem;
       padding-right: 2rem;
       color: #ffffff;
       white-space: pre-wrap;
