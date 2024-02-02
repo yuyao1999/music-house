@@ -30,9 +30,6 @@ const { getMusicUrl } = useAudio()
 const musicStore = useMusicStore()
 
 musicStore.setShow(false)
-if (musicStore.musicList.length > 0) {
-  musicStore.setMiniShow(true)
-}
 
 // 获取是否允许音频自动播放
 const checkAudioPermission = () => {
@@ -189,8 +186,7 @@ watch(
     justify-content: center;
     cursor: pointer;
     .img {
-      width: 80vw;
-      height: 80vw;
+      width: 20rem;
       object-fit: cover;
       border-radius: 1rem;
       // 不允许用户拖动
@@ -203,18 +199,18 @@ watch(
     .text {
       width: 80vw;
       margin-top: 3rem;
-
       padding-right: 2rem;
       color: #ffffff;
       white-space: pre-wrap;
       font-size: 1rem;
-      line-height: 1.8rem;
+      line-height: 1.6rem;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 8;
+      -webkit-line-clamp: 10;
       font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+      letter-spacing: 0.3rem;
     }
     .unmute {
       position: absolute;

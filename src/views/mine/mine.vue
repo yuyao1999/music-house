@@ -6,7 +6,7 @@
     <div class="px-7 flex flex-col gap-4 relative z-2">
       <div class="flex justify-between items-center mt-[10vh]">
         <div class="flex items-center gap-5">
-          <img class="w-20 rounded-full border-2 border-[#878787]" :src="userStore.avatar" />
+          <img class="w-20 rounded-full border-2 border-[#878787]" :src="userStore.photo" />
           <div class="text-light-500 font-bold text-2xl">
             {{ userStore.username }}
           </div>
@@ -29,22 +29,23 @@
         </svg>
       </div>
       <div class="text-[#ECEBEC]">
-        {{ userStore.profile }}
+        {{ userStore.signature }}
       </div>
       <div class="flex justify-around items-center text-[#FFFFFF] text-xl font-bold">
         <div class="flex flex-col items-center gap-1">
-          <div>{{ userStore.like }}</div>
+          <div>{{ userStore.like_count }}</div>
           <div class="text-[#f9f2f2] text-sm">获赞</div>
         </div>
         <div class="flex flex-col items-center gap-1">
-          <div>{{ userStore.follow }}</div>
+          <div>{{ userStore.follow_count }}</div>
           <div class="text-[#f9f2f2] text-sm">关注</div>
         </div>
         <div class="flex flex-col items-center gap-1">
-          <div>{{ userStore.fans }}</div>
+          <div>{{ userStore.fans_count }}</div>
           <div class="text-[#f9f2f2] text-sm">粉丝</div>
         </div>
       </div>
+      <div class="text-light-500" v-debounce="onLogout">退出登录</div>
     </div>
     <div class="card">
       <div class="flex items-center gap-5">
@@ -65,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useShow } from '@/hooks/useShow'
 import { useRouter } from 'vue-router'
 import { useMusicStore } from '@/store/modules/music'
@@ -75,7 +76,6 @@ import HomeList from '@/components/HomeList/index.vue'
 
 const userStore = useUserStore()
 
-const { getMusicSearch } = useAudio()
 onMounted(() => {
   console.log('onMounted 我的')
   useShow({
@@ -117,10 +117,14 @@ const toLogin = () => {
 }
 const text = ref('1')
 const musicStore = useMusicStore()
-const music = () => {
-  getMusicSearch(text.value)
-  musicStore.setShow(true)
+
+const onLogout = () => {
+  localStorage.clear()
+  router.replace({ name: 'login' })
 }
+const bgUrl = computed(() => {
+  return userStore.photo ? `url(${userStore.photo}) ` : '#3a3e3f'
+})
 </script>
 
 <style scoped lang="scss">
@@ -130,9 +134,8 @@ const music = () => {
   left: 0;
   width: 100%;
   height: 40%;
-  background: v-bind("userStore.avatar ? 'url(' + userStore.avatar + ')' : '#000000'") no-repeat center;
+  background: v-bind('bgUrl') no-repeat left;
   filter: blur(40px);
-  background-position: center center;
   scale: 1.5;
   z-index: 1;
 }

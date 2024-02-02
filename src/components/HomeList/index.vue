@@ -75,7 +75,6 @@ const toUser = () => {
   console.log('toUser')
 }
 const toPlay = (index: number) => {
-  musicStore.setMiniShow(true)
   musicStore.changeIndex(index)
 }
 </script>

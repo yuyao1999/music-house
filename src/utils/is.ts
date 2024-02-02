@@ -110,3 +110,9 @@ export const isDark = (): boolean => {
 export const isMobile = (): boolean => {
   return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)
 }
+/**
+ * 是否为手机微信浏览器
+ */
+export const isWeiXin = (): boolean => {
+  return /MicroMessenger/i.test(navigator.userAgent)
+}

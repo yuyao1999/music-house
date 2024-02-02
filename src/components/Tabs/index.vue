@@ -143,7 +143,7 @@ watch(
 <style scoped lang="scss">
 .tabs {
   position: fixed;
-  top: 0;
+  top: calc(0px + var(--statusBarHeight));
   left: 0;
   width: 100%;
   background-color: transparent;

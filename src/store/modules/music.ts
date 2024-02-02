@@ -14,7 +14,7 @@ export const useMusicStore = defineStore(
     const setShow = (flag: boolean) => {
       show.value = flag
     }
-    const miniShow = ref<boolean>(false)
+    const miniShow = ref<boolean>(true)
     const setMiniShow = (flag: boolean) => {
       miniShow.value = flag
     }
@@ -749,6 +749,13 @@ export const useMusicStore = defineStore(
       musicList.value = []
     }
 
+    /**
+     * mv列表
+     */
+    const mvList = computed(() => {
+      return musicList.value.filter((item) => item.mvid)
+    })
+
     return {
       show,
       setShow,
@@ -768,6 +775,7 @@ export const useMusicStore = defineStore(
       supplementMusic,
       removePlayList,
       clearPlayList,
+      mvList,
     }
   },
   {

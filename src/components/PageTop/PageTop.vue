@@ -31,10 +31,15 @@ const router = useRouter()
 
 interface IProps {
   title: string
+  onBack?: () => void
 }
-defineProps<IProps>()
+const props = defineProps<IProps>()
 
 const toBack = () => {
+  if (props.onBack) {
+    props.onBack()
+    return
+  }
   router.back()
 }
 </script>
@@ -44,7 +49,7 @@ const toBack = () => {
   position: fixed;
   top: 0;
   width: 100%;
-  min-height: 6vh;
+  min-height: 3rem;
   padding-right: 1rem;
   padding-left: 1rem;
   background: #000000;

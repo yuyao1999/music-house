@@ -11,6 +11,9 @@
         </Transition>
       </router-view>
     </div>
+    <Transition appear enter-active-class="animate__animated animate__bounceInLeft">
+      <MiniPlayer v-show="musicStore.miniShow" />
+    </Transition>
     <div class="h-[7vh] sticky bottom-0 w-full">
       <NavigationBar />
     </div>
@@ -19,8 +22,11 @@
 
 <script setup lang="ts">
 import NavigationBar from '@/components/NavigationBar/index.vue'
+import MiniPlayer from '@/components/MiniPlayer/index.vue'
 import { useRouterStore } from '@/store/modules/router'
+import { useMusicStore } from '@/store/modules/music'
 
+const musicStore = useMusicStore()
 const routerStore = useRouterStore()
 defineOptions({
   name: 'layout',

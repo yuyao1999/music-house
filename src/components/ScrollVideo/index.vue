@@ -2,7 +2,7 @@
   <div class="scroll-content">
     <div class="w-full h-full" ref="scrollRef">
       <div v-if="topTips">已经到顶了~</div>
-      <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
+      <div class="scroll-item" v-for="(item, index) in musicStore.mvList" :key="index">
         <span class="name">{{ item.name }}</span>
         <video
           v-if="index === showIndex && item?.mvid"
@@ -27,11 +27,11 @@ import { musicApi } from '@/api/music'
 const musicStore = useMusicStore()
 const videoRef = ref()
 const getVideo = async () => {
-  if (!musicStore.musicList[showIndex.value]?.mvid) return
-  const res: any = await musicApi.getMv({ id: musicStore.musicList[showIndex.value]?.mvid })
+  if (!musicStore.mvList[showIndex.value]?.mvid) return
+  const res: any = await musicApi.getMv({ id: musicStore.mvList[showIndex.value]?.mvid })
   const dom: any = videoRef.value?.[0]
   musicStore.supplementMusic({
-    id: musicStore.musicList[showIndex.value]?.id,
+    id: musicStore.mvList[showIndex.value]?.id,
     mvSrc: res.data?.url || '',
   })
   // 用户操作后才能播放
@@ -78,7 +78,7 @@ const onDragEnd = () => {
     if (topTips.value) {
       distance = 0
     } else {
-      distance = (musicStore.musicList.length - 1) * contentHeight
+      distance = (musicStore.mvList.length - 1) * contentHeight
     }
     scrollRef.value.style.transform = `translateY(-${distance}px)`
     scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
@@ -101,7 +101,7 @@ const onDragEnd = () => {
   if (dom && nextFlag) {
     // 记录当前播放时间
     musicStore.supplementMusic({
-      id: musicStore.musicList[showIndex.value]?.id,
+      id: musicStore.mvList[showIndex.value]?.id,
       currentTime: dom.currentTime,
     })
     console.log('dom.currentTime', dom.currentTime)
@@ -128,7 +128,7 @@ const onDragEnd = () => {
     const dom: any = videoRef.value?.[0]
     // 跳转到已经播放的时间
     if (dom && nextFlag) {
-      dom.currentTime = musicStore.musicList[showIndex.value]?.currentTime || 0
+      dom.currentTime = musicStore.mvList[showIndex.value]?.currentTime || 0
       dom.play()
     }
   }, transitionTime)
@@ -154,7 +154,7 @@ watch(
     if (showIndex.value === 0 && top.value > 30) {
       topTips.value = true
       return
-    } else if (showIndex.value === musicStore.musicList.length - 1 && top.value < -30) {
+    } else if (showIndex.value === musicStore.mvList.length - 1 && top.value < -30) {
       bottomTips.value = true
       return
     }
@@ -195,6 +195,7 @@ watch(
     }
     .video {
       width: 100%;
+      height: 100%;
       height: fit-content;
       object-fit: cover;
     }

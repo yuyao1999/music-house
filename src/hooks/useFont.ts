@@ -17,9 +17,7 @@ export const useFont = (size: number): number => {
     return -1
   }
   const currentSize = width / height
-  console.log('currentSize', currentSize)
   const res = size * (currentSize / baseSize)
-  console.log('res', res)
   if (useIsMobile() && height < 740) {
     return 13
   }

@@ -74,15 +74,14 @@ export const setStatusBarColor = (color: string) => {
 export const setStatusBarHeight = () => {
   if (!window.plus) return
   const statusBarHeight = plus.navigator.getStatusbarHeight()
-  console.log('statusBarHeight', statusBarHeight)
-  // tabs
-  const tabs: any = document.querySelector('.tabs')
-  console.log('tabs', tabs)
-  if (tabs) {
-    tabs.style.top = statusBarHeight + 'px'
-  }
   const style = document.createElement('style')
-  style.innerHTML = `.statusBarHeightPaddingTop {padding-top: ${statusBarHeight}px}`
+  style.innerHTML = `
+  .statusBarHeightPaddingTop {padding-top: ${statusBarHeight}px}
+  :root{
+    --statusBarHeight: ${statusBarHeight}px;
+  }
+  `
+  console.log('statusBarHeight', statusBarHeight)
   document.getElementsByTagName('head')[0].appendChild(style)
 }
 // 设置（底部导航栏）

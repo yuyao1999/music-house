@@ -56,7 +56,6 @@ for (let i = 4; i < 100; i++) {
 
 const musicStore = useMusicStore()
 
-const { getMusicSearch } = useAudio()
 defineOptions({
   name: 'home',
 })
@@ -70,14 +69,6 @@ const onHide = () => {
 const msg = ref('那天')
 const router = useRouter()
 
-const toLogin = () => {
-  router.push({ name: 'login' })
-}
-const toMusic = () => {
-  getMusicSearch(msg.value)
-  musicStore.setShow(true)
-  // 传参 msg
-}
 const homeRef = ref<HTMLDivElement>()
 onMounted(() => {
   console.log('onMounted home')

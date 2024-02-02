@@ -1,5 +1,5 @@
 <template>
-  <div class="content" @click="openMusic">
+  <div class="content cursor-pointer" @click="openMusic">
     <img class="img" :src="musicStore.nowMusic.cover" />
     <div class="flex-1 ml-4 w-[60%]">
       <scrollText class="text-text-lg text-white font-bold" :text="musicStore.nowMusic.name" :max="15" />

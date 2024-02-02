@@ -27,12 +27,6 @@
                 {{ index + 1 }}
               </div>
               <div>
-                <!-- <div class="text-xl text-gray-300 font-600" :class="{ active: activeFunc(item.id) }">
-                  {{ item.name }}
-                </div>
-                <div class="text-base text-gray-500 font-400" :class="{ active: activeFunc(item.id) }">
-                  {{ item.singer }} - {{ item.album }}
-                </div> -->
                 <scrollText
                   class="text-xl text-gray-300 font-600 w-full"
                   :class="{ active: activeFunc(item.id) }"

@@ -48,7 +48,6 @@ const nowIndex = ref(0)
 const toUrl = (url: string, index: number) => {
   nowIndex.value = index
   if (url === '/publish') {
-    musicStore.setMiniShow(false)
     router.push(url)
   } else router.replace(url)
 }
