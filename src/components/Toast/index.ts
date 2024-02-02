@@ -5,6 +5,8 @@ import { createApp, h, ref } from 'vue'
 export const useToast = () => {
   let div: any = null
   let app: any = null
+  let timeId: any
+  let timeId2: any
   const show = ref(true)
   const open = (msg: string) => {
     if (!app) {
@@ -24,10 +26,15 @@ export const useToast = () => {
         },
       })
       app.mount(div)
-      setTimeout(() => {
+      timeId = setTimeout(() => {
         show.value = false
-        setTimeout(close, 1000)
+        timeId2 = setTimeout(close, 1000)
       }, 2000)
+    } else {
+      close()
+      clearTimeout(timeId)
+      clearTimeout(timeId2)
+      open(msg)
     }
   }
   const close = () => {
