@@ -2,7 +2,7 @@
   <div class="scroll-content">
     <div class="crosswise" ref="scrollRef">
       <div class="scroll-item statusBarHeightPaddingTop">
-        <ScrollImg v-if="appStore.homeMode === 0" />
+        <ScrollImg v-if="appStore.homeMode === 0" :key="key" @refresh="refresh" />
         <div class="home-list" v-else>
           <HomeList :list="musicStore.musicList" />
         </div>
@@ -46,6 +46,10 @@ onMounted(() => {
     contentHeight = parseFloat(style.width) || 500
   }, transitionTime)
 })
+const key = ref(0)
+const refresh = () => {
+  key.value++
+}
 
 // 滑动距离切换的值
 const scrollValue = 50

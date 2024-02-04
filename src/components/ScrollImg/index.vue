@@ -1,7 +1,7 @@
 <template>
   <div class="scroll-content" @click.self>
     <div class="w-full h-full" ref="scrollRef">
-      <div v-if="topTips">已经到顶了~</div>
+      <!-- <div v-if="topTips" class="text-light-500">已经到顶了~</div> -->
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
         <div class="p-5 pt-16 w-full h-full flex flex-col items-center">
           <img class="img" :src="item.cover" alt="" />
@@ -13,36 +13,61 @@
           <div class="unmute" v-if="index === 0 && mute" @click="onUnmute">点击取消静音</div>
         </div>
       </div>
-      <div v-if="bottomTips">没有更多了~</div>
+      <div v-if="bottomTips" class="text-light-500 text-center -mt-[10vh]">没有更多了~</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useDraggable } from '@/hooks/useDraggable'
-import { onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
 import UserHead from '@/components/UserHead/index.vue'
 import { userApi } from '@/api/user'
-
+let firstLoad = true
 const { getMusicUrl, getMusicSearch } = useAudio()
 const musicStore = useMusicStore()
+musicStore.setPlayMode(2)
 musicStore.setShow(false)
-
-const params = {
+musicStore.clearPlayList()
+musicStore.changeIndex(0, false)
+const params = ref({
   page: 1,
-  size: 10,
+  size: 3,
+})
+params.value.page = musicStore.seenPages
+musicStore.setSeenPages(musicStore.seenPages + 1)
+// 是否有新数据
+let hasNewData = false
+//跳转遗漏数据
+const jumpMissData = {
+  page: 0,
+  start: 0,
 }
-const total = ref(0)
-musicStore.changeIndex(0)
-userApi.getActivityPage(params).then((res: any) => {
-  console.log('res', res)
-  if (res.ok) {
-    total.value = res.data.total
-    musicStore.clearPlayList()
-    musicStore.setPlayList(
-      res.data.map((item: any) => {
+const getList = (type: 'top' | 'bottom' | 'miss') => {
+  if (params.value.page * params.value.size >= musicStore.total) {
+    musicStore.setSeenPages(1)
+  }
+  userApi.getActivityPage(params.value).then((res: any) => {
+    if (res.ok) {
+      const nowTotal = res.total
+      const diff = nowTotal - musicStore.total
+      console.log('diff', diff)
+      if (nowTotal > musicStore.total) {
+        hasNewData = true
+        //定位page的位置
+        const page = Math.ceil(diff / params.value.size)
+        params.value.page += page
+        musicStore.setTotal(nowTotal)
+        jumpMissData.page = params.value.page - 1
+        jumpMissData.start = diff % params.value.size
+        console.log('jumpMissData 1', jumpMissData)
+        getList(type)
+        return
+      }
+      musicStore.setTotal(nowTotal)
+      const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {
           id: item.son_id,
@@ -59,10 +84,25 @@ userApi.getActivityPage(params).then((res: any) => {
           createTime: item.create_time,
         }
       })
-    )
-  }
-})
-
+      if (type === 'bottom') {
+        musicStore.pushListPlayList(list)
+      } else if (type === 'top') {
+        musicStore.clearPlayList()
+        musicStore.unshiftListPlayList(list)
+        musicStore.changeIndex(0)
+        showIndex.value = 0
+      } else if (type === 'miss') {
+        console.log('list', list)
+        console.log('list.slice(jumpMissData.start)', list.slice(jumpMissData.start))
+        musicStore.pushListPlayList(list.slice(jumpMissData.start))
+        showIndex.value++
+      }
+      firstLoad && getMusicUrl(musicStore.nowMusic.id || '0')
+      firstLoad = false
+    }
+  })
+}
+getList('bottom')
 // 获取是否允许音频自动播放
 const checkAudioPermission = () => {
   const audio = new Audio()
@@ -71,15 +111,12 @@ const checkAudioPermission = () => {
   audio.play()
   return new Promise((resolve) => {
     audio.oncanplay = () => {
-      console.log('oncanplay')
       resolve(true)
     }
     audio.onplay = () => {
-      console.log('onplay')
       resolve(true)
     }
     audio.onpause = () => {
-      console.log('onpause')
       resolve(false)
     }
   })
@@ -91,7 +128,6 @@ checkAudioPermission().then((res) => {
 })
 const onUnmute = () => {
   mute.value = false
-  console.log('onUnmute')
   getMusicUrl(musicStore.nowMusic.id || '0')
 }
 
@@ -104,7 +140,6 @@ onMounted(() => {
     const style = getComputedStyle(scrollRef.value!)
     contentHeight = parseFloat(style.height) || 500
   }, transitionTime)
-  getMusicUrl(musicStore.nowMusic.id || '0')
 })
 
 // 滑动距离切换的值
@@ -116,9 +151,7 @@ let isTransition = false
 // 容器高度
 let contentHeight = 0
 
-const onDragStart = () => {
-  console.log('onDragStart img')
-}
+const onDragStart = () => {}
 const onDragEnd = () => {
   if (!scrollRef.value || top.value === 0) return
   // 优化代码
@@ -127,9 +160,15 @@ const onDragEnd = () => {
     let distance
     if (topTips.value) {
       distance = 0
+      if (params.value.page > 1) {
+        params.value.page = 1
+        musicStore.setSeenPages(params.value.page)
+        getList('top')
+      }
     } else {
       distance = (musicStore.musicList.length - 1) * contentHeight
     }
+
     scrollRef.value.style.transform = `translateY(-${distance}px)`
     scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
     isTransition = true
@@ -148,6 +187,23 @@ const onDragEnd = () => {
   if (top.value < -scrollValue) {
     // 向下滑动
     showIndex.value++
+    //请求数据
+    if (showIndex.value === musicStore.musicList.length - 2) {
+      if (musicStore.musicList.length < musicStore.total) {
+        params.value.page++
+        musicStore.setSeenPages(params.value.page + 1)
+        getList('bottom')
+      }
+    }
+
+    console.log('jumpMissData 2', jumpMissData)
+    console.log('showIndex.value', showIndex.value)
+    if (jumpMissData.page > 0 && showIndex.value === musicStore.musicList.length - 1) {
+      params.value.page = jumpMissData.page
+      jumpMissData.page = 0
+      getList('miss')
+      return
+    }
   } else if (top.value > scrollValue) {
     // 向上滑动
     showIndex.value--
@@ -182,9 +238,11 @@ watch(
   () => {
     if (!scrollRef.value || top.value === 0) return
     if (showIndex.value === 0 && top.value > 30) {
+      musicStore.setSeenPages(1)
       topTips.value = true
       return
     } else if (showIndex.value === musicStore.musicList.length - 1 && top.value < -30) {
+      musicStore.setSeenPages(1)
       bottomTips.value = true
       return
     }
@@ -194,6 +252,8 @@ watch(
     scrollRef.value.style.transform = `translateY(${-distance}px)`
   }
 )
+
+const emits = defineEmits(['refresh'])
 </script>
 
 <style scoped lang="scss">

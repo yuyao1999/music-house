@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/modules/app'
 import { getImgColor, getDarkColor } from '@/utils/img'
 import { useToast } from '@/components/Toast'
 import { musicApi } from '@/api/music'
+import { get } from 'http'
 
 const audio = ref<HTMLAudioElement | null>(null)
 // audio是否播放
@@ -191,7 +192,7 @@ export const useAudio = () => {
       musicStore.changeIndex(index)
       return
     }
-    changeFlag &&
+    if (changeFlag) {
       musicStore.pushPlayList({
         id: data.id,
         name: data.name,
@@ -199,8 +200,11 @@ export const useAudio = () => {
         album: data.album.name,
         mvId: data.mvId,
       })
+      getMusicUrl(data.id)
+    }
+
     // 优化
-    Promise.all([getMusicDetail(data.id), getMusicLyric(data.id), getMusicUrl(data.id, changeFlag)])
+    Promise.all([getMusicDetail(data.id), getMusicLyric(data.id)])
       .then((res) => {
         // console.log('Promise res', res)
       })

@@ -75,7 +75,7 @@ export class Http {
       (error) => {
         hideLoading()
         console.log('error', error)
-        if (error.stack.includes('timeout')) {
+        if (error.stack.includes('Network Error')) {
           localStorage.removeItem('token')
           headers = {}
           open('登录失效，请重新登录!')

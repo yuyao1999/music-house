@@ -18,19 +18,21 @@ export const useMusicStore = defineStore(
     const setMiniShow = (flag: boolean) => {
       miniShow.value = flag
     }
+
+    const { createAudio, audio, getMusicUrl } = useAudio()
+    const playMode = ref<number>(0)
     /**
      歌曲播放模式
      * 0 顺序
      * 1 随机
      * 2 单曲循环
      */
-    const { createAudio, audio, getMusicUrl } = useAudio()
-    const playMode = ref<number>(0)
     const setPlayMode = (mode: number) => {
       playMode.value = mode
     }
 
     const nowMusic = computed<IMusic>(() => {
+      console.log('nowIndex.value', nowIndex.value)
       return musicList.value[nowIndex.value] || {}
     })
 
@@ -41,10 +43,10 @@ export const useMusicStore = defineStore(
     /**
      * 改变当前音乐下标
      */
-    const changeIndex = debounce((index: number) => {
+    const changeIndex = debounce((index: number, getUrl = true) => {
       if (index === nowIndex.value) return
       nowIndex.value = index
-      getMusicUrl(nowMusic.value.id || '')
+      getUrl && getMusicUrl(nowMusic.value.id || '')
     })
     const changeIndexUnlimited = (index: number) => {
       if (index === nowIndex.value) return
@@ -82,6 +84,22 @@ export const useMusicStore = defineStore(
     const pushPlayList = (data: IMusic) => {
       musicList.value.push(data)
       nowIndex.value = musicList.value.length - 1
+    }
+    const pushListPlayList = (data: IMusic[]) => {
+      musicList.value.push(...data)
+    }
+    const unshiftListPlayList = (data: IMusic[]) => {
+      musicList.value.unshift(...data)
+    }
+    //看过的page
+    const seenPages = ref(1)
+    const setSeenPages = (page: number) => {
+      seenPages.value = page
+    }
+    //之前的total
+    const total = ref(Infinity)
+    const setTotal = (val: number) => {
+      total.value = val
     }
 
     /**
@@ -138,10 +156,16 @@ export const useMusicStore = defineStore(
       musicList,
       setPlayList,
       pushPlayList,
+      pushListPlayList,
+      unshiftListPlayList,
       supplementMusic,
       removePlayList,
       clearPlayList,
       mvList,
+      seenPages,
+      setSeenPages,
+      total,
+      setTotal,
     }
   },
   {
