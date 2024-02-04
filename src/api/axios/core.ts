@@ -15,6 +15,7 @@ export class Http {
   constructor(config: AxiosRequestConfig, headersConfig?: any) {
     //    创造实例
     this.service = axios.create(config)
+    let headers = headersConfig
     // 首先配置响应拦截
 
     //请求拦截 除了这些url 这些不拦截
@@ -28,7 +29,7 @@ export class Http {
          *
          */
         config.headers = {
-          ...headersConfig,
+          ...headers,
         }
         let unInterceptors = ['', '/chatgpt/', 'rand.music']
         let nowUrl: any = config.url
@@ -36,8 +37,6 @@ export class Http {
           return config
         }
         showLoading()
-        // 多个请求时，以最后一个请求为准
-
         return config
       },
       (error) => {
@@ -59,40 +58,31 @@ export class Http {
               4. ……
               */
         hideLoading()
-
         // 401 403
         if (response.data.code === 401 || response.data.code === 403) {
           localStorage.removeItem('token')
+          headers = {}
           open('登录失效，请重新登录')
           setTimeout(() => {
             router.replace({ name: 'login' })
           }, 1000)
         }
         if (response.status !== 200) {
-          // ElNotification({
-          //   title: "提示",
-          //   type: "error",
-          //   message: response.data.msg,
-          // })
-
           return Promise.reject('error')
         }
         return response.data
       },
       (error) => {
-        // ElNotification({
-        //   title: "提示",
-        //   type: "error",
-        //   message: error,
-        // })
         hideLoading()
-        // 跳转到登录页
-        //401 403
-        localStorage.removeItem('token')
-        open('登录失效，请重新登录')
-        setTimeout(() => {
-          router.replace({ name: 'login' })
-        }, 1000)
+        console.log('error', error)
+        if (error.stack.includes('timeout')) {
+          localStorage.removeItem('token')
+          headers = {}
+          open('登录失效，请重新登录!')
+          setTimeout(() => {
+            router.replace({ name: 'login' })
+          }, 1000)
+        }
       }
     ) //end response.use
   } //end constructor
