@@ -6,7 +6,7 @@
           <img
             class="head-img"
             @click="toUser"
-            src="https://p2.music.126.net/CXr_rIaxkW5kwlIJHd8qSw==/109951168937694185.jpg"
+            :src="musicStore.nowMusic.photo ? musicStore.nowMusic.photo : requireImg('logo.png')"
           />
           <!-- 关注 -->
           <div class="follow" @click="follow">
@@ -35,7 +35,7 @@
             </svg>
           </div>
         </div>
-        <div>等哈我i达瓦</div>
+        <div>{{ item.username }}</div>
       </div>
       <div class="content">
         {{ item.content }}
@@ -55,6 +55,7 @@
 import { ref } from 'vue'
 import { IMusic } from '@/types/music'
 import { useMusicStore } from '@/store/modules/music'
+import { requireImg } from '@/utils/requireImg'
 
 const musicStore = useMusicStore()
 

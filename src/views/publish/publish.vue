@@ -61,8 +61,10 @@ choseData.value = JSON.parse((route.query?.data as string) || '{}')
 const onClose = () => {
   choseData.value = {}
 }
-
+const text = ref('')
+text.value = sessionStorage.getItem('publishInput') || ''
 const toSearch = () => {
+  sessionStorage.setItem('publishInput', text.value)
   router.push({
     path: '/search',
     query: {
@@ -75,7 +77,6 @@ const onBack = () => {
     path: '/home',
   })
 }
-const text = ref('')
 
 const onPublish = () => {
   if (!choseData.value?.name) {
@@ -95,6 +96,7 @@ const onPublish = () => {
     open(res.msg)
     if (res.ok) {
       setTimeout(() => {
+        sessionStorage.removeItem('publishInput')
         router.push({
           path: '/home',
         })
