@@ -49,6 +49,7 @@ import PageTop from '@/components/PageTop/PageTop.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ref } from 'vue'
 import { useToast } from '@/components/Toast'
+import { userApi } from '@/api/user'
 
 const { open, close } = useToast()
 const router = useRouter()
@@ -81,6 +82,25 @@ const onPublish = () => {
     open('请添加音乐')
     return
   }
+  const params = {
+    son_id: choseData.value.id,
+    son_name: choseData.value.name,
+    son_singer: choseData.value.artists[0].name,
+    son_album: choseData.value.album.name,
+    son_mvId: choseData.value.mvId,
+    content: text.value,
+  }
+  userApi.sendActivity(params).then((res) => {
+    if (!res) return
+    open(res.msg)
+    if (res.ok) {
+      setTimeout(() => {
+        router.push({
+          path: '/home',
+        })
+      }, 1000)
+    }
+  })
 }
 </script>
 

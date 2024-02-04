@@ -18,43 +18,18 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAudio } from '@/hooks/useAudio'
 import { useShow } from '@/hooks/useShow'
-import { useMusicStore } from '@/store/modules/music'
 import ScrollPage from '@/components/ScrollPage/index.vue'
 import Tabs from '@/components/Tabs/index.vue'
 
 const scrollPageRef = ref<InstanceType<typeof ScrollPage>>()
 const left = ref(0)
 
-// const tabsList = ref(['图文', 'MV', '达娃大'])
 const tabsList = ref(['图文', 'MV'])
 const currentIndex = ref(0)
 const changeIndex = (index: number) => {
   currentIndex.value = index
   scrollPageRef.value?.changeScroll(index)
 }
-
-const data = ref([
-  {
-    name: '1',
-    img: 'https://p1.music.126.net/xEHCPvJXUVXbMJUefadIxA==/54975581404753.jpg',
-  },
-  {
-    name: '2',
-    img: 'https://p1.music.126.net/xEHCPvJXUVXbMJUefadIxA==/54975581404753.jpg',
-  },
-  {
-    name: '3',
-    img: 'https://p1.music.126.net/xEHCPvJXUVXbMJUefadIxA==/54975581404753.jpg',
-  },
-])
-for (let i = 4; i < 100; i++) {
-  data.value.push({
-    name: i.toString(),
-    img: 'https://p1.music.126.net/xEHCPvJXUVXbMJUefadIxA==/54975581404753.jpg',
-  })
-}
-
-const musicStore = useMusicStore()
 
 defineOptions({
   name: 'home',

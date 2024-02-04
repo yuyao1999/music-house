@@ -96,7 +96,6 @@ export const setNavigationBar = () => {
 }
 // 获取本地应用资源版本号
 const checkUrl = import.meta.env.VITE_API_MUSIC_BASE_URL + '/app/check_update'
-console.log('checkUrl', checkUrl)
 
 export const getLocalVersion = () => {
   plus.runtime.getProperty(plus.runtime.appid, function (inf: any) {
@@ -113,13 +112,13 @@ export const getLocalVersion = () => {
       console.log('this.status', this.status)
       if (this.readyState === 4) {
         console.log(this.responseText)
-        const res = this.responseText
-        if (this.responseText !== 'no') {
+        const res = JSON.parse(this.responseText)
+        if (res.ok) {
           plus.nativeUI.confirm(
             '检测到新版本，是否更新？',
             function (e: any) {
               if (e.index === 0) {
-                downWgt(res)
+                downWgt(res.data)
               }
             },
             '更新提示',

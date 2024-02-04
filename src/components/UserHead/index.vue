@@ -5,7 +5,7 @@
       <img
         class="head-img"
         @click="toUser"
-        src="https://p2.music.126.net/CXr_rIaxkW5kwlIJHd8qSw==/109951168937694185.jpg"
+        :src="musicStore.nowMusic.photo ? musicStore.nowMusic.photo : requireImg('logo.png')"
       />
       <!-- 关注 -->
       <div class="follow" @click="follow">
@@ -60,6 +60,10 @@
 <script setup lang="ts">
 import LoveBtn from '@/components/LoveBtn/index.vue'
 import { useCommentList } from '@/components/CommentList'
+import { useMusicStore } from '@/store/modules/music'
+import { requireImg } from '@/utils/requireImg'
+
+const musicStore = useMusicStore()
 const { open: commentOpen } = useCommentList()
 
 const follow = () => {

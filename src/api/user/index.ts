@@ -38,6 +38,18 @@ class User {
   refreshToken(data: any) {
     return this.http.post('/user/refresh_token', data)
   }
+  /**
+   * 发帖
+   */
+  sendActivity(data: any) {
+    return this.http.post('/activity/add', data)
+  }
+  /**
+   * 获取帖子列表
+   */
+  getActivityPage(data: any) {
+    return this.http.post('/activity/page', data)
+  }
 }
 const userApi = new User()
 export { userApi }

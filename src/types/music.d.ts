@@ -32,7 +32,7 @@ export type IMusic = {
   /**
    * 视频id
    */
-  mvid?: number
+  mvId?: number
   /**
    * 视频地址
    */
@@ -45,4 +45,24 @@ export type IMusic = {
    * 内容
    */
   content?: string
+  /**
+   * 发动态的作者id
+   */
+  userId?: string
+  /**
+   * 发动态的作者姓名
+   */
+  username?: string
+  /**
+   * 头像
+   */
+  photo?: string
+  /**
+   * 动态id
+   */
+  activityId?: string
+  /**
+   * 动态创建时间
+   */
+  createTime?: string
 }

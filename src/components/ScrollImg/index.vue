@@ -24,12 +24,44 @@ import { onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
 import UserHead from '@/components/UserHead/index.vue'
+import { userApi } from '@/api/user'
 
-const { getMusicUrl } = useAudio()
-
+const { getMusicUrl, getMusicSearch } = useAudio()
 const musicStore = useMusicStore()
-
 musicStore.setShow(false)
+
+const params = {
+  page: 1,
+  size: 10,
+}
+const total = ref(0)
+musicStore.changeIndex(0)
+userApi.getActivityPage(params).then((res: any) => {
+  console.log('res', res)
+  if (res.ok) {
+    total.value = res.data.total
+    musicStore.clearPlayList()
+    musicStore.setPlayList(
+      res.data.map((item: any) => {
+        getMusicSearch({ id: item.son_id }, false)
+        return {
+          id: item.son_id,
+          name: item.son_name,
+          singer: item.son_singer,
+          album: item.son_album,
+          mvId: item.son_mvId,
+          content: item.content,
+
+          userId: item.user_id,
+          username: item.username,
+          photo: item.photo,
+          activityId: item.id,
+          createTime: item.create_time,
+        }
+      })
+    )
+  }
+})
 
 // 获取是否允许音频自动播放
 const checkAudioPermission = () => {
@@ -72,8 +104,7 @@ onMounted(() => {
     const style = getComputedStyle(scrollRef.value!)
     contentHeight = parseFloat(style.height) || 500
   }, transitionTime)
-  mute && getMusicUrl(musicStore.nowMusic.id || '0')
-  musicStore.changeIndex(showIndex.value)
+  getMusicUrl(musicStore.nowMusic.id || '0')
 })
 
 // 滑动距离切换的值

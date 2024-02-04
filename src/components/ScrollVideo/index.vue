@@ -5,7 +5,7 @@
       <div class="scroll-item" v-for="(item, index) in musicStore.mvList" :key="index">
         <span class="name">{{ item.name }}</span>
         <video
-          v-if="index === showIndex && item?.mvid"
+          v-if="index === showIndex && item?.mvId"
           ref="videoRef"
           :src="item.mvSrc"
           class="video"
@@ -27,8 +27,8 @@ import { musicApi } from '@/api/music'
 const musicStore = useMusicStore()
 const videoRef = ref()
 const getVideo = async () => {
-  if (!musicStore.mvList[showIndex.value]?.mvid) return
-  const res: any = await musicApi.getMv({ id: musicStore.mvList[showIndex.value]?.mvid })
+  if (!musicStore.mvList[showIndex.value]?.mvId) return
+  const res: any = await musicApi.getMv({ id: musicStore.mvList[showIndex.value]?.mvId })
   const dom: any = videoRef.value?.[0]
   musicStore.supplementMusic({
     id: musicStore.mvList[showIndex.value]?.id,

@@ -20,7 +20,7 @@ export const useAudio = () => {
    * @returns
    * @memberof Audio
    */
-  const createAudio = (src: string) => {
+  const createAudio = (src: string | undefined) => {
     // 清空之前的audio
     if (audio.value) {
       audio.value.removeEventListener('ended', audioEnded)
@@ -115,17 +115,17 @@ export const useAudio = () => {
   /**
    * 获取音乐详情
    */
-  const getMusicDetail = () => {
+  const getMusicDetail = (ids: string) => {
     const musicStore = useMusicStore()
     const appStore = useAppStore()
-    musicApi.detail({ ids: musicStore.nowMusic?.id }).then((res: any) => {
+    musicApi.detail({ ids }).then((res: any) => {
       // 错误处理返回异常
       if (!res) {
         return
       }
       const data = res.songs[0]?.al?.picUrl
       musicStore.supplementMusic({
-        id: musicStore.nowMusic?.id,
+        id: ids,
         cover: data,
       })
       getImgColor(data).then((res: any) => {
@@ -138,15 +138,15 @@ export const useAudio = () => {
   /**
    * 获取音乐歌词
    */
-  const getMusicLyric = () => {
+  const getMusicLyric = (id: string) => {
     const musicStore = useMusicStore()
-    musicApi.getLyric({ id: musicStore.nowMusic?.id }).then((res: any) => {
+    musicApi.getLyric({ id }).then((res: any) => {
       if (!res) {
         return
       }
       const { lyric } = formatMusicLyrics(res.lrc.lyric)
       musicStore.supplementMusic({
-        id: musicStore.nowMusic?.id,
+        id,
         lyric,
       })
     })
@@ -154,7 +154,7 @@ export const useAudio = () => {
   /**
    * 获取音乐url
    */
-  const getMusicUrl = (id: string) => {
+  const getMusicUrl = (id: string, createFlag = true) => {
     const appStore = useAppStore()
     const musicStore = useMusicStore()
     getImgColor(musicStore.nowMusic?.cover || '').then((res: any) => {
@@ -168,9 +168,9 @@ export const useAudio = () => {
           reject(res)
           return
         }
-        createAudio(res.data[0].url)
+        createFlag && createAudio(res.data[0].url)
         musicStore.supplementMusic({
-          id: musicStore.nowMusic?.id,
+          id,
           src: res.data[0].url,
         })
         resolve(res)
@@ -182,24 +182,25 @@ export const useAudio = () => {
   /**
    * 搜索音乐
    */
-  const getMusicSearch = (data: any) => {
+  const getMusicSearch = (data: any, changeFlag = true) => {
     const musicStore = useMusicStore()
     // 如果存在跳转到当前音乐
     const index = musicStore.musicList.findIndex((item) => item.id === data.id)
     console.log('index', index)
-    if (index !== -1) {
+    if (index !== -1 && changeFlag) {
       musicStore.changeIndex(index)
       return
     }
-    musicStore.pushPlayList({
-      id: data.id,
-      name: data.name,
-      singer: data.artists[0].name,
-      album: data.album.name,
-      mvid: data.mvid,
-    })
+    changeFlag &&
+      musicStore.pushPlayList({
+        id: data.id,
+        name: data.name,
+        singer: data.artists[0].name,
+        album: data.album.name,
+        mvId: data.mvId,
+      })
     // 优化
-    Promise.all([getMusicDetail(), getMusicLyric(), getMusicUrl(data.id)])
+    Promise.all([getMusicDetail(data.id), getMusicLyric(data.id), getMusicUrl(data.id, changeFlag)])
       .then((res) => {
         // console.log('Promise res', res)
       })
