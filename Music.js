@@ -264,8 +264,6 @@ class message {
 
   //错误提示
   errorMessage(message) {
-    console.log('🚀 ~ file: messageTips.ts ~ line 81 ~ message ~ errorMessage ~ message', message)
-
     this.errorBox.innerHTML = `
         <div class="error-box-yy">
             <div class="error-message-yy">

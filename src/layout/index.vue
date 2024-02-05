@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <div class="relative w-full h-[93vh] overflow-y-scroll overflow-x-hidden">
+    <div class="relative w-full h-[93vh] overflow-y-scroll overflow-x-hidden" id="scrollId">
       <router-view #default="{ Component }">
         <Transition>
           <keep-alive :include="routerStore.keepAliveList">

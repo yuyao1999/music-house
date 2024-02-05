@@ -32,7 +32,6 @@ export const useMusicStore = defineStore(
     }
 
     const nowMusic = computed<IMusic>(() => {
-      console.log('nowIndex.value', nowIndex.value)
       return musicList.value[nowIndex.value] || {}
     })
 
@@ -87,9 +86,6 @@ export const useMusicStore = defineStore(
     }
     const pushListPlayList = (data: IMusic[]) => {
       musicList.value.push(...data)
-    }
-    const unshiftListPlayList = (data: IMusic[]) => {
-      musicList.value.unshift(...data)
     }
     //看过的page
     const seenPages = ref(1)
@@ -157,7 +153,6 @@ export const useMusicStore = defineStore(
       setPlayList,
       pushPlayList,
       pushListPlayList,
-      unshiftListPlayList,
       supplementMusic,
       removePlayList,
       clearPlayList,

@@ -113,7 +113,7 @@ export const getLocalVersion = () => {
       if (this.readyState === 4) {
         console.log(this.responseText)
         const res = JSON.parse(this.responseText)
-        if (res.ok) {
+        if (res?.ok) {
           plus.nativeUI.confirm(
             '检测到新版本，是否更新？',
             function (e: any) {

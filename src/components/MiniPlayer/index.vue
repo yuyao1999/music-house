@@ -5,7 +5,7 @@
       <scrollText class="text-text-lg text-white font-bold" :text="musicStore.nowMusic.name" :max="15" />
       <scrollText
         class="text-xs text-gray-300"
-        :text="musicStore.nowMusic?.singer + ' - ' + musicStore.nowMusic?.album"
+        :text="(musicStore.nowMusic?.singer || '') + ' - ' + (musicStore.nowMusic?.album || '')"
         :max="20"
       />
     </div>
@@ -42,7 +42,6 @@ const musicStore = useMusicStore()
 const appStore = useAppStore()
 const { open: listOpen } = useMusicList()
 const { audioPlayFlag, audioPlay, audioPause } = useAudio()
-console.log('audio mini', audioPlayFlag.value)
 const openMusic = () => {
   musicStore.setMiniShow(false)
   musicStore.setShow(true)

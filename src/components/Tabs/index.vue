@@ -87,7 +87,9 @@ const itemWidth = ref<any>([])
 // 每个item距离左边的距离
 const itemLeftDistance = ref<any>([])
 onMounted(() => {
-  getWidth()
+  setTimeout(() => {
+    getWidth()
+  }, 1000)
 })
 
 const getWidth = () => {
@@ -103,8 +105,8 @@ const getWidth = () => {
 // active-bottom 宽度
 const activeBottomWidth = ref(20)
 // 屏幕宽度
-const screenWidth = document.body.clientWidth
 const unitDistance = computed(() => {
+  const screenWidth = document.body.clientWidth
   let space = 0
   if (props.currentIndex === props.tabsList.length - 1) {
     space = itemLeftDistance.value[props.currentIndex] - itemLeftDistance.value[props.currentIndex - 1]
@@ -154,6 +156,11 @@ watch(
   align-items: center;
   height: 3rem;
   cursor: pointer;
+  // 取消长按的背景色
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  -webkit-user-select: none;
+  -moz-user-focus: none;
+  -moz-user-select: none;
   .tabs-item {
     font-size: 1rem;
     color: #ffffffab;

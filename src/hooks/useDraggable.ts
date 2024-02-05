@@ -33,7 +33,6 @@ export const useDraggable = (options: Options) => {
     isDragging.value = true
     isFirst = true
     startX.value = e instanceof MouseEvent ? e.screenX : e.touches[0].pageX
-    console.log('startX', startX.value)
     startY.value = e instanceof MouseEvent ? e.screenY : e.touches[0].pageY
     options.onDragStart?.()
   }

@@ -66,12 +66,8 @@ import { requireImg } from '@/utils/requireImg'
 const musicStore = useMusicStore()
 const { open: commentOpen } = useCommentList()
 
-const follow = () => {
-  console.log('follow')
-}
-const toUser = () => {
-  console.log('toUser')
-}
+const follow = () => {}
+const toUser = () => {}
 </script>
 
 <style scoped lang="scss">

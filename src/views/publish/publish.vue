@@ -57,6 +57,7 @@ const router = useRouter()
 const choseData = ref()
 const route = useRoute()
 choseData.value = JSON.parse((route.query?.data as string) || '{}')
+console.log('choseData.value ', choseData.value)
 
 const onClose = () => {
   choseData.value = {}

@@ -98,9 +98,7 @@ import { useMusicStore } from '@/store/modules/music'
 const keyword = debounceRef('')
 const list = ref([] as any)
 watch(keyword, (val) => {
-  console.log(val)
   musicApi.search({ keywords: val }).then((res: any) => {
-    console.log(res)
     list.value = res.result?.songs.slice(0, 10) || []
   })
 })

@@ -24,7 +24,7 @@ import Tabs from '@/components/Tabs/index.vue'
 const scrollPageRef = ref<InstanceType<typeof ScrollPage>>()
 const left = ref(0)
 
-const tabsList = ref(['图文', 'MV'])
+const tabsList = ref(['动态', 'MV'])
 const currentIndex = ref(0)
 const changeIndex = (index: number) => {
   currentIndex.value = index
@@ -34,19 +34,14 @@ const changeIndex = (index: number) => {
 defineOptions({
   name: 'home',
 })
-const onShow = () => {
-  console.log('onShow home')
-}
-const onHide = () => {
-  console.log('onHide')
-}
+const onShow = () => {}
+const onHide = () => {}
 
 const msg = ref('那天')
 const router = useRouter()
 
 const homeRef = ref<HTMLDivElement>()
 onMounted(() => {
-  console.log('onMounted home')
   useShow({
     el: homeRef.value,
     onShow,

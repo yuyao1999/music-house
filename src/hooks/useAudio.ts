@@ -187,7 +187,6 @@ export const useAudio = () => {
     const musicStore = useMusicStore()
     // 如果存在跳转到当前音乐
     const index = musicStore.musicList.findIndex((item) => item.id === data.id)
-    console.log('index', index)
     if (index !== -1 && changeFlag) {
       musicStore.changeIndex(index)
       return
@@ -205,12 +204,8 @@ export const useAudio = () => {
 
     // 优化
     Promise.all([getMusicDetail(data.id), getMusicLyric(data.id)])
-      .then((res) => {
-        // console.log('Promise res', res)
-      })
-      .catch((err) => {
-        // console.log('Promise err', err)
-      })
+      .then((res) => {})
+      .catch((err) => {})
   }
   return {
     createAudio,
