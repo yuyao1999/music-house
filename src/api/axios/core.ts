@@ -15,7 +15,6 @@ export class Http {
   constructor(config: AxiosRequestConfig, headersConfig?: any) {
     //    创造实例
     this.service = axios.create(config)
-    let headers = headersConfig
     // 首先配置响应拦截
 
     //请求拦截 除了这些url 这些不拦截
@@ -28,9 +27,11 @@ export class Http {
          * 3.给请求头添加信息等（token 结合sessionStorage，localStorage,vuex这些）
          *
          */
-        config.headers = {
-          ...headers,
-        }
+
+        const token = localStorage.getItem('token')
+        if (token && headersConfig?.Authorization)
+          config.headers['Authorization'] = 'Bearer ' + localStorage.getItem('token')
+
         let unInterceptors = ['', '/chatgpt/', 'rand.music']
         let nowUrl: any = config.url
         if (unInterceptors.includes(nowUrl)) {
@@ -61,7 +62,6 @@ export class Http {
         // 401 403
         if (response.data.code === 401 || response.data.code === 403) {
           localStorage.removeItem('token')
-          headers = {}
           open('登录失效，请重新登录')
           setTimeout(() => {
             router.replace({ name: 'login' })
@@ -77,7 +77,6 @@ export class Http {
         console.log('error', error)
         if (error.stack.includes('Network Error')) {
           localStorage.removeItem('token')
-          headers = {}
           open('登录失效，请重新登录!')
           setTimeout(() => {
             router.replace({ name: 'login' })

@@ -105,6 +105,11 @@ import { onMounted, ref } from 'vue'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
 import { useUserStore } from '@/store/modules/user'
+import { useRouterStore } from '@/store/modules/router'
+
+const routerStore = useRouterStore()
+
+routerStore.clearKeepAliveList()
 
 const userStore = useUserStore()
 const { open, close } = useToast()
@@ -122,14 +127,14 @@ const onLogin = () => {
     })
     .then((res) => {
       if (!res) return
-      console.log('res', res)
       open(res.msg)
       if (res.ok) {
         localStorage.setItem('token', res.data?.token)
         localStorage.setItem('expire', res.data?.expire)
         userStore.setUserData(res.data?.user)
+        routerStore.setKeepAliveList(['home', 'layout'])
         setTimeout(() => {
-          router.push({
+          router.replace({
             path: '/home',
           })
         }, 1000)
@@ -145,7 +150,6 @@ const onRegister = () => {
     })
     .then((res) => {
       if (!res) return
-      console.log('res', res)
       open(res.msg)
       if (res.ok) {
         onLogin()

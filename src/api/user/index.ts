@@ -9,7 +9,7 @@ class User {
     timeout: 1000 * 30, //30秒,
   }
   private headersConfig = {
-    Authorization: localStorage.getItem('token') ? 'Bearer ' + localStorage.getItem('token') : '',
+    Authorization: true,
   }
   constructor() {
     this.http = new Http(this.config, this.headersConfig)
