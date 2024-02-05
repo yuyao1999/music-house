@@ -2,7 +2,7 @@
   <div class="scroll-content">
     <div class="crosswise" ref="scrollRef">
       <div class="scroll-item statusBarHeightPaddingTop">
-        <ScrollImg v-if="appStore.homeMode === 0" :key="key" @refresh="refresh" />
+        <ScrollImg v-if="appStore.homeMode === 0" />
         <div class="home-list" v-else>
           <HomeList :list="musicStore.musicList" />
         </div>
@@ -46,10 +46,6 @@ onMounted(() => {
     contentHeight = parseFloat(style.width) || 500
   }, transitionTime)
 })
-const key = ref(0)
-const refresh = () => {
-  key.value++
-}
 
 // 滑动距离切换的值
 const scrollValue = 50
@@ -60,9 +56,7 @@ let isTransition = false
 // 容器高度
 let contentHeight = 0
 
-const onDragStart = () => {
-  console.log('onDragStart page')
-}
+const onDragStart = () => {}
 const onDragEnd = () => {
   if (!scrollRef.value || left.value === 0) return
   if (showIndex.value === props.tabsList.length - 1 && left.value < 0) return
@@ -121,7 +115,6 @@ const emits = defineEmits<{
 // 切换到指定的索引
 const changeScroll = (index: number) => {
   if (!scrollRef.value) return
-  console.log('changeScroll', index)
   if (props.currentIndex === index) {
     if (props.currentIndex === 0 && appStore.homeMode === 0) {
       appStore.setHomeMode(1)

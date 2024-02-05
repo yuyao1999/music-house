@@ -104,7 +104,6 @@ const onDragEnd = () => {
       id: musicStore.mvList[showIndex.value]?.id,
       currentTime: dom.currentTime,
     })
-    console.log('dom.currentTime', dom.currentTime)
   }
 
   if (top.value < -scrollValue) {

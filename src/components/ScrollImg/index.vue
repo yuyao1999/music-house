@@ -1,7 +1,7 @@
 <template>
   <div class="scroll-content" @click.self>
     <div class="w-full h-full" ref="scrollRef">
-      <!-- <div v-if="topTips" class="text-light-500">已经到顶了~</div> -->
+      <div v-if="topTips" class="text-light-500 text-center mt-12">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
         <div class="p-5 pt-16 w-full h-full flex flex-col items-center">
           <img class="img" :src="item.cover" alt="" />
@@ -20,24 +20,31 @@
 
 <script setup lang="ts">
 import { useDraggable } from '@/hooks/useDraggable'
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
 import UserHead from '@/components/UserHead/index.vue'
 import { userApi } from '@/api/user'
+import { useToast } from '@/components/Toast'
+
+const { open } = useToast()
 let firstLoad = true
 const { getMusicUrl, getMusicSearch } = useAudio()
 const musicStore = useMusicStore()
+
 musicStore.setPlayMode(2)
 musicStore.setShow(false)
 musicStore.clearPlayList()
 musicStore.changeIndex(0, false)
+
 const params = ref({
   page: 1,
   size: 3,
 })
 params.value.page = musicStore.seenPages
+
 musicStore.setSeenPages(musicStore.seenPages + 1)
+
 // 是否有新数据
 let hasNewData = false
 //跳转遗漏数据
@@ -45,28 +52,33 @@ const jumpMissData = {
   page: 0,
   start: 0,
 }
-const getList = (type: 'top' | 'bottom' | 'miss') => {
+
+const getList = (type: 'top' | 'bottom') => {
+  // 下次加载越界判断
   if (params.value.page * params.value.size >= musicStore.total) {
     musicStore.setSeenPages(1)
   }
+
   userApi.getActivityPage(params.value).then((res: any) => {
     if (res.ok) {
       const nowTotal = res.total
       const diff = nowTotal - musicStore.total
-      console.log('diff', diff)
       if (nowTotal > musicStore.total) {
         hasNewData = true
+
         //定位page的位置
-        const page = Math.ceil(diff / params.value.size)
+        const page = Math.floor(diff / params.value.size)
         params.value.page += page
         musicStore.setTotal(nowTotal)
-        jumpMissData.page = params.value.page - 1
+        jumpMissData.page = diff < params.value.size ? params.value.page - 1 : params.value.page
         jumpMissData.start = diff % params.value.size
-        console.log('jumpMissData 1', jumpMissData)
-        getList(type)
+
+        getMissList()
         return
       }
+
       musicStore.setTotal(nowTotal)
+
       const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {
@@ -88,14 +100,15 @@ const getList = (type: 'top' | 'bottom' | 'miss') => {
         musicStore.pushListPlayList(list)
       } else if (type === 'top') {
         musicStore.clearPlayList()
-        musicStore.unshiftListPlayList(list)
+        musicStore.pushListPlayList(list)
+
         musicStore.changeIndex(0)
         showIndex.value = 0
-      } else if (type === 'miss') {
-        console.log('list', list)
-        console.log('list.slice(jumpMissData.start)', list.slice(jumpMissData.start))
-        musicStore.pushListPlayList(list.slice(jumpMissData.start))
-        showIndex.value++
+
+        // 回到顶部
+        if (scrollRef.value) {
+          scrollRef.value.style.transform = `translateY(0px)`
+        }
       }
       firstLoad && getMusicUrl(musicStore.nowMusic.id || '0')
       firstLoad = false
@@ -103,6 +116,38 @@ const getList = (type: 'top' | 'bottom' | 'miss') => {
   })
 }
 getList('bottom')
+
+const getMissList = () => {
+  const paramsMiss = {
+    page: jumpMissData.page,
+    size: params.value.size,
+  }
+  userApi.getActivityPage(paramsMiss).then((res: any) => {
+    if (res.ok) {
+      const list = res.data.map((item: any) => {
+        getMusicSearch({ id: item.son_id }, false)
+        return {
+          id: item.son_id,
+          name: item.son_name,
+          singer: item.son_singer,
+          album: item.son_album,
+          mvId: item.son_mvId,
+          content: item.content,
+
+          userId: item.user_id,
+          username: item.username,
+          photo: item.photo,
+          activityId: item.id,
+          createTime: item.create_time,
+        }
+      })
+
+      musicStore.pushListPlayList(list.slice(jumpMissData.start))
+      jumpMissData.page = 0
+    }
+  })
+}
+
 // 获取是否允许音频自动播放
 const checkAudioPermission = () => {
   const audio = new Audio()
@@ -163,10 +208,20 @@ const onDragEnd = () => {
       if (params.value.page > 1) {
         params.value.page = 1
         musicStore.setSeenPages(params.value.page)
+        open('为您刷新最新动态~')
         getList('top')
       }
     } else {
       distance = (musicStore.musicList.length - 1) * contentHeight
+      if (hasNewData) {
+        hasNewData = false
+        params.value.page = 1
+        musicStore.setSeenPages(1)
+        open('为您从最新动态开始加载~')
+        setTimeout(() => {
+          getList('top')
+        }, transitionTime)
+      }
     }
 
     scrollRef.value.style.transform = `translateY(-${distance}px)`
@@ -188,37 +243,29 @@ const onDragEnd = () => {
     // 向下滑动
     showIndex.value++
     //请求数据
-    if (showIndex.value === musicStore.musicList.length - 2) {
+    if (showIndex.value === musicStore.musicList.length - 2 && !bottomTips.value) {
       if (musicStore.musicList.length < musicStore.total) {
         params.value.page++
         musicStore.setSeenPages(params.value.page + 1)
         getList('bottom')
       }
     }
-
-    console.log('jumpMissData 2', jumpMissData)
-    console.log('showIndex.value', showIndex.value)
-    if (jumpMissData.page > 0 && showIndex.value === musicStore.musicList.length - 1) {
-      params.value.page = jumpMissData.page
-      jumpMissData.page = 0
-      getList('miss')
-      return
-    }
   } else if (top.value > scrollValue) {
     // 向上滑动
     showIndex.value--
   }
   musicStore.changeIndexUnlimited(showIndex.value)
-  // 切换到下一个数据的位置
+
   isTransition = true
   scrollRef.value.style.transform = `translateY(-${showIndex.value * contentHeight}px)`
-  // 过度动画
   scrollRef.value.style.transition = `transform ${transitionTime}ms ease`
+
   setTimeout(() => {
     if (!scrollRef.value) return
     scrollRef.value.style.transition = ``
     isTransition = false
   }, transitionTime)
+
   top.value = 0
 }
 const { setDraggable, top } = useDraggable({
@@ -241,7 +288,11 @@ watch(
       musicStore.setSeenPages(1)
       topTips.value = true
       return
-    } else if (showIndex.value === musicStore.musicList.length - 1 && top.value < -30) {
+    } else if (
+      params.value.page * params.value.size >= musicStore.total &&
+      top.value < -30 &&
+      showIndex.value === musicStore.musicList.length - 1
+    ) {
       musicStore.setSeenPages(1)
       bottomTips.value = true
       return
@@ -252,8 +303,6 @@ watch(
     scrollRef.value.style.transform = `translateY(${-distance}px)`
   }
 )
-
-const emits = defineEmits(['refresh'])
 </script>
 
 <style scoped lang="scss">
