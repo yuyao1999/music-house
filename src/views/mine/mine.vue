@@ -76,20 +76,23 @@ import { useMusicStore } from '@/store/modules/music'
 import { useUserStore } from '@/store/modules/user'
 import { requireImg } from '@/utils/requireImg'
 import HomeList from '@/components/HomeList/index.vue'
+import { useReachBottom } from '@/hooks/useReachBottom'
+
+const callback = () => {
+  console.log('callBack mine')
+}
 
 const userStore = useUserStore()
 
 onMounted(() => {
-  console.log('onMounted 我的')
+  useReachBottom({ dom: document.getElementById('scrollId'), callback, distance: 200 })
   useShow({
     el: mine.value,
     onShow,
     onHide,
   })
 })
-onUnmounted(() => {
-  // console.log('onUnmounted 我的')
-})
+onUnmounted(() => {})
 
 const tabList = [
   {
@@ -106,12 +109,8 @@ const onTab = (index: number) => {
   currentTab.value = index
 }
 
-const onShow = () => {
-  console.log('onShow mine')
-}
-const onHide = () => {
-  console.log('onHide mine')
-}
+const onShow = () => {}
+const onHide = () => {}
 const mine = ref<HTMLDivElement>()
 
 const router = useRouter()
@@ -148,6 +147,8 @@ const bgUrl = computed(() => {
   margin-top: 2vh;
   z-index: 3;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
   background: #3a3e3f;
   border-radius: 30px 30px 0 0;
   transition: all 0.3s;
