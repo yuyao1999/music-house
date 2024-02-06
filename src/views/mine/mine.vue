@@ -77,13 +77,20 @@ import { useUserStore } from '@/store/modules/user'
 import { requireImg } from '@/utils/requireImg'
 import HomeList from '@/components/HomeList/index.vue'
 import { useReachBottom } from '@/hooks/useReachBottom'
+import { userApi } from '@/api/user'
 
 const callback = () => {
   console.log('callBack mine')
 }
 
 const userStore = useUserStore()
-
+const getUser = () => {
+  // 获取用户信息
+  userApi.getUserInfo({}).then((res: any) => {
+    userStore.setUserData(res || {})
+  })
+}
+getUser()
 onMounted(() => {
   useReachBottom({ dom: document.getElementById('scrollId'), callback, distance: 200 })
   useShow({

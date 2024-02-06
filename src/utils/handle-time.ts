@@ -31,3 +31,23 @@ export const getNowTime = (percent: number, totalTime: number): number => {
   if (!percent || !totalTime) return 0
   return percent * totalTime
 }
+
+/**
+ * @param {Data} data 时间
+ * @returns {string} 格式化后的时间 yyyy-MM-dd hh:mm:ss
+ */
+export const formatDate = (data: Date | undefined | string): string => {
+  if (!data) return ''
+  if (typeof data === 'string') {
+    data = new Date(data)
+  }
+  const year = data.getFullYear()
+  const month = data.getMonth() + 1
+  const day = data.getDate()
+  const hour = data.getHours()
+  const minute = data.getMinutes()
+  const second = data.getSeconds()
+  return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day} ${hour < 10 ? '0' + hour : hour}:${
+    minute < 10 ? '0' + minute : minute
+  }:${second < 10 ? '0' + second : second}`
+}

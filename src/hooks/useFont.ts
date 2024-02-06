@@ -106,3 +106,4 @@ export const useSetZoom = (): void => {
     )
   }
 }
+useSetZoom()

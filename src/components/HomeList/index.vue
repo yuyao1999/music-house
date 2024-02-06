@@ -70,7 +70,7 @@ musicStore.clearPlayList()
 
 const params = ref({
   page: 1,
-  size: 3,
+  size: 10,
 })
 const bottomTips = ref(false)
 // 是否有新数据
@@ -89,12 +89,12 @@ const getList = (type: 'top' | 'bottom') => {
         hasNewData = true
 
         //定位page的位置
-        const page = params.value.page + Math.floor(diff / params.value.size)
+        const page = Math.floor(diff / params.value.size)
+        params.value.page += page
         musicStore.setTotal(nowTotal)
-        jumpMissData.page = diff < params.value.size ? page - 1 : page
-        params.value.page = jumpMissData.page
-
+        jumpMissData.page = params.value.page
         jumpMissData.start = diff % params.value.size
+
         getMissList()
         return
       }
@@ -160,7 +160,7 @@ const getMissList = () => {
 const onBottom = () => {
   if (params.value.page * params.value.size >= musicStore.total) {
     bottomTips.value = true
-    if (hasNewData && musicStore.musicList.length < musicStore.total && bottomTips.value) {
+    if (hasNewData && musicStore.musicList.length < musicStore.total) {
       hasNewData = false
       params.value.page = 1
       open('为您从最新动态开始加载~')

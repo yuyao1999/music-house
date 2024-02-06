@@ -17,7 +17,7 @@
         <span class="switch" v-debounce="onSwitch"> 注册账号 </span>
       </div>
       <div class="username">
-        <input type="text" v-model="username" placeholder="请输入账号" />
+        <input type="text" v-model="username" placeholder="请输入用户名" />
         <div class="close cursor-pointer" v-if="username.length" @click="username = ''">
           <svg
             t="1706671454308"
@@ -65,14 +65,14 @@
       <div class="mt-20">
         <div class="text-center">第三方账号登录</div>
         <div class="flex justify-center mt-3 gap-5">
-          <div class="flex flex-col items-center gap-2 text-[0.5rem] cursor-pointer">
+          <div class="flex flex-col items-center gap-2 text-[0.5rem] cursor-pointer" @click="acwingLoin">
             <img
               class="icon-one flex-shrink-0"
-              src="https://cdn.acwing.com/media/article/image/2022/10/06/100155_67a0be2145-Drawing1_8Vk4q4F.png"
+              src="https://cdn.acwing.com/media/article/image/2022/09/06/1_32f001fd2d-acwing_logo.png"
             />
             AcWing
           </div>
-          <div class="flex flex-col items-center gap-2 text-[0.5rem] cursor-pointer">
+          <div class="flex flex-col items-center gap-2 text-[0.5rem] cursor-pointer" @click="qqLoin">
             <div>
               <svg
                 t="1706771260856"
@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
@@ -112,10 +112,13 @@ const routerStore = useRouterStore()
 routerStore.clearKeepAliveList()
 
 const userStore = useUserStore()
+
 const { open, close } = useToast()
 const username = ref('')
 const password = ref('')
+
 const router = useRouter()
+const route = useRoute()
 
 const type = ref<'register' | 'login'>('register')
 
@@ -165,6 +168,43 @@ const onSubmit = () => {
 }
 const onSwitch = () => {
   type.value = type.value === 'register' ? 'login' : 'register'
+}
+
+//awing登录
+const acwingLoin = () => {
+  if (self === top) {
+    userApi.acwingLogin({}).then((res: any) => {
+      console.log(res)
+      if (res.result === 'success') {
+        window.location.replace(res.apply_code_url)
+      }
+    })
+  } else {
+    window.parent.location.reload()
+  }
+}
+const qqLoin = () => {
+  open('功能暂未开放')
+}
+if (route.query?.code) {
+  userApi
+    .acwingReceive({
+      code: route.query?.code,
+      state: route.query?.state,
+    })
+    .then((res: any) => {
+      console.log(res)
+      if (res.result === 'success') {
+        localStorage.setItem('token', res.jwt_token)
+        routerStore.setKeepAliveList(['home', 'layout'])
+        open('AcWing登录成功')
+        setTimeout(() => {
+          router.replace({
+            path: '/home',
+          })
+        }, 1000)
+      }
+    })
 }
 </script>
 

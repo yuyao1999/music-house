@@ -6,7 +6,7 @@ import { useRouterStore } from '@/store/modules/router'
 import { useMusicStore } from '@/store/modules/music'
 import { isDark } from '@/utils/is'
 import { isMobile } from '@/utils/is'
-import { useFont, useSetZoom } from '@/hooks/useFont'
+import { useFont } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from '@/router'
 import { ref } from 'vue'
@@ -14,15 +14,21 @@ import Music from '@/components/Player/index.vue'
 import { userApi } from '@/api/user'
 import { useUserStore } from '@/store/modules/user'
 
+window.addEventListener(
+  'message',
+  (e) => {
+    console.log('message', e) // 父页面所在的域
+    console.log(e.data) // 父页面发送的消息, hello, child!
+    localStorage.setItem('token', e.data)
+    refreshToken()
+  },
+  false
+)
+
 const appStore = useAppStore()
 const routerStore = useRouterStore()
 const musicStore = useMusicStore()
 const userStore = useUserStore()
-
-// 获取用户信息
-userApi.getUserInfo({}).then((res: any) => {
-  userStore.setUserData(res || {})
-})
 
 const refreshToken = () => {
   const token = localStorage.getItem('token')
@@ -37,8 +43,10 @@ const refreshToken = () => {
     localStorage.setItem('expire', res.expire)
   })
 }
-refreshToken()
-useSetZoom()
+if (self === top) {
+  refreshToken()
+  console.log('refreshToken')
+}
 
 // 根据浏览器当前主题设置系统主题色
 const setDefaultTheme = () => {

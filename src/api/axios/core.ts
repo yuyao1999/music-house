@@ -74,10 +74,9 @@ export class Http {
       },
       (error) => {
         hideLoading()
-        console.log('error', error)
         if (error.stack.includes('Network Error')) {
           localStorage.removeItem('token')
-          open('登录失效，请重新登录!')
+          open('登录失效，请重新登录')
           setTimeout(() => {
             router.replace({ name: 'login' })
           }, 1000)

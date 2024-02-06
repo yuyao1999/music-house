@@ -5,9 +5,9 @@
       <div class="scroll-item" v-for="(item, index) in musicStore.musicList" :key="index">
         <div class="p-5 pt-16 w-full h-full flex flex-col items-center">
           <img class="img" :src="item.cover" alt="" />
-          <div class="text">
-            {{ item.content }}
-          </div>
+          <div class="username">{{ item.username }}：</div>
+          <div class="text">{{ item.content || 'I like this song' }}</div>
+          <div class="time">{{ formatDate(item.createTime) }}</div>
           <UserHead />
           <!-- 取消静音 -->
           <div class="unmute" v-if="index === 0 && mute" @click="onUnmute">点击取消静音</div>
@@ -26,6 +26,7 @@ import { useAudio } from '@/hooks/useAudio'
 import UserHead from '@/components/UserHead/index.vue'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
+import { formatDate } from '@/utils/handle-time'
 
 const { open } = useToast()
 let firstLoad = true
@@ -70,7 +71,7 @@ const getList = (type: 'top' | 'bottom') => {
         const page = Math.floor(diff / params.value.size)
         params.value.page += page
         musicStore.setTotal(nowTotal)
-        jumpMissData.page = diff < params.value.size ? params.value.page - 1 : params.value.page
+        jumpMissData.page = params.value.page
         jumpMissData.start = diff % params.value.size
 
         getMissList()
@@ -326,8 +327,8 @@ watch(
     justify-content: center;
     cursor: pointer;
     .img {
-      width: 20rem;
-      max-width: 80vw;
+      width: 18rem;
+      max-width: 75vw;
       object-fit: cover;
       border-radius: 1rem;
       // 不允许用户拖动
@@ -337,9 +338,23 @@ watch(
       -moz-user-focus: none;
       -moz-user-select: none;
     }
+    .username {
+      width: 80vw;
+      margin-left: -0.2rem;
+      margin-top: 1.5rem;
+      padding-right: 2rem;
+      color: #66919e;
+      font-size: 1.4rem;
+      font-weight: bolder;
+      text-align: left;
+      font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-wrap: nowrap;
+    }
     .text {
       width: 80vw;
-      margin-top: 1.5rem;
+      margin-top: 0.5rem;
       padding-right: 2rem;
       color: #ffffff;
       white-space: pre-wrap;
@@ -349,9 +364,20 @@ watch(
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 10;
+      -webkit-line-clamp: 12;
       font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
       letter-spacing: 0.3rem;
+    }
+    .time {
+      position: absolute;
+      bottom: 8vh;
+      width: 100%;
+      padding-right: 1rem;
+      text-align: right;
+      margin-top: 0.2rem;
+      color: #8f8f8f;
+      font-size: 0.8rem;
+      font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
     }
     .unmute {
       position: absolute;

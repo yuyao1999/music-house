@@ -2,15 +2,19 @@
 
 <template>
   <div class="content" @click.prevent>
-    <div v-for="(item, index) in list" :key="item.name">
-      <div class="item" @click="toUrl(item.url, index)" :class="{ active: index === nowIndex }">
-        <span v-if="item.icon">
-          <div v-html="item.icon" />
-        </span>
-        <span v-else>
-          {{ item.name }}
-        </span>
-      </div>
+    <div
+      v-for="(item, index) in list"
+      :key="item.name"
+      class="item"
+      @click="toUrl(item.url, index)"
+      :class="{ active: index === nowIndex }"
+    >
+      <span v-if="item.icon">
+        <div v-html="item.icon" />
+      </span>
+      <span v-else>
+        {{ item.name }}
+      </span>
     </div>
   </div>
 </template>
@@ -61,8 +65,15 @@ const toUrl = (url: string, index: number) => {
   border-top: 1px solid #5f5f5f;
   color: #8f8f8f;
   z-index: 1;
+  overflow: hidden;
   .item {
     @apply hover:cursor-pointer;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // 扩大点击区域
+    padding: 0 20px;
   }
   .active {
     color: #ffffff !important;

@@ -12,20 +12,20 @@ class Settings {
   constructor(root) {
     this.root = root
     this.message = new message()
-    //this.message.loadingMessage()
-    this.up_js(root)
+    this.message.loadingMessage()
+    // this.up_js(root)
     this.start(root)
     $('html')[0].style.overflow = 'hidden'
   }
 
   start(root) {
-    //this.getinfo_acapp(root);
+    this.getinfo_acapp(root)
   }
-  up_js(root) {
+  up_js(root, token) {
     let id = root.id
     this.$ac_game = $('#' + id)
     this.$ac_game.append(`<div id="app"></div>`)
-    this.$ac_game.append(`<iframe id="receiver" src="https://yuyao.site" frameborder="0" width="100%" height="100%"/>`)
+    this.$ac_game.append(`<iframe id="frameObj" src="https://yuyao.site" frameborder="0" width="100%" height="100%"/>`)
     this.$h = $('head')
     this.$h.append(`<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">`)
     $('#app').parents('.fs-gui-window')[0].style.width = 'calc(390px + 2px)'
@@ -35,26 +35,33 @@ class Settings {
     $(window).off('DOMMouseScroll')
 
     this.message.closeLoadingMessage()
+
+    // 容器父页面js代码
+    // * 表示向所有的iframe发送信息，指定url，就可以定向发送信息
+    const iframeDom = document.getElementById('frameObj')
+    // 需要等iframe加载完成后执行，不然有可能会报错
+    iframeDom.onload = function () {
+      iframeDom.contentWindow.postMessage(token, '*')
+    }
   }
   acapp_login(appid, redirect_uri, scope, state, root) {
     this.root = root
     let outer = this
     this.root.AcWingOS.api.oauth2.authorize(appid, redirect_uri, scope, state, (resp) => {
       if (resp.result === 'success') {
-        // 存储本地
-        localStorage.setItem('acwing_login_access', resp.access)
-        localStorage.setItem('acwing_login_refresh', resp.refresh)
-        $.ajax({
-          url: 'https://app842.acapp.acwing.com.cn/jump/setdata',
-          type: 'GET',
-          data: {
-            access: resp.access,
-            refresh: resp.refresh,
-          },
-          success(resp) {
-            outer.up_js(outer.root)
-          },
-        })
+        outer.up_js(outer.root, resp.jwt_token)
+
+        // $.ajax({
+        //   url: 'https://app842.acapp.acwing.com.cn/jump/setdata',
+        //   type: 'GET',
+        //   data: {
+        //     access: resp.access,
+        //     refresh: resp.refresh,
+        //   },
+        //   success(resp) {
+        //     outer.up_js(outer.root)
+        //   },
+        // })
       }
     })
   }
@@ -62,7 +69,7 @@ class Settings {
   getinfo_acapp(root) {
     let outer = this
     $.ajax({
-      url: 'https://app842.acapp.acwing.com.cn/jump/acapp/apply_code/',
+      url: 'https://app3619.acapp.acwing.com.cn/api/music/account/acwing/acapp/apply_code4/',
       type: 'GET',
       success: function (resp) {
         if (resp.result === 'success') {

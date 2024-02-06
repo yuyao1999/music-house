@@ -50,6 +50,15 @@ class User {
   getActivityPage(data: any) {
     return this.http.post('/activity/page', data)
   }
+  /**
+   * acwing一键登录
+   */
+  acwingLogin(data: any) {
+    return this.http.get('/account/web/apply_code4/', data)
+  }
+  acwingReceive(data: any) {
+    return this.http.get('/account/web/receive_code4/', data)
+  }
 }
 const userApi = new User()
 export { userApi }
