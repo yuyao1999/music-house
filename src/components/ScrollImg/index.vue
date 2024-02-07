@@ -327,8 +327,9 @@ watch(
     justify-content: center;
     cursor: pointer;
     .img {
-      width: 18rem;
-      max-width: 75vw;
+      height: 18rem;
+      min-height: 18rem;
+      max-height: 74vw;
       object-fit: cover;
       border-radius: 1rem;
       // 不允许用户拖动
@@ -341,10 +342,10 @@ watch(
     .username {
       width: 80vw;
       margin-left: -0.2rem;
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       padding-right: 2rem;
-      color: #66919e;
-      font-size: 1.4rem;
+      color: #61e3ec;
+      font-size: 1.3rem;
       font-weight: bolder;
       text-align: left;
       font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
@@ -355,18 +356,18 @@ watch(
     .text {
       width: 80vw;
       margin-top: 0.5rem;
-      padding-right: 2rem;
+      padding-right: 1.5rem;
       color: #ffffff;
       white-space: pre-wrap;
-      font-size: 1rem;
-      line-height: 1.6rem;
+      font-size: 1.05rem;
+      line-height: 1.4rem;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 12;
       font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
-      letter-spacing: 0.3rem;
+      letter-spacing: 0.1rem;
     }
     .time {
       position: absolute;

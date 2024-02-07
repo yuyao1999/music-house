@@ -1,7 +1,7 @@
 <template>
   <div class="content cursor-pointer" @click="openMusic">
     <img class="img" :src="musicStore.nowMusic.cover" />
-    <div class="flex-1 ml-4 w-[60%]">
+    <div class="ml-4 w-[60%]">
       <scrollText class="text-text-lg text-white font-bold" :text="musicStore.nowMusic.name" :max="15" />
       <scrollText
         class="text-xs text-gray-300"
@@ -9,25 +9,27 @@
         :max="20"
       />
     </div>
-    <button
-      v-show="audioPlayFlag"
-      @click.stop="audioPause"
-      v-throttle
-      class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn ml-5"
-    />
-    <button
-      v-show="!audioPlayFlag"
-      @click.stop="audioPlay"
-      v-throttle
-      class="hover:cursor-pointer icon-play animate__animated animate__bounceIn ml-5"
-    />
-    <button
-      @click.stop="listOpen"
-      v-throttle
-      class="w-5 h-5 ml-3 hover:cursor-pointer animate__animated animate__bounceIn"
-    >
-      <img src="@/assets/music/list.png" />
-    </button>
+    <div class="flex items-center flex-shrink-0">
+      <button
+        v-show="audioPlayFlag"
+        @click.stop="audioPause"
+        v-throttle
+        class="hover:cursor-pointer icon-pause animate__animated animate__bounceIn ml-5"
+      />
+      <button
+        v-show="!audioPlayFlag"
+        @click.stop="audioPlay"
+        v-throttle
+        class="hover:cursor-pointer icon-play animate__animated animate__bounceIn ml-5"
+      />
+      <button
+        @click.stop="listOpen"
+        v-throttle
+        class="w-5 h-5 ml-3 hover:cursor-pointer animate__animated animate__bounceIn"
+      >
+        <img src="@/assets/music/list.png" />
+      </button>
+    </div>
   </div>
 </template>
 
