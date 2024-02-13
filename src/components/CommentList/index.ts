@@ -9,7 +9,7 @@ export const useCommentList = () => {
   let app: any = null
   const show = ref(true)
   const duration = 350
-  const open = () => {
+  const open = (activity_id: number) => {
     if (!app) {
       div = document.createElement('div')
       // 动画执行中不允许点击
@@ -24,6 +24,7 @@ export const useCommentList = () => {
             show: show.value,
             duration,
             close,
+            activity_id,
           })
         },
       })
