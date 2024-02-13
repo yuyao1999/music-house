@@ -37,7 +37,7 @@ export class Http {
           config.params = {
             ...config.params,
             cookie: headersConfig.cookie,
-            // timestamp: new Date().getTime(),
+            timestamp: new Date().getTime(),
           }
         }
 
