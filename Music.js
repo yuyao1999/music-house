@@ -29,9 +29,9 @@ class Settings {
     this.$h = $('head')
     this.$h.append(`<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">`)
     $('#app').parents('.fs-gui-window')[0].style.width = 'calc(390px + 2px)'
-    $('#app').parents('.fs-gui-window')[0].style.height = 'calc(846px + 4vh)'
+    $('#app').parents('.fs-gui-window')[0].style.height = '850px'
     $('#app').parents('.fs-gui-window')[0].style.left = window.innerWidth / 2 - 390 / 2 + 'px'
-    $('#app').parents('.fs-gui-window')[0].style.top = window.innerHeight / 2 - 844 / 2 + 'px'
+    $('#app').parents('.fs-gui-window')[0].style.top = 0
     $(window).off('DOMMouseScroll')
 
     this.message.closeLoadingMessage()

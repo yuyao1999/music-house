@@ -31,6 +31,15 @@ export class Http {
         const token = localStorage.getItem('token')
         if (token && headersConfig?.Authorization)
           config.headers['Authorization'] = 'Bearer ' + localStorage.getItem('token')
+        // 给get请求添加cookie参数
+        if (config.method === 'get' && headersConfig?.cookie) {
+          // 路由添加cookie
+          config.params = {
+            ...config.params,
+            cookie: headersConfig.cookie,
+            // timestamp: new Date().getTime(),
+          }
+        }
 
         let unInterceptors = ['', '/chatgpt/', 'rand.music']
         let nowUrl: any = config.url
@@ -59,6 +68,8 @@ export class Http {
               4. ……
               */
         hideLoading()
+        console.log('response')
+        console.log('response.data.code', response.data.code)
         // 401 403
         if (response.data.code === 401 || response.data.code === 403) {
           localStorage.removeItem('token')
@@ -73,8 +84,11 @@ export class Http {
         return response.data
       },
       (error) => {
+        console.log('error', error.stack)
         hideLoading()
-        if (error.stack.includes('Network Error')) {
+        const errMsg = ['Network Error', '401', '403']
+        const flag = errMsg.some((item) => error.stack?.includes(item))
+        if (flag) {
           localStorage.removeItem('token')
           open('登录失效，请重新登录')
           setTimeout(() => {
