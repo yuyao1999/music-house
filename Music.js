@@ -4,7 +4,7 @@ export class AcGame {
   constructor(id, AcWingOS) {
     this.id = id
     this.AcWingOS = AcWingOS
-    // this.AcWingOS.api.window.resize((390 + 2) * (100 / window.innerWidth), 844 * (100 / window.innerHeight) + 4)
+    // this.AcWingOS.api.window.resize((390 + 2)  * (100 / window.innerWidth), 844 * (100 / window.innerHeight) + 4)
     this.settings = new Settings(this)
   }
 }
