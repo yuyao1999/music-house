@@ -10,11 +10,12 @@
       <div v-if="show" class="content">
         <div class="text-2xl font-700 mb-5 main-color">
           当前播放
-          <span class="text-base font-400">({{ musicStore.musicList.length }})</span>
+          <span class="text-base font-400">({{ musicStore.modeMusicList.length }})</span>
+          <span class="text-base text-gray-400 font-400 ml-5">{{ handleTitle(musicStore.musicListMode) }}</span>
         </div>
         <div class="h-[80%] overflow-auto" ref="listRef">
           <div
-            v-for="(item, index) in musicStore.musicList"
+            v-for="(item, index) in musicStore.modeMusicList"
             @click="musicStore.changeIndex(index)"
             :key="item.id"
             class="flex justify-between items-center mb-3 cursor-pointer"
@@ -41,7 +42,11 @@
                 />
               </div>
             </div>
-            <div @click.stop="musicStore.removePlayList(index)" class="close basis-[10%]">
+            <div
+              v-if="musicStore.musicListMode === 1"
+              @click.stop="musicStore.removePlayList(index)"
+              class="close basis-[10%]"
+            >
               <div class="icon-close" />
             </div>
           </div>
@@ -90,6 +95,19 @@ onMounted(() => {
     onHide,
   })
 })
+
+const handleTitle = (mode: number) => {
+  switch (mode) {
+    case 0:
+      return ''
+    case 1:
+      return '搜索音乐列表'
+    case 2:
+      return '个人音乐列表'
+    default:
+      return '顺序播放'
+  }
+}
 </script>
 
 <style scoped lang="scss">

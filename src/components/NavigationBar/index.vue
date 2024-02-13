@@ -21,10 +21,8 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useMusicStore } from '@/store/modules/music'
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 const router = useRouter()
-const musicStore = useMusicStore()
 //#region 导航栏
 const list = [
   {
@@ -49,12 +47,28 @@ width="50" height="50">
   },
 ]
 const nowIndex = ref(0)
+// 点击次数
+let lastPath = ''
 const toUrl = (url: string, index: number) => {
+  console.log('toUrl', url, lastPath)
+  if (lastPath === url && url !== '/publish') {
+    router.go(0)
+    nowIndex.value = index
+    return
+  }
+  lastPath = url
+
   nowIndex.value = index
   if (url === '/publish') {
     router.push(url)
   } else router.replace(url)
 }
+nextTick(() => {
+  const path = router.currentRoute.value.path
+  lastPath = path
+  console.log('path', path)
+  nowIndex.value = list.findIndex((item) => item.url === path)
+})
 //#endregion
 </script>
 

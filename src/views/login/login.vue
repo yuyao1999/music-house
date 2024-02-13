@@ -174,7 +174,6 @@ const onSwitch = () => {
 const acwingLoin = () => {
   if (self === top) {
     userApi.acwingLogin({}).then((res: any) => {
-      console.log(res)
       if (res.result === 'success') {
         window.location.replace(res.apply_code_url)
       }
@@ -193,7 +192,6 @@ if (route.query?.code) {
       state: route.query?.state,
     })
     .then((res: any) => {
-      console.log(res)
       if (res.result === 'success') {
         localStorage.setItem('token', res.jwt_token)
         routerStore.setKeepAliveList(['home', 'layout'])

@@ -8,25 +8,33 @@
           <div class="username">{{ item.username }}：</div>
           <div class="text">{{ item.content || 'I like this song' }}</div>
           <div class="time">{{ formatDate(item.createTime) }}</div>
-          <UserHead />
+          <UserHead
+            :key="headKey"
+            :activity_id="item.activityId"
+            :comment_count="item.comment_count"
+            :like_count="item.like_count"
+            :is_like="item.is_like"
+            :author_user_id="item.userId"
+          />
           <!-- 取消静音 -->
           <div class="unmute" v-if="index === 0 && mute" @click="onUnmute">点击取消静音</div>
         </div>
       </div>
-      <div v-if="bottomTips" class="text-light-500 text-center -mt-[10vh]">没有更多了~</div>
+      <div v-if="bottomTips" class="text-light-500 text-center -mt-[8vh]">没有更多了~</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useDraggable } from '@/hooks/useDraggable'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
 import UserHead from '@/components/UserHead/index.vue'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
 import { formatDate } from '@/utils/handle-time'
+import { useUserStore } from '@/store/modules/user'
 
 const { open } = useToast()
 let firstLoad = true
@@ -35,15 +43,20 @@ const musicStore = useMusicStore()
 
 musicStore.setPlayMode(2)
 musicStore.setShow(false)
-musicStore.clearPlayList()
+musicStore.modeClearPlayList()
 musicStore.changeIndex(0, false)
 
+const headKey = ref(1)
+
+const userStore = useUserStore()
 const params = ref({
   page: 1,
   size: 3,
+  look_id: computed(() => {
+    return userStore.id
+  }),
 })
 params.value.page = musicStore.seenPages
-
 musicStore.setSeenPages(musicStore.seenPages + 1)
 
 // 是否有新数据
@@ -89,21 +102,25 @@ const getList = (type: 'top' | 'bottom') => {
           album: item.son_album,
           mvId: item.son_mvId,
           content: item.content,
-
           userId: item.user_id,
           username: item.username,
           photo: item.photo,
           activityId: item.id,
           createTime: item.create_time,
+          comment_count: item.comment_count,
+          like_count: item.like_count,
+          is_like: item.is_like,
         }
       })
       if (type === 'bottom') {
         musicStore.pushListPlayList(list)
       } else if (type === 'top') {
-        musicStore.clearPlayList()
+        headKey.value++
+        musicStore.modeClearPlayList()
         musicStore.pushListPlayList(list)
 
         musicStore.changeIndex(0)
+        getMusicUrl(musicStore.nowMusic.id || '')
         showIndex.value = 0
 
         // 回到顶部
@@ -111,17 +128,17 @@ const getList = (type: 'top' | 'bottom') => {
           scrollRef.value.style.transform = `translateY(0px)`
         }
       }
-      firstLoad && getMusicUrl(musicStore.nowMusic.id || '0')
+      firstLoad && getMusicUrl(musicStore.nowMusic.id || '')
       firstLoad = false
     }
   })
 }
-getList('bottom')
 
 const getMissList = () => {
   const paramsMiss = {
     page: jumpMissData.page,
     size: params.value.size,
+    look_id: userStore.id,
   }
   userApi.getActivityPage(paramsMiss).then((res: any) => {
     if (res.ok) {
@@ -140,6 +157,9 @@ const getMissList = () => {
           photo: item.photo,
           activityId: item.id,
           createTime: item.create_time,
+          comment_count: item.comment_count,
+          like_count: item.like_count,
+          is_like: item.is_like,
         }
       })
 
@@ -174,10 +194,11 @@ checkAudioPermission().then((res) => {
 })
 const onUnmute = () => {
   mute.value = false
-  getMusicUrl(musicStore.nowMusic.id || '0')
+  getMusicUrl(musicStore.nowMusic.id || '')
 }
 
 onMounted(() => {
+  getList('bottom')
   setDraggable(scrollRef.value)
   setTimeout(() => {
     if (!scrollRef.value) return

@@ -4,11 +4,11 @@
       <div class="scroll-item statusBarHeightPaddingTop">
         <ScrollImg v-if="appStore.homeMode === 0" />
         <div class="home-list" v-else>
-          <HomeList :list="musicStore.musicList" />
+          <HomeList :list="musicStore.musicList" type="home" />
         </div>
       </div>
       <div class="scroll-item statusBarHeightPaddingTop">
-        <ScrollVideo />
+        <ScrollVideo ref="videoRef" />
       </div>
     </div>
   </div>
@@ -22,6 +22,8 @@ import ScrollImg from '@/components/ScrollImg/index.vue'
 import ScrollVideo from '@/components/ScrollVideo/index.vue'
 import HomeList from '@/components/HomeList/index.vue'
 import { useAppStore } from '@/store/modules/app'
+import { useShow } from '@/hooks/useShow'
+import { useAudio } from '@/hooks/useAudio'
 
 const appStore = useAppStore()
 const musicStore = useMusicStore()
@@ -37,8 +39,24 @@ interface IProps {
   currentIndex: number
 }
 const props = defineProps<IProps>()
+const { getMusicUrl, audioPause, audioPlay } = useAudio()
+const onShow = () => {
+  console.log('onShow page')
+  musicStore.setMusicListMode(0)
+  musicStore.setMiniShow(true)
+  console.log(musicStore.nowMusic, 'musicStore.nowMusic.id ')
+  getMusicUrl(musicStore.nowMusic.id || '')
+}
+const onHide = () => {
+  console.log('onHide')
+}
 
 onMounted(() => {
+  useShow({
+    el: scrollRef.value,
+    onShow,
+    onHide,
+  })
   setDraggable(scrollRef.value)
   setTimeout(() => {
     if (!scrollRef.value) return
@@ -55,7 +73,8 @@ const transitionTime = 500
 let isTransition = false
 // 容器高度
 let contentHeight = 0
-
+// ScrollVideo组件的ref
+const videoRef = ref<InstanceType<typeof ScrollVideo>>()
 const onDragStart = () => {}
 const onDragEnd = () => {
   if (!scrollRef.value || left.value === 0) return
@@ -64,10 +83,16 @@ const onDragEnd = () => {
     // 向左滑动
     showIndex.value++
     emits('changeIndex', showIndex.value)
+    musicStore.setMiniShow(false)
+    audioPause()
+    videoRef.value?.getVideo()
   } else if (left.value > scrollValue) {
     // 向右滑动
     showIndex.value--
     emits('changeIndex', showIndex.value)
+    musicStore.setMiniShow(true)
+    videoRef.value?.paused()
+    audioPlay()
   }
   // 切换到下一个数据的位置
   isTransition = true
@@ -121,6 +146,11 @@ const changeScroll = (index: number) => {
     } else {
       appStore.setHomeMode(0)
     }
+  }
+  if (index === 1) {
+    musicStore.setMiniShow(false)
+    audioPause()
+    videoRef.value?.getVideo()
   }
   showIndex.value = index
   scrollRef.value.style.transform = `translateX(-${showIndex.value * contentHeight}px)`

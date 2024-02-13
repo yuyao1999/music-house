@@ -10,16 +10,15 @@ import { useFont } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
 import router from '@/router'
 import { ref } from 'vue'
-import Music from '@/components/Player/index.vue'
+import Player from '@/components/Player/index.vue'
 import { userApi } from '@/api/user'
 import { useUserStore } from '@/store/modules/user'
 
 window.addEventListener(
   'message',
   (e) => {
-    console.log('message', e) // 父页面所在的域
-    console.log(e.data) // 父页面发送的消息, hello, child!
     localStorage.setItem('token', e.data)
+    routerStore.setKeepAliveList(['home', 'layout'])
     refreshToken()
   },
   false
@@ -45,7 +44,6 @@ const refreshToken = () => {
 }
 if (self === top) {
   refreshToken()
-  console.log('refreshToken')
 }
 
 // 根据浏览器当前主题设置系统主题色
@@ -89,7 +87,7 @@ router.beforeEach((to, from) => {
     </router-view>
     <Transition appear enter-active-class="animate__animated animate__bounceInLeft"> </Transition>
     <Transition name="up-down">
-      <Music v-show="musicStore.show" />
+      <Player v-if="musicStore.show" />
     </Transition>
   </div>
 </template>

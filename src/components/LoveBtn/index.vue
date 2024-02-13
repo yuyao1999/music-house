@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button class="like-button" @click="like = !like">
+    <button class="like-button" @click="onLike">
       <div class="like-wrapper">
         <div class="ripple"></div>
         <svg class="heart" width="24" height="24" viewBox="0 0 24 24">
@@ -25,7 +25,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const like = ref(false)
+interface IProps {
+  is_like?: number
+  comment_id?: number
+  parentId?: number
+}
+const props = defineProps<IProps>()
+const like = ref(props.is_like || false)
+
+const emits = defineEmits(['onLike', 'deleteLike'])
+const onLike = () => {
+  like.value = !like.value
+  if (like.value) {
+    emits('onLike', props.comment_id, props.parentId)
+  } else {
+    emits('deleteLike', props.comment_id, props.parentId)
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -36,7 +52,7 @@ $easing: cubic-bezier(0.7, 0, 0.3, 1);
 $duration: 0.5s;
 .like-button {
   position: relative;
-  font-size: 4rem;
+  font-size: 4em;
   appearance: none;
   border: none;
   border-radius: 50%;
@@ -47,6 +63,7 @@ $duration: 0.5s;
   align-items: center;
   justify-content: center;
   padding: 0.1em;
+  padding-bottom: 0;
 }
 
 .heart {

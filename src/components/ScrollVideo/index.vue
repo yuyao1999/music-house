@@ -1,7 +1,7 @@
 <template>
   <div class="scroll-content">
     <div class="w-full h-full" ref="scrollRef">
-      <div v-if="topTips">已经到顶了~</div>
+      <div v-if="topTips" class="text-light-500 text-center mt-12">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.mvList" :key="index">
         <span class="name">{{ item.name }}</span>
         <video
@@ -10,10 +10,13 @@
           :src="item.mvSrc"
           class="video"
           controls
-          :muted="muted"
+          autoplay
+          :mute="mute"
         />
+        <div class="unmute" v-if="index === 0 && mute" @click="onUnmute">点击取消静音</div>
       </div>
-      <div v-if="bottomTips">没有更多了~</div>
+      <div v-if="bottomTips" class="text-light-500 text-center mb-[15vh]">没有更多了~</div>
+      <div class="text-light-500 text-xl text-center mt-[45vh]" v-if="musicStore.mvList.length === 0">动态中没有MV</div>
     </div>
   </div>
 </template>
@@ -29,33 +32,64 @@ const videoRef = ref()
 const getVideo = async () => {
   if (!musicStore.mvList[showIndex.value]?.mvId) return
   const res: any = await musicApi.getMv({ id: musicStore.mvList[showIndex.value]?.mvId })
-  const dom: any = videoRef.value?.[0]
   musicStore.supplementMusic({
     id: musicStore.mvList[showIndex.value]?.id,
     mvSrc: res.data?.url || '',
   })
-  // 用户操作后才能播放
+  play()
+}
+const play = () => {
+  console.log('play')
+  const dom: any = videoRef.value?.[0]
+  console.log(dom)
   dom?.play()
 }
-const muted = ref(true)
+const paused = () => {
+  const dom: any = videoRef.value?.[0]
+  dom?.pause()
+}
+defineExpose({
+  getVideo,
+  paused,
+})
+// 获取是否允许音频自动播放
+const checkAudioPermission = () => {
+  const audio = new Audio()
+  audio.autoplay = true
+  audio.muted = true
+  audio.play()
+  return new Promise((resolve) => {
+    audio.oncanplay = () => {
+      resolve(true)
+    }
+    audio.onplay = () => {
+      resolve(true)
+    }
+    audio.onpause = () => {
+      resolve(false)
+    }
+  })
+}
+
+const mute = ref(true)
+checkAudioPermission().then((res) => {
+  mute.value = !res
+})
 // 打开声音
-const openVoice = () => {
+const onUnmute = () => {
+  console.log('openVoice')
   const dom: any = videoRef.value?.[0]
   if (!dom) return
-  dom!.muted = false
-  muted.value = false
-  document.body.removeEventListener('click', openVoice)
+  dom!.mute = false
+  mute.value = false
+  play()
 }
-document.body.addEventListener('click', openVoice)
 
 onMounted(() => {
   setDraggable(scrollRef.value)
   setTimeout(() => {
-    // contentHeight = scrollRef.value?.offsetHeight || 500
-    // 使用offsetHeight获取元素的高度时，会发现获取的都是整数值，其实这是js自动对其进行了四舍五入，这就导致了获取的结果会出现偏差，使用getComputedStyle，就可以解决这个问题
     const style = getComputedStyle(scrollRef.value!)
     contentHeight = parseFloat(style.height) || 500
-    getVideo()
   }, transitionTime)
 })
 
@@ -153,7 +187,10 @@ watch(
     if (showIndex.value === 0 && top.value > 30) {
       topTips.value = true
       return
-    } else if (showIndex.value === musicStore.mvList.length - 1 && top.value < -30) {
+    } else if (
+      (showIndex.value === musicStore.mvList.length - 1 || musicStore.mvList.length === 0) &&
+      top.value < -30
+    ) {
       bottomTips.value = true
       return
     }
@@ -166,6 +203,17 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.unmute {
+  position: absolute;
+  bottom: 10vh;
+  right: 0;
+  padding: 0.5rem 1rem;
+  background: #41c453bd;
+  color: #fff;
+  border-radius: 0.5rem 0 0 0.5rem;
+  font-size: 1rem;
+  z-index: 9999;
+}
 .scroll-content {
   overflow: hidden;
   width: 100%;
