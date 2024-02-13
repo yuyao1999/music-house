@@ -5,11 +5,13 @@ import { ref, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useAudio } from '@/hooks/useAudio'
 import { debounce } from '@/utils/debounce'
+import { watch } from 'fs'
 
 export const useMusicStore = defineStore(
   'music',
   () => {
-    //
+    const { createAudio, audio, audioPlayFlag, getMusicUrl } = useAudio()
+
     const show = ref<boolean>(false)
     const setShow = (flag: boolean) => {
       show.value = flag
@@ -18,32 +20,33 @@ export const useMusicStore = defineStore(
     const setMiniShow = (flag: boolean) => {
       miniShow.value = flag
     }
-
-    const { createAudio, audio, getMusicUrl } = useAudio()
-    const playMode = ref<number>(0)
     /**
      歌曲播放模式
      * 0 顺序
      * 1 随机
      * 2 单曲循环
      */
+    const playMode = ref<number>(0)
+
+    /**
+     * @param mode 0 顺序 1 随机 2 单曲循环
+     */
     const setPlayMode = (mode: number) => {
       playMode.value = mode
     }
 
     const nowMusic = computed<IMusic>(() => {
-      return musicList.value[nowIndex.value] || {}
+      return modeMusicList.value[nowIndex.value] || {}
     })
 
-    /**
-     * 当前音乐下标
-     */
-    const nowIndex = ref<number>(0)
     /**
      * 改变当前音乐下标
      */
     const changeIndex = debounce((index: number, getUrl = true) => {
-      if (index === nowIndex.value) return
+      if (index === nowIndex.value) {
+        if (!audioPlayFlag.value && getUrl) getMusicUrl(nowMusic.value.id || '')
+        return
+      }
       nowIndex.value = index
       getUrl && getMusicUrl(nowMusic.value.id || '')
     })
@@ -56,7 +59,7 @@ export const useMusicStore = defineStore(
     // 下一首
     const nextMusic = () => {
       if (playMode.value === 1) {
-        const randomIndex = Math.floor(Math.random() * musicList.value.length)
+        const randomIndex = Math.floor(Math.random() * modeMusicList.value.length)
         // 防止随机到当前音乐
         if (randomIndex === nowIndex.value) {
           nextMusic()
@@ -65,27 +68,79 @@ export const useMusicStore = defineStore(
         changeIndex(randomIndex)
         return
       }
-      const nextIndex = (nowIndex.value + 1) % musicList.value.length
+      const nextIndex = (nowIndex.value + 1) % modeMusicList.value.length
       changeIndex(nextIndex)
     }
     // 上一首
     const prevMusic = () => {
-      const prevIndex = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
+      const prevIndex = (nowIndex.value - 1 + modeMusicList.value.length) % modeMusicList.value.length
       changeIndex(prevIndex)
     }
+
     /**
-     * 播放列表
+     * 音乐列表模式
+     * 0:动态音乐列表
+     * 1:搜索音乐列表
+     * 2:个人主页音乐列表
+     */
+    const musicListMode = ref<number>(0)
+
+    let lastModeIndex = -1
+    /**
+     * @param mode 0:动态音乐列表 1:搜索音乐列表 2:个人主页音乐列表
+     */
+    const setMusicListMode = (mode: number) => {
+      if (mode !== musicListMode.value) {
+        musicListMode.value = mode
+        //  切换音乐列表模式时，保存当前音乐下标 下一次切换回来时，继续播放
+        if (lastModeIndex !== -1) {
+          nowIndex.value = lastModeIndex
+          lastModeIndex = -1
+        } else {
+          lastModeIndex = nowIndex.value
+        }
+      }
+    }
+
+    const modeMusicList = computed(() => {
+      switch (musicListMode.value) {
+        case 0:
+          return musicList.value
+        case 1:
+          return searchMusicList.value
+        case 2:
+          return personMusicList.value
+        default:
+          return musicList.value
+      }
+    })
+    /**
+     * 当前音乐下标
+     */
+    const nowIndex = ref<number>(0)
+
+    /**
+     * 搜索的音乐列表
+     */
+    const searchMusicList = ref<IMusic[]>([])
+    /**
+     * 个人主页音乐列表
+     */
+    const personMusicList = ref<IMusic[]>([])
+
+    /**
+     * 主页动态播放列表
      */
     const musicList = ref<IMusic[]>([])
     const setPlayList = (data: IMusic[]) => {
       musicList.value = data
     }
-    const pushPlayList = (data: IMusic) => {
-      musicList.value.push(data)
-      nowIndex.value = musicList.value.length - 1
+    const pushPlayList = (data: Partial<IMusic>) => {
+      modeMusicList.value.push(data as any)
+      nowIndex.value = modeMusicList.value.length - 1
     }
     const pushListPlayList = (data: IMusic[]) => {
-      musicList.value.push(...data)
+      modeMusicList.value.push(...data)
     }
     //看过的page
     const seenPages = ref(1)
@@ -102,23 +157,23 @@ export const useMusicStore = defineStore(
      * 补充之前的音乐信息
      * @param data
      */
-    const supplementMusic = (data: IMusic) => {
-      const index = musicList.value.findIndex((item) => item.id === data.id)
+    const supplementMusic = (data: Partial<IMusic>) => {
+      const index = modeMusicList.value.findIndex((item) => item.id === data.id)
       if (index !== -1) {
-        musicList.value[index] = { ...musicList.value[index], ...data }
+        modeMusicList.value[index] = { ...modeMusicList.value[index], ...data }
       }
     }
 
     const removePlayList = (index: number) => {
       if (index === nowIndex.value) {
-        musicList.value.splice(index, 1)
-        nowIndex.value = (nowIndex.value - 1 + musicList.value.length) % musicList.value.length
+        modeMusicList.value.splice(index, 1)
+        nowIndex.value = (nowIndex.value - 1 + modeMusicList.value.length) % modeMusicList.value.length
         createAudio(nowMusic.value.src || '')
       } else {
         // 当前音乐播放的时间
         const currentTime = audio.value?.currentTime || 0
 
-        musicList.value.splice(index, 1)
+        modeMusicList.value.splice(index, 1)
         if (index < nowIndex.value) {
           nowIndex.value--
         }
@@ -128,12 +183,30 @@ export const useMusicStore = defineStore(
     const clearPlayList = () => {
       musicList.value = []
     }
+    const clearSearchPlayList = () => {
+      searchMusicList.value = []
+    }
+    const clearPersonPlayList = () => {
+      personMusicList.value = []
+    }
+    const modeClearPlayList = computed(() => {
+      switch (musicListMode.value) {
+        case 0:
+          return clearPlayList
+        case 1:
+          return clearSearchPlayList
+        case 2:
+          return clearPersonPlayList
+        default:
+          return clearPlayList
+      }
+    })
 
     /**
      * mv列表
      */
     const mvList = computed(() => {
-      return musicList.value.filter((item) => item.mvId)
+      return modeMusicList.value.filter((item) => item.mvId)
     })
 
     return {
@@ -144,7 +217,6 @@ export const useMusicStore = defineStore(
       playMode,
       setPlayMode,
       nowMusic,
-      nowIndex,
       changeIndex,
       changeIndexUnlimited,
       nextMusic,
@@ -161,6 +233,11 @@ export const useMusicStore = defineStore(
       setSeenPages,
       total,
       setTotal,
+      modeClearPlayList,
+      nowIndex,
+      modeMusicList,
+      musicListMode,
+      setMusicListMode,
     }
   },
   {
