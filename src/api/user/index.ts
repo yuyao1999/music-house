@@ -59,6 +59,48 @@ class User {
   acwingReceive(data: any) {
     return this.http.get('/account/web/receive_code4/', data)
   }
+  /**
+   * 获取评论
+   */
+  getCommentPage(data: any) {
+    return this.http.post('/comment/page', data)
+  }
+  /**
+   * 查看更多子评论
+   */
+  getMoreChildren(data: any) {
+    return this.http.post('/comment/more_children', data)
+  }
+  /**
+   * 发表评论
+   */
+  sendComment(data: any) {
+    return this.http.post('/comment/add', data)
+  }
+  /**
+   * 动态点赞
+   */
+  activityLike(data: any) {
+    return this.http.post('/activity_like/add', data)
+  }
+  /**
+   * 取消点赞
+   */
+  activityDeleteLike(data: any) {
+    return this.http.post('/activity_like/delete', data)
+  }
+  /**
+   * 评论点赞
+   */
+  commentLike(data: any) {
+    return this.http.post('/comment_like/add', data)
+  }
+  /**
+   * 取消评论点赞
+   */
+  commentDeleteLike(data: any) {
+    return this.http.post('/comment_like/delete', data)
+  }
 }
 const userApi = new User()
 export { userApi }

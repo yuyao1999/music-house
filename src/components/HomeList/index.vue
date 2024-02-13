@@ -1,15 +1,11 @@
 <template>
   <div class="body" ref="scrollRef">
     <div class="card" v-for="(item, index) in list" :key="item.id">
-      <div class="flex items-center gap-5">
+      <div class="flex items-center gap-3">
         <div class="head">
-          <img
-            class="head-img"
-            @click="toUser"
-            :src="musicStore.nowMusic.photo ? musicStore.nowMusic.photo : requireImg('logo.png')"
-          />
+          <img class="head-img" @click="toUser" :src="item.photo ? item.photo : requireImg('logo.png')" />
           <!-- 关注 -->
-          <div class="follow" @click="follow">
+          <!-- <div class="follow" @click="follow">
             <svg
               t="1706086669137"
               class="icon"
@@ -33,9 +29,9 @@
                 class="selected"
               ></path>
             </svg>
-          </div>
+          </div> -->
         </div>
-        <div>{{ item.username }}</div>
+        <div class="truncate">{{ item.username }}</div>
       </div>
       <div class="content">
         {{ item.content }}
@@ -48,12 +44,12 @@
         </div>
       </div>
     </div>
-    <div v-if="bottomTips" class="text-light-500 text-center mb-[5vh]">没有更多了~</div>
+    <div v-if="bottomTips" class="text-light-500 text-center mb-[15vh]">没有更多了~</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useMusicStore } from '@/store/modules/music'
 import { requireImg } from '@/utils/requireImg'
@@ -61,16 +57,27 @@ import { useReachBottom } from '@/hooks/useReachBottom'
 import { useAudio } from '@/hooks/useAudio'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
+import { useUserStore } from '@/store/modules/user'
+interface IProps {
+  list: IMusic[]
+  type: string
+}
+const props = defineProps<IProps>()
 
 const { open } = useToast()
 const musicStore = useMusicStore()
 const { getMusicSearch } = useAudio()
-
-musicStore.clearPlayList()
-
+console.log('musicStore')
+if (props.type !== 'mine') {
+  musicStore.modeClearPlayList()
+}
+const userStore = useUserStore()
 const params = ref({
   page: 1,
   size: 10,
+  look_id: computed(() => {
+    return userStore.id
+  }),
 })
 const bottomTips = ref(false)
 // 是否有新数据
@@ -124,13 +131,12 @@ const getList = (type: 'top' | 'bottom') => {
     }
   })
 }
-getList('bottom')
 
 const getMissList = () => {
-  console.log('getMissList', jumpMissData)
   const paramsMiss = {
     page: jumpMissData.page,
     size: params.value.size,
+    look_id: userStore.id,
   }
   userApi.getActivityPage(paramsMiss).then((res: any) => {
     if (res.ok) {
@@ -151,7 +157,6 @@ const getMissList = () => {
           createTime: item.create_time,
         }
       })
-      console.log('list.slice(jumpMissData.start)', list)
       musicStore.pushListPlayList(list.slice(jumpMissData.start))
       jumpMissData.page = 0
     }
@@ -164,7 +169,7 @@ const onBottom = () => {
       hasNewData = false
       params.value.page = 1
       open('为您从最新动态开始加载~')
-      musicStore.clearPlayList()
+      musicStore.modeClearPlayList()
       getList('bottom')
       //滚动到顶部
       scrollRef.value?.scrollTo(0, 0)
@@ -179,24 +184,16 @@ const onBottom = () => {
 }
 
 const scrollRef = ref<HTMLDivElement | undefined>()
-let bottom: any
 onMounted(() => {
-  bottom = useReachBottom({ dom: scrollRef.value, callback: onBottom })
+  if (props.type === 'mine') return
+  getList('bottom')
+  useReachBottom({ dom: scrollRef.value, callback: onBottom })
 })
-onUnmounted(() => {
-  bottom.unbind()
-})
-interface IProps {
-  /**
-   * 列表
-   */
-  list: IMusic[]
-}
-defineProps<IProps>()
 
 const follow = () => {}
 const toUser = () => {}
 const toPlay = (index: number) => {
+  musicStore.setMiniShow(true)
   musicStore.changeIndex(index)
 }
 </script>
@@ -207,14 +204,15 @@ const toPlay = (index: number) => {
   width: 100%;
   height: 100%;
   overflow-y: scroll;
-  padding-bottom: 10vh;
   .card {
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
     .head {
       position: relative;
       height: 3.5rem;
       width: 3.5rem;
+      flex-shrink: 0;
+
       .head-img {
         width: 3.5rem;
         height: 3.5rem;
@@ -228,7 +226,8 @@ const toPlay = (index: number) => {
       }
     }
     .content {
-      margin-top: 1rem;
+      margin-top: 0.5rem;
+      padding-left: 0.5rem;
       white-space: pre-wrap;
       font-size: 1.15rem;
       line-height: 1.8rem;
@@ -240,7 +239,7 @@ const toPlay = (index: number) => {
       font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
     }
     .music {
-      margin-top: 1rem;
+      margin-top: 0.5rem;
       background-color: #384147;
       display: flex;
       align-items: center;
@@ -263,7 +262,7 @@ const toPlay = (index: number) => {
       }
     }
     &:not(:last-child) {
-      border-bottom: 0.5px solid #f0f1f52a;
+      border-bottom: 1px solid #f0f1f52a;
     }
   }
 }

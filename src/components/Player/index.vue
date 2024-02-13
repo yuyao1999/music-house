@@ -133,7 +133,14 @@ const musicStore = useMusicStore()
 const appStore = useAppStore()
 const { open: listOpen } = useMusicList()
 
-const { audio, audioPlayFlag, createTimeupdate, audioPlay, audioPause } = useAudio()
+const onPlayCss = () => {
+  const dom: HTMLDivElement | null = document.querySelector('.music-img')
+  if (dom) {
+    dom.style.animationPlayState = 'running'
+  }
+}
+
+const { audio, createAudio, audioPlayFlag, createTimeupdate, audioPlay, audioPause } = useAudio()
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
@@ -146,6 +153,9 @@ onMounted(() => {
     onShow,
     onHide,
   })
+  if (audioPlayFlag.value) {
+    onPlayCss()
+  }
 })
 onUnmounted(() => {})
 //#endregion
@@ -221,7 +231,7 @@ const lyricsIndex = ref(0)
 let nowActiveIndex = 0
 // 歌词高度 40 60
 const lyricsHeight = ref(useFont(40))
-
+console.log('lyricsHeight', lyricsHeight.value)
 if (lyricsHeight.value === -1) {
   lyricsHeight.value = 40
 }
@@ -283,6 +293,7 @@ const handleTimeUpdate = () => {
   handleLyricsScroll()
 }
 createTimeupdate(handleTimeUpdate)
+createAudio(musicStore.nowMusic.src, true)
 
 // 空白数量
 const emptyLyricNum = 7
@@ -327,7 +338,7 @@ watch(
 //#endregion
 
 //#region 进度条
-const currentTime = ref(0)
+const currentTime = ref(audio.value?.currentTime || 0)
 const barRef = ref<HTMLDivElement>()
 
 const onDragStart = () => {}
@@ -418,13 +429,13 @@ const progressPercent = computed(() => {
   background-size: cover;
   background-position: center;
   filter: blur(5px);
-  z-index: 98;
+  z-index: 998;
   transform: scale(1.05);
 }
 .page {
   // 占满屏幕
   position: fixed;
-  z-index: 99;
+  z-index: 999;
   top: 0;
   left: 0;
   height: 100vh;
@@ -529,7 +540,7 @@ const progressPercent = computed(() => {
       // 文字垂直居中
       @apply flex items-center justify-center;
       font-size: 1.3rem;
-      line-height: 1.3rem;
+      line-height: 2rem;
       font-weight: 700;
       text-align: center;
     }

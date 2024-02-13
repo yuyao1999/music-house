@@ -8,7 +8,7 @@
         :src="musicStore.nowMusic.photo ? musicStore.nowMusic.photo : requireImg('logo.png')"
       />
       <!-- 关注 -->
-      <div class="follow" @click="follow">
+      <!-- <div class="follow" @click="follow">
         <svg
           t="1706086669137"
           class="icon"
@@ -32,28 +32,37 @@
             class="selected"
           ></path>
         </svg>
-      </div>
+      </div> -->
     </div>
     <!-- 点赞 -->
-    <LoveBtn />
+    <div class="flex flex-col items-center">
+      <LoveBtn :is_like="is_like" @onLike="onLike" @deleteLike="deleteLike" />
+      <div v-if="musicStore.nowMusic.like_count" class="text-light-500">
+        {{ musicStore.nowMusic.like_count }}
+      </div>
+    </div>
     <!-- 评论 -->
-    <svg
-      @click="commentOpen"
-      t="1702610600185"
-      class="icon"
-      viewBox="0 0 1024 1024"
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      p-id="8336"
-      width="32"
-      height="32"
-    >
-      <path
-        d="M157.568 751.296c-11.008-18.688-18.219-31.221-21.803-37.91A424.885 424.885 0 0 1 85.333 512c0-235.637 191.03-426.667 426.667-426.667S938.667 276.363 938.667 512 747.637 938.667 512 938.667a424.779 424.779 0 0 1-219.125-60.502A2786.56 2786.56 0 0 0 272.82 866.4l-104.405 28.48c-23.893 6.507-45.803-15.413-39.285-39.296l28.437-104.288z m65.301 3.787l-17.258 63.306 63.306-17.258a32 32 0 0 1 24.523 3.21 4515.84 4515.84 0 0 1 32.352 18.944A360.79 360.79 0 0 0 512 874.667c200.299 0 362.667-162.368 362.667-362.667S712.299 149.333 512 149.333 149.333 311.701 149.333 512c0 60.587 14.848 118.955 42.827 171.136 3.712 6.912 12.928 22.827 27.37 47.232a32 32 0 0 1 3.34 24.715z m145.995-70.774a32 32 0 1 1 40.917-49.205A159.19 159.19 0 0 0 512 672c37.888 0 73.675-13.173 102.187-36.885a32 32 0 0 1 40.917 49.216A223.179 223.179 0 0 1 512 736a223.179 223.179 0 0 1-143.136-51.69z"
-        p-id="8337"
-        fill="#ffffff"
-      ></path>
-    </svg>
+    <div class="flex flex-col items-center" @click="onComment">
+      <svg
+        t="1702610600185"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="8336"
+        width="32"
+        height="32"
+      >
+        <path
+          d="M157.568 751.296c-11.008-18.688-18.219-31.221-21.803-37.91A424.885 424.885 0 0 1 85.333 512c0-235.637 191.03-426.667 426.667-426.667S938.667 276.363 938.667 512 747.637 938.667 512 938.667a424.779 424.779 0 0 1-219.125-60.502A2786.56 2786.56 0 0 0 272.82 866.4l-104.405 28.48c-23.893 6.507-45.803-15.413-39.285-39.296l28.437-104.288z m65.301 3.787l-17.258 63.306 63.306-17.258a32 32 0 0 1 24.523 3.21 4515.84 4515.84 0 0 1 32.352 18.944A360.79 360.79 0 0 0 512 874.667c200.299 0 362.667-162.368 362.667-362.667S712.299 149.333 512 149.333 149.333 311.701 149.333 512c0 60.587 14.848 118.955 42.827 171.136 3.712 6.912 12.928 22.827 27.37 47.232a32 32 0 0 1 3.34 24.715z m145.995-70.774a32 32 0 1 1 40.917-49.205A159.19 159.19 0 0 0 512 672c37.888 0 73.675-13.173 102.187-36.885a32 32 0 0 1 40.917 49.216A223.179 223.179 0 0 1 512 736a223.179 223.179 0 0 1-143.136-51.69z"
+          p-id="8337"
+          fill="#ffffff"
+        ></path>
+      </svg>
+      <div v-if="comment_count" class="text-light-500">
+        {{ comment_count }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -61,10 +70,48 @@
 import LoveBtn from '@/components/LoveBtn/index.vue'
 import { useCommentList } from '@/components/CommentList'
 import { useMusicStore } from '@/store/modules/music'
+import { useUserStore } from '@/store/modules/user'
 import { requireImg } from '@/utils/requireImg'
+import { userApi } from '@/api/user'
 
+interface IProps {
+  activity_id?: number
+  comment_count?: number
+  like_count?: number
+  is_like?: number
+  author_user_id?: number | string
+}
+const props = defineProps<IProps>()
 const musicStore = useMusicStore()
+const userStore = useUserStore()
 const { open: commentOpen } = useCommentList()
+
+const onComment = () => {
+  if (!props.activity_id) return
+  commentOpen(props.activity_id)
+}
+const onLike = () => {
+  if (!props.activity_id) return
+  userApi
+    .activityLike({
+      author_user_id: props.author_user_id,
+      activity_id: props.activity_id,
+      user_id: userStore.id,
+    })
+    .then(() => {
+      musicStore.nowMusic.like_count = musicStore.nowMusic.like_count ? musicStore.nowMusic.like_count + 1 : 1
+    })
+}
+const deleteLike = () => {
+  userApi
+    .activityDeleteLike({
+      activity_id: props.activity_id,
+      user_id: userStore.id,
+    })
+    .then(() => {
+      musicStore.nowMusic.like_count = musicStore.nowMusic.like_count ? musicStore.nowMusic.like_count - 1 : 0
+    })
+}
 
 const follow = () => {}
 const toUser = () => {}
@@ -73,7 +120,7 @@ const toUser = () => {}
 <style scoped lang="scss">
 .user {
   position: absolute;
-  right: 5vw;
+  right: 3vw;
   top: 40vh;
   display: flex;
   flex-direction: column;

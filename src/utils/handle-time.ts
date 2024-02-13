@@ -33,21 +33,43 @@ export const getNowTime = (percent: number, totalTime: number): number => {
 }
 
 /**
- * @param {Data} data 时间
+ * @param {Data} date 时间
  * @returns {string} 格式化后的时间 yyyy-MM-dd hh:mm:ss
  */
-export const formatDate = (data: Date | undefined | string): string => {
-  if (!data) return ''
-  if (typeof data === 'string') {
-    data = new Date(data)
+export const formatDate = (date: Date | undefined | string): string => {
+  if (!date) return ''
+  if (typeof date === 'string') {
+    date = new Date(date)
   }
-  const year = data.getFullYear()
-  const month = data.getMonth() + 1
-  const day = data.getDate()
-  const hour = data.getHours()
-  const minute = data.getMinutes()
-  const second = data.getSeconds()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hour = date.getHours()
+  const minute = date.getMinutes()
+  const second = date.getSeconds()
   return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day} ${hour < 10 ? '0' + hour : hour}:${
     minute < 10 ? '0' + minute : minute
   }:${second < 10 ? '0' + second : second}`
+}
+
+/**
+ * 时间转化器 返回时间差
+ * 小于1分钟返回刚刚
+ *  小于1小时返回分钟
+ * 小于1天返回小时
+ * 大于1天 YYYY-MM-DD
+ */
+export const timeConverter = (time: string): string => {
+  const now = new Date().getTime()
+  const old = new Date(time).getTime()
+  const diff = (now - old) / 1000
+  if (diff < 60) {
+    return '刚刚'
+  } else if (diff < 3600) {
+    return Math.floor(diff / 60) + '分钟前'
+  } else if (diff < 86400) {
+    return Math.floor(diff / 3600) + '小时前'
+  } else {
+    return formatDate(time).split(' ')[0]
+  }
 }

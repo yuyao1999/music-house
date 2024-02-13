@@ -6,19 +6,24 @@
  * @return {number} 计算后的字体大小
  * @return {number} -1 为宽屏
  */
+let widthCatch = 0
+let heightCatch = 0
 export const useFont = (size: number): number => {
   const baseSize = 390 / 844
+  if (widthCatch === 0 || heightCatch === 0) {
+    const app = document.getElementById('app')
+    widthCatch = app?.offsetWidth || 390
+    heightCatch = app?.offsetHeight || 844
+  }
   //   当前#app设备的逻辑分辨率
-  const app = document.getElementById('app')
-  const width = app?.offsetWidth || 390
-  const height = app?.offsetHeight || 844
+
   // 宽屏
-  if (width > height) {
+  if (widthCatch > heightCatch) {
     return -1
   }
-  const currentSize = width / height
+  const currentSize = widthCatch / heightCatch
   const res = size * (currentSize / baseSize)
-  if (useIsMobile() && height < 740) {
+  if (useIsMobile() && heightCatch < 740) {
     return 13
   }
   if (res > 40) {

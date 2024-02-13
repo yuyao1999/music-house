@@ -5,7 +5,6 @@ import { useAppStore } from '@/store/modules/app'
 import { getImgColor, getDarkColor } from '@/utils/img'
 import { useToast } from '@/components/Toast'
 import { musicApi } from '@/api/music'
-import { get } from 'http'
 
 const audio = ref<HTMLAudioElement | null>(null)
 // audio是否播放
@@ -21,9 +20,19 @@ export const useAudio = () => {
    * @returns
    * @memberof Audio
    */
-  const createAudio = (src: string | undefined) => {
-    // 清空之前的audio
+  const createAudio = (src: string | undefined, playerShow = false) => {
+    if (playerShow) {
+      if (!audio.value) {
+        audio.value = new Audio(src)
+      }
+      audio.value.removeEventListener('ended', audioEnded)
+      audio.value.removeEventListener('timeupdate', timeupdate)
+      audio.value.addEventListener('ended', audioEnded)
+      audio.value.addEventListener('timeupdate', timeupdate)
+      return
+    }
     if (audio.value) {
+      // 清空之前的audio
       audio.value.removeEventListener('ended', audioEnded)
       audio.value.removeEventListener('timeupdate', timeupdate)
       audio.value.oncanplay = null
@@ -44,6 +53,7 @@ export const useAudio = () => {
       //   }
       // }, 2500)
     }
+
     audio.value.addEventListener('ended', audioEnded)
     audio.value.addEventListener('timeupdate', timeupdate)
     audio.value.oncanplay = () => {
@@ -156,6 +166,12 @@ export const useAudio = () => {
    * 获取音乐url
    */
   const getMusicUrl = (id: string, createFlag = true) => {
+    console.log(id, '123')
+    console.log(Boolean(id), 'createFlag')
+    if (!id) {
+      console.error('id不存在')
+      return
+    }
     const appStore = useAppStore()
     const musicStore = useMusicStore()
     getImgColor(musicStore.nowMusic?.cover || '').then((res: any) => {
@@ -165,7 +181,7 @@ export const useAudio = () => {
 
     const promise = new Promise((resolve, reject) => {
       musicApi.getMusicUrl({ id }).then((res: any) => {
-        if (res.code !== 200) {
+        if (res?.code !== 200) {
           reject(res)
           return
         }

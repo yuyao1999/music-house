@@ -60,9 +60,12 @@ export type IMusic = {
   /**
    * 动态id
    */
-  activityId?: string
+  activityId: number
   /**
    * 动态创建时间
    */
   createTime?: string
+  comment_count: number
+  like_count: number
+  is_like: number
 }
