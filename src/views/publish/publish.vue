@@ -57,7 +57,7 @@ const router = useRouter()
 const choseData = ref()
 const route = useRoute()
 choseData.value = JSON.parse((route.query?.data as string) || '{}')
-console.log('choseData.value ', choseData.value)
+console.log(choseData.value)
 
 const onClose = () => {
   choseData.value = {}
@@ -74,9 +74,7 @@ const toSearch = () => {
   })
 }
 const onBack = () => {
-  router.replace({
-    path: '/home',
-  })
+  router.back()
 }
 
 const onPublish = () => {
@@ -89,7 +87,7 @@ const onPublish = () => {
     son_name: choseData.value.name,
     son_singer: choseData.value.artists[0].name,
     son_album: choseData.value.album.name,
-    son_mvId: choseData.value.mvId,
+    son_mvId: choseData.value.mvid || '',
     content: text.value,
   }
   userApi.sendActivity(params).then((res) => {
