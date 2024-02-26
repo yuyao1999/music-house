@@ -70,12 +70,12 @@ const getList = (type: 'top' | 'bottom') => {
   if (params.value.page * params.value.size >= musicStore.total) {
     musicStore.setSeenPages(1)
   }
-
   userApi.getActivityPage(params.value).then((res: any) => {
     if (res.ok) {
       const nowTotal = res.total
-      const diff = nowTotal - musicStore.total
-      if (nowTotal > musicStore.total) {
+
+      if (nowTotal > musicStore.total && (musicStore.total as any) !== null) {
+        const diff = nowTotal - musicStore.total
         //定位page的位置
         const page = Math.floor(diff / params.value.size)
         params.value.page += page

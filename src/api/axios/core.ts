@@ -70,7 +70,7 @@ export class Http {
         hideLoading()
         // 401 403
         if (response.data.code === 401 || response.data.code === 403) {
-          localStorage.removeItem('token')
+          localStorage.clear()
           open('登录失效，请重新登录')
           setTimeout(() => {
             router.replace({ name: 'login' })
@@ -87,7 +87,7 @@ export class Http {
         const errMsg = ['Network Error', '401', '403']
         const flag = errMsg.some((item) => error.stack?.includes(item))
         if (flag) {
-          localStorage.removeItem('token')
+          localStorage.clear()
           open('登录失效，请重新登录')
           setTimeout(() => {
             router.replace({ name: 'login' })
