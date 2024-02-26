@@ -47,6 +47,12 @@ class Music {
   getMv(params: any) {
     return this.http.get('/mv/url', params)
   }
+  /**
+   * 私人DJ
+   */
+  getPersonalDJ(params: any) {
+    return this.http.get('/aidj/content/rcmd', params)
+  }
 }
 const musicApi = new Music()
 export { musicApi }

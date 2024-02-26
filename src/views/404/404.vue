@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col justify-center items-center h-[80vh]">
-    <div class="font-bold text-xl">抱歉，您访问的页面不存在。</div>
+    <div class="font-bold text-xl">您访问的页面正在开发当中~</div>
     <div class="btn" @click="toIndex">返回首页</div>
     <svg
       t="1706605318032"

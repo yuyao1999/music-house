@@ -22,6 +22,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ref, nextTick } from 'vue'
+import { useMusicStore } from '@/store/modules/music'
+const musicStore = useMusicStore()
 const router = useRouter()
 //#region 导航栏
 const list = [
@@ -29,6 +31,11 @@ const list = [
     name: '首页',
     icon: '',
     url: '/home',
+  },
+  {
+    name: '私人DJ',
+    icon: '',
+    url: '/dj',
   },
   {
     name: '发布',
@@ -41,6 +48,11 @@ width="50" height="50">
     url: '/publish',
   },
   {
+    name: '消息',
+    icon: '',
+    url: '/message',
+  },
+  {
     name: '我的',
     icon: '',
     url: '/mine',
@@ -50,7 +62,12 @@ const nowIndex = ref(0)
 // 点击次数
 let lastPath = ''
 const toUrl = (url: string, index: number) => {
-  console.log('toUrl', url, lastPath)
+  if (url === '/dj') {
+    musicStore.setMusicListMode(3)
+    musicStore.setMiniShow(false)
+    musicStore.setShow(true)
+    return
+  }
   if (lastPath === url && url !== '/publish') {
     router.go(0)
     nowIndex.value = index
@@ -87,7 +104,7 @@ nextTick(() => {
     justify-content: center;
     align-items: center;
     // 扩大点击区域
-    padding: 0 20px;
+    //padding: 0 20px;
   }
   .active {
     color: #ffffff !important;

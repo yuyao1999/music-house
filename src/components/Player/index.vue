@@ -46,7 +46,7 @@
         </div>
         <!-- 播放按钮 -->
         <div class="flex justify-between items-center">
-          <button @click="isLove = !isLove" v-throttle>
+          <button v-hidden="musicStore.musicListMode === 3" @click="isLove = !isLove" v-throttle>
             <div v-if="isLove" class="pl-5">
               <div class="hover:cursor-pointer animate__animated animate__heartBeat">
                 <div class="icon-love" />
@@ -61,6 +61,7 @@
 
           <div class="w-[50%] flex justify-between items-center">
             <button
+              v-hidden="musicStore.musicListMode === 3"
               @click="onPrev"
               v-throttle
               class="hover:cursor-pointer icon-prev animate__animated animate__bounceIn"
@@ -83,7 +84,7 @@
               class="hover:cursor-pointer icon-next animate__animated animate__bounceIn"
             />
           </div>
-          <button class="pr-2" @click="onPlayMode" v-throttle>
+          <button v-hidden="musicStore.musicListMode === 3" class="pr-2" @click="onPlayMode" v-throttle>
             <img
               :key="musicStore.playMode"
               class="w-8 h-8 hover:cursor-pointer animate__animated animate__bounceIn"
@@ -97,6 +98,7 @@
             词
           </button>
           <button
+            v-hidden="musicStore.musicListMode === 3"
             @click="listOpen"
             v-throttle
             class="absolute right-[12px] w-5 h-5 hover:cursor-pointer animate__animated animate__bounceIn"
@@ -126,6 +128,8 @@ import { useMusicList } from '@/components/MusicList'
 import { useFont } from '@/hooks/useFont'
 import { setBack } from '@/utils/app-setting'
 import scrollText from '@/components/scrollText/index.vue'
+import { musicApi } from '@/api/music'
+import { handleDj } from '@/utils/handleDj'
 
 import { useShow } from '@/hooks/useShow'
 
@@ -140,7 +144,7 @@ const onPlayCss = () => {
   }
 }
 
-const { audio, createAudio, audioPlayFlag, createTimeupdate, audioPlay, audioPause } = useAudio()
+const { audio, createAudio, audioPlayFlag, createTimeupdate, audioPlay, audioPause, getMusicUrl } = useAudio()
 
 // 当前歌曲是否喜欢
 const isLove = ref(false)
@@ -194,6 +198,17 @@ const onPlayMode = () => {
 const back = () => {
   musicStore.setShow(false)
   musicStore.setMiniShow(true)
+
+  if (musicStore.musicListMode === 3) {
+    musicStore.setMusicListMode(0)
+    audioPause()
+    if (audio.value) {
+      audio.value.src = musicStore.nowMusic.src || ''
+      setTimeout(() => {
+        audioPause()
+      }, 200)
+    }
+  }
 }
 
 //#region 歌曲
@@ -289,11 +304,22 @@ const getLyricsIndex = (currentTime: number) => {
 }
 
 const handleTimeUpdate = () => {
+  console.log('audio.value?.volume', audio.value?.volume)
   currentTime.value = audio.value?.currentTime || 0
   handleLyricsScroll()
 }
 createTimeupdate(handleTimeUpdate)
 createAudio(musicStore.nowMusic.src, true)
+
+const getDj = () => {
+  audioPause()
+  musicApi.getPersonalDJ({}).then((res) => {
+    handleDj(res.data)
+  })
+}
+if (musicStore.musicListMode === 3) {
+  getDj()
+}
 
 // 空白数量
 const emptyLyricNum = 7
@@ -322,6 +348,10 @@ const onScrollEnd = (diff: number) => {
 const { manualScroll, scrollToTop, initScroll } = useScroll({ onScrollEnd })
 
 const onNext = () => {
+  if (musicStore.musicListMode === 3) {
+    getDj()
+    return
+  }
   musicStore.nextMusic()
 }
 const onPrev = () => {

@@ -27,7 +27,6 @@ export const useMusicStore = defineStore(
      * 2 单曲循环
      */
     const playMode = ref<number>(0)
-
     /**
      * @param mode 0 顺序 1 随机 2 单曲循环
      */
@@ -87,7 +86,7 @@ export const useMusicStore = defineStore(
 
     let lastModeIndex = -1
     /**
-     * @param mode 0:动态音乐列表 1:搜索音乐列表 2:个人主页音乐列表
+     * @param mode 0:动态音乐列表 1:搜索音乐列表 2:个人主页音乐列表 3:私人DJ
      */
     const setMusicListMode = (mode: number) => {
       if (mode !== musicListMode.value) {
@@ -110,6 +109,8 @@ export const useMusicStore = defineStore(
           return searchMusicList.value
         case 2:
           return personMusicList.value
+        case 3:
+          return djMusicList.value
         default:
           return musicList.value
       }
@@ -127,6 +128,10 @@ export const useMusicStore = defineStore(
      * 个人主页音乐列表
      */
     const personMusicList = ref<IMusic[]>([])
+    /**
+     * 私人DJ音乐列表
+     */
+    const djMusicList = ref<IMusic[]>([])
 
     /**
      * 主页动态播放列表

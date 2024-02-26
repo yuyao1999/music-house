@@ -59,8 +59,6 @@ const params = ref({
 params.value.page = musicStore.seenPages
 musicStore.setSeenPages(musicStore.seenPages + 1)
 
-// 是否有新数据
-let hasNewData = false
 //跳转遗漏数据
 const jumpMissData = {
   page: 0,
@@ -78,8 +76,6 @@ const getList = (type: 'top' | 'bottom') => {
       const nowTotal = res.total
       const diff = nowTotal - musicStore.total
       if (nowTotal > musicStore.total) {
-        hasNewData = true
-
         //定位page的位置
         const page = Math.floor(diff / params.value.size)
         params.value.page += page
@@ -233,15 +229,13 @@ const onDragEnd = () => {
       }
     } else {
       distance = (musicStore.musicList.length - 1) * contentHeight
-      if (hasNewData) {
-        hasNewData = false
-        params.value.page = 1
-        musicStore.setSeenPages(1)
-        open('为您从最新动态开始加载~')
-        setTimeout(() => {
-          getList('top')
-        }, transitionTime)
-      }
+
+      params.value.page = 1
+      musicStore.setSeenPages(1)
+      open('为您从最新动态开始加载~')
+      setTimeout(() => {
+        getList('top')
+      }, transitionTime)
     }
 
     scrollRef.value.style.transform = `translateY(-${distance}px)`
@@ -408,7 +402,7 @@ watch(
       color: #fff;
       border-radius: 0.5rem 0 0 0.5rem;
       font-size: 1rem;
-      z-index: 9999;
+      z-index: 800;
     }
   }
 }
