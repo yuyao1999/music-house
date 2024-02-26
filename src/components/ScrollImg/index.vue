@@ -40,7 +40,7 @@ const { open } = useToast()
 let firstLoad = true
 const { getMusicUrl, getMusicSearch } = useAudio()
 const musicStore = useMusicStore()
-
+musicStore.setMusicListMode(0)
 musicStore.setPlayMode(2)
 musicStore.setShow(false)
 musicStore.modeClearPlayList()
@@ -88,7 +88,6 @@ const getList = (type: 'top' | 'bottom') => {
       }
 
       musicStore.setTotal(nowTotal)
-
       const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {

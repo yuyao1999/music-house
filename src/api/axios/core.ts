@@ -68,8 +68,6 @@ export class Http {
               4. ……
               */
         hideLoading()
-        console.log('response')
-        console.log('response.data.code', response.data.code)
         // 401 403
         if (response.data.code === 401 || response.data.code === 403) {
           localStorage.removeItem('token')

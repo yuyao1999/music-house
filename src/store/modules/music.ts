@@ -153,7 +153,7 @@ export const useMusicStore = defineStore(
       seenPages.value = page
     }
     //之前的total
-    const total = ref(Infinity)
+    const total = ref(9999999999)
     const setTotal = (val: number) => {
       total.value = val
     }
