@@ -77,11 +77,14 @@
 </template>
 
 <script setup lang="ts">
-import { useMusicStore } from '@/store/modules/music'
-const musicStore = useMusicStore()
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const toIndex = () => {
-  window.location.href = '/'
+  // window.location.href = '/'
+  router.replace('/')
+  setTimeout(() => {
+    router.go(0)
+  }, 200)
 }
 </script>
 
