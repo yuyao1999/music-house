@@ -2,7 +2,7 @@
   <div ref="listRef" :style="{ height }" class="infinite-list-container" @scroll="scrollEvent">
     <div ref="phantomRef" class="infinite-list-phantom"></div>
     <div ref="contentRef" class="infinite-list">
-      <div class="infinite-list-item" ref="itemsRef" :id="item._index" :key="item._index" v-for="item in visibleData">
+      <div ref="itemsRef" :id="item._index" :key="item._index" v-for="item in visibleData">
         <slot name="item" :data="item" />
       </div>
     </div>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
+import { computed, nextTick, onMounted, onUpdated, ref, watch } from 'vue'
 
 const props = defineProps({
   //所有列表数据
@@ -35,12 +35,44 @@ const phantomRef = ref()
 const contentRef = ref()
 const itemsRef = ref()
 
-const positions = props.listData.map((_, index) => ({
-  index,
-  height: props.estimatedItemSize,
-  top: index * props.estimatedItemSize,
-  bottom: (index + 1) * props.estimatedItemSize,
-}))
+const positions = [] as any
+const getPositions = () => {
+  positions.push(
+    ...props.listData.slice(positions.length, props.listData.length).map((_, index: number) => {
+      const indexRes = positions.length + index
+      return {
+        index: positions.length + index,
+        height: props.estimatedItemSize,
+        top: indexRes * props.estimatedItemSize,
+        bottom: (indexRes + 1) * props.estimatedItemSize,
+      }
+    })
+  )
+  console.log('getPositions', positions)
+  nextTick(() => {
+    if (!itemsRef.value || !itemsRef.value.length) return
+    //获取真实元素大小，修改对应的尺寸缓存
+    updateItemsSize()
+    //更新列表总高度
+    const height = positions[positions.length - 1].bottom
+    phantomRef.value.style.height = height + 'px'
+    //更新真实偏移量
+    setStartOffset()
+  })
+}
+watch(
+  () => props.listData.length,
+  () => {
+    getPositions()
+  },
+  {
+    immediate: true,
+  }
+)
+
+defineExpose({
+  listRef,
+})
 
 const _listData = computed(() =>
   props.listData.map((item: any, index) => {
@@ -72,6 +104,7 @@ onMounted(() => {
 
 //获取列表项的当前尺寸
 const updateItemsSize = () => {
+  console.log('updateItemsSize')
   const nodes = itemsRef.value || []
   nodes.forEach((node: HTMLElement) => {
     let rect = node.getBoundingClientRect()
@@ -124,24 +157,11 @@ const scrollEvent = () => {
   let scrollTop = listRef.value.scrollTop
   //此时的开始索引
   start.value = getStartIndex(scrollTop) || 0
-  console.log('start', start.value)
   //此时的结束索引
   end.value = start.value + visibleCount.value
   //此时的偏移量
   setStartOffset()
 }
-onUpdated(() => {
-  nextTick(() => {
-    if (!itemsRef.value || !itemsRef.value.length) return
-    //获取真实元素大小，修改对应的尺寸缓存
-    updateItemsSize()
-    //更新列表总高度
-    const height = positions[positions.length - 1].bottom
-    phantomRef.value.style.height = height + 'px'
-    //更新真实偏移量
-    setStartOffset()
-  })
-})
 </script>
 
 <style scoped lang="scss">
