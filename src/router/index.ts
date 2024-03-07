@@ -67,6 +67,15 @@ const routes = [
     },
   },
   {
+    path: '/list2',
+    name: 'list2',
+    component: () => import('@/views/list/list2.vue'),
+    meta: {
+      title: '列表',
+      icon: '',
+    },
+  },
+  {
     path: '/404',
     name: '404',
     component: () => import('@/views/404/404.vue'),
