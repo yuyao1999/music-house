@@ -3,7 +3,8 @@
     <WaterFallList ref="listRef" :list="list" :size="size" :columns="3">
       <template #item="{ data }">
         <div class="items" :style="{ height: data.height }">
-          {{ data.index }}
+          {{ data.index }}:
+          {{ data.content }}
         </div>
       </template>
     </WaterFallList>
@@ -18,34 +19,49 @@ import { useLoading } from '@/hooks/useLoading'
 const { showLoading, hideLoading } = useLoading()
 const listRef = ref()
 const list = ref([
-  { color: '#76da6e', height: '120px' },
-  { color: '#76da6e', height: '120px' },
-  { color: '#40a988', height: '170px' },
-  { color: '#2384c4', height: '420px' },
-  { color: '#2384c4', height: '420px' },
-  { color: '#2384c4', height: '420px' },
-  { color: '#2384c4', height: '420px' },
-  { color: '#106ba3', height: '80px' },
-  { color: '#106ba3', height: '80px' },
-  { color: '#0a589e', height: '110px' },
-  { color: '#0a4e98', height: '90px' },
-  { color: '#09408c', height: '100px' },
-  { color: '#083680', height: '130px' },
+  {
+    color: '#76da6e',
+    content:
+      '打我打打awd带娃啊1233333333333333333333333333333333333333啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊',
+  },
+  { color: '#76da6e', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊' },
+  { color: '#40a988', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊' },
+  { color: '#2384c4', content: 'dawddaw' },
+  { color: '#2384c4', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊awdad' },
+  { color: '#2384c4', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊' },
+  {
+    color: '#2384c4',
+    content:
+      '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊',
+  },
+  { color: '#106ba3', content: 'dawddaw' },
+  { color: '#106ba3', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊adwad' },
+  { color: '#0a589e', content: 'dawddaw' },
+  { color: '#0a4e98', content: 'dawddaw' },
+  { color: '#09408c', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊awdawd' },
+  { color: '#083680', content: '打我打打awd带娃啊啊啊啊啊啊啊啊我啊打我啊打我啊打我啊打我啊打我啊打我啊我啊' },
 ] as any)
 const addCard = () => {
+  showLoading()
   console.log('addCard')
   const res = Array.from({
     length: size,
   }).map((_, index) => {
     return {
       color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-      height: Math.floor(Math.random() * 100 + 100) + 'px',
+      content: 'content-' + index,
       index,
     }
   })
-  list.value.push(...res)
+
+  setTimeout(() => {
+    list.value.push(...res)
+    list.value[list.value.length - Math.floor(Math.random() * size)].content =
+      'pdaupdatedupdatedupdatedupdatedupdatedupdatedupdateddupdatedupdatedudupdatedupdatedudupdatedupdateduupdatedupdatedupdatedupdatedupdatedted'
+
+    hideLoading()
+  }, 500)
 }
-const page = ref(1)
 const size = 10
 
 onMounted(() => {
@@ -56,11 +72,10 @@ onMounted(() => {
 <style scoped lang="scss">
 .items {
   min-height: 50px;
-  // 强制换行
-  white-space: normal;
-  word-wrap: break-word;
   border: 1px solid #ff0404;
   color: #fff;
+  white-space: normal;
+  word-wrap: break-word;
 }
 </style>
 <style>

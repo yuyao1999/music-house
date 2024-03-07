@@ -6,7 +6,7 @@
         class="card-list"
         v-for="(item, index) in list"
         :key="index"
-        :style="{ backgroundColor: item.color, height: item.height, width: 'calc(100% / ' + columns + ')' }"
+        :style="{ width: 'calc(100% / ' + columns + ')' }"
       >
         <slot name="item" :data="{ ...item, index }" />
       </div>
@@ -20,7 +20,7 @@ import { onMounted, ref, nextTick, PropType } from 'vue'
 
 const props = defineProps({
   list: {
-    type: Array as PropType<{ color: string; height: string }[]>,
+    type: Array as any,
     required: true,
   },
   size: {
@@ -59,7 +59,6 @@ watch(
 )
 
 const tabulationHeights = ref(new Array(props.columns).fill(0))
-
 const updateLayout = (el: any) => {
   const columns = getMinTabulationHeight(tabulationHeights.value)
   const top = tabulationHeights.value[columns]
