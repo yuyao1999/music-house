@@ -18,7 +18,7 @@
               <div class="flex justify-between mb-5">
                 <img
                   class="w-12 h-12 rounded-full bg-gray-500 mt-1 flex-shrink-0"
-                  :src="userStore.photo ? userStore.photo : requireImg('logo.png')"
+                  :src="item.photo ? item.photo : requireImg('logo.png')"
                 />
                 <div class="w-[80%]">
                   <div class="text-base font-400 text-gray-400 truncate">{{ item.username }}</div>
