@@ -88,6 +88,5 @@ const getMinTabulationHeight = (arr: any) => {
 }
 .card-list {
   position: absolute;
-  width: var(--v);
 }
 </style>

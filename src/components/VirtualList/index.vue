@@ -48,17 +48,6 @@ const getPositions = () => {
       }
     })
   )
-  console.log('getPositions', positions)
-  nextTick(() => {
-    if (!itemsRef.value || !itemsRef.value.length) return
-    //获取真实元素大小，修改对应的尺寸缓存
-    updateItemsSize()
-    //更新列表总高度
-    const height = positions[positions.length - 1].bottom
-    phantomRef.value.style.height = height + 'px'
-    //更新真实偏移量
-    setStartOffset()
-  })
 }
 watch(
   () => props.listData.length,
@@ -101,6 +90,18 @@ onMounted(() => {
   start.value = 0
   end.value = visibleCount.value
 })
+onUpdated(() => {
+  nextTick(() => {
+    if (!itemsRef.value || !itemsRef.value.length) return
+    //获取真实元素大小，修改对应的尺寸缓存
+    updateItemsSize()
+    //更新列表总高度
+    const height = positions[positions.length - 1].bottom
+    phantomRef.value.style.height = height + 'px'
+    //更新真实偏移量
+    setStartOffset()
+  })
+})
 
 //获取列表项的当前尺寸
 const updateItemsSize = () => {
@@ -122,6 +123,7 @@ const updateItemsSize = () => {
       }
     }
   })
+  console.log('nodes', nodes)
 }
 //获取当前的偏移量
 const setStartOffset = () => {

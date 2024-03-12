@@ -70,12 +70,23 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+@keyframes MoveAnimate {
+  from {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .items {
   min-height: 50px;
   border: 1px solid #ff0404;
   color: #fff;
   white-space: normal;
   word-wrap: break-word;
+  animation: MoveAnimate 0.25s;
 }
 </style>
 <style>

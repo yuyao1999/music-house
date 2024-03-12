@@ -27,6 +27,13 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/utils/app-setting.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/utils/app-setting.ts",
+    "src/utils/dns-prefetch.js"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
