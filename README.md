@@ -17,7 +17,7 @@ pnpm prod
 
 Acapp端:https://www.acwing.com/file_system/file/content/whole/index/content/10975696/
 Web端:https://yuyao.site
-App端:
+App端:https://app842.acapp.acwing.com.cn/static/js/third_party/app/app.apk
 
 代码完全开源
 github:
