@@ -77,7 +77,7 @@ const toUrl = (url: string, index: number) => {
     nowIndex.value = index
     lastPath = url
   }
-  if (url === '/publish') {
+  if (url === '/publish' || url === '/new-song') {
     router.push(url)
   } else router.replace(url)
 }

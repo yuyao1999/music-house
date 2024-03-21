@@ -46,6 +46,11 @@ html {
     $durationUp: 0.3s;
     $durationDown: 0.2s;
 
+    // dns预加载图片
+    .dns-preload {
+        background: "https://p2.music.126.net";
+    }
+
     /*向左滑动*/
     @keyframes slideInLeft {
         from {

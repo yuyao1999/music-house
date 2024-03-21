@@ -12,7 +12,7 @@ const lazy = {
           el.src = bindings.value
           // 图片加载出错时，显示默认图片
           el.onerror = () => {
-            el.src = defaultImg
+            // el.src = defaultImg
           }
           // 加载完成 去除.img-none
           el.onload = () => {
