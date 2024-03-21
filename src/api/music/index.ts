@@ -53,6 +53,12 @@ class Music {
   getPersonalDJ(params: any) {
     return this.http.get('/aidj/content/rcmd', params)
   }
+  /**
+   * 分页获取最新音乐
+   */
+  getNewMusic(params: any) {
+    return this.http.get('/top/song', params)
+  }
 }
 const musicApi = new Music()
 export { musicApi }

@@ -1,18 +1,14 @@
 <template>
-  <div class="fs-virtual-waterfall-container" ref="containerRef" @scroll="handleScroll">
-    <div class="fs-virtual-waterfall-list" :style="listStyle">
-      <div
-        v-if="isShow"
-        class="fs-virtual-waterfall-item"
-        v-for="{ item, style, imageHeight } in renderList"
-        :key="item.id"
-        :style="style"
-      >
-        <slot name="item" :item="item" :imageHeight="imageHeight"></slot>
+  <div class="virtual-waterfall-container" ref="containerRef" @scroll="handleScroll">
+    <div class="virtual-waterfall-list" :style="listStyle">
+      <div id="real-list">
+        <div class="virtual-waterfall-item" v-for="{ item, style } in renderList" :key="item.id" :style="style">
+          <slot name="item" :item="item" :style="style"></slot>
+        </div>
       </div>
-      <div id="temporary-list" v-else>
-        <div v-for="{ item, style, imageHeight } in temporaryList" :style="style">
-          <slot name="item" :item="item" :imageHeight="imageHeight"></slot>
+      <div id="temporary-list" v-if="!isShow">
+        <div v-for="{ item, style } in temporaryList" :key="item.id" :style="style">
+          <slot name="item" :item="item" :style="style"></slot>
         </div>
       </div>
     </div>
@@ -27,7 +23,7 @@ import { debounce, rafThrottle } from './tool'
 const props = defineProps<IVirtualWaterFallProps>()
 
 defineSlots<{
-  item(props: { item: ICardItem; imageHeight: number }): any
+  item(props: { item: ICardItem; style: CSSProperties }): any
 }>()
 
 const containerRef = ref<HTMLDivElement | null>(null)
@@ -104,7 +100,6 @@ const setItemSize = () => {
     pre.set(current.id, {
       width: itemWidth,
       height: rect ? rect.height : 0,
-      imageHeight: Math.floor((itemWidth * current.height) / current.width),
     })
     return pre
   }, new Map())
@@ -116,9 +111,7 @@ const updateItemSize = () => {
     itemSizeInfo.value.set(item.id, { ...rect, height: h })
   })
 }
-
 const addInQueue = (size = props.enterSize) => {
-  console.log('addInQueue')
   for (let i = 0; i < size!; i++) {
     const minIndex = computedHeight.value.minIndex
     const currentColumn = queueState.queue[minIndex]
@@ -135,14 +128,12 @@ const generatorItem = (item: ICardItem, before: IBookRenderItem | null, index: n
   const rect = itemSizeInfo.value.get(item.id)!
   const width = rect.width
   const height = rect.height
-  const imageHeight = rect.imageHeight
   let y = 0
   if (before) y = before.y + before.h + props.gap
   return {
     item,
     y,
     h: height,
-    imageHeight,
     style: {
       width: `${width}px`,
       height: `${height}px`,
@@ -152,10 +143,10 @@ const generatorItem = (item: ICardItem, before: IBookRenderItem | null, index: n
 }
 
 const loadDataList = async () => {
-  console.log('loadDataList')
   if (dataState.isFinish) return
   dataState.loading = true
-  const list = await props.request(dataState.currentPage++, props.pageSize)
+  const source = await props.request(dataState.currentPage++, props.pageSize)
+  const list = source.data
   if (!list.length) {
     dataState.isFinish = true
     return
@@ -168,7 +159,8 @@ const loadDataList = async () => {
 const handleScroll = rafThrottle(() => {
   const { scrollTop, clientHeight } = containerRef.value!
   scrollState.start = scrollTop
-  if (!dataState.loading && !hasMoreData.value) {
+  //分页加载更多
+  if (props.isPagination && !dataState.loading && !hasMoreData.value) {
     loadDataList().then((len) => {
       len && setItemSize()
       len && mountTemporaryList()
@@ -195,7 +187,10 @@ const reComputedQueue = () => {
 
 const mountTemporaryList = (size = props.enterSize) => {
   if (!hasMoreData.value) return
+
   isShow.value = false
+
+  console.log('temporaryList 1')
   for (let i = 0; i < size!; i++) {
     const item = dataState.list[queueState.len + i]
     if (!item) break
@@ -204,7 +199,6 @@ const mountTemporaryList = (size = props.enterSize) => {
       item,
       y: 0,
       h: 0,
-      imageHeight: rect.imageHeight,
       style: {
         width: `${rect.width}px`,
       },
@@ -217,10 +211,12 @@ const mountTemporaryList = (size = props.enterSize) => {
       const rect = item.getBoundingClientRect()
       temporaryList.value[index].h = rect.height
     })
+
     isShow.value = true
     updateItemSize()
     addInQueue(temporaryList.value.length)
     temporaryList.value = []
+    console.log('temporaryList 2')
   })
 }
 
@@ -232,7 +228,7 @@ const initScrollState = () => {
 
 const init = async () => {
   initScrollState()
-  resizeObserver.observe(containerRef.value!)
+  // resizeObserver.observe(containerRef.value!)
   const len = await loadDataList()
   setItemSize()
   len && mountTemporaryList(len)
@@ -243,12 +239,16 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  resizeObserver.unobserve(containerRef.value!)
+  containerRef.value && resizeObserver.unobserve(containerRef.value)
 })
 </script>
 
 <style scoped lang="scss">
-.fs-virtual-waterfall {
+#temporary-list {
+  position: absolute;
+  top: 9999px;
+}
+.virtual-waterfall {
   &-container {
     width: 100%;
     height: 100%;

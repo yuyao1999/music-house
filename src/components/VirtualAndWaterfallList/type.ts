@@ -5,13 +5,16 @@ export interface IVirtualWaterFallProps {
   column: number
   pageSize: number
   enterSize?: number
-  request: (page: number, pageSize: number) => Promise<ICardItem[]>
+  request: (page: number, pageSize: number) => Promise<ICardItem>
+  // 是否分页
+  isPagination?: boolean
 }
 
 export interface ICardItem {
   id: number | string
-  width: number
-  height: number
+  style: CSSProperties
+  albums: any
+  total: number
   [key: string]: any
 }
 
@@ -42,12 +45,10 @@ export interface IBookRenderItem {
   item: ICardItem
   y: number
   h: number
-  imageHeight: number
   style: CSSProperties
 }
 
 export interface IBookItemRect {
   width: number
   height: number
-  imageHeight: number
 }

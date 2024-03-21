@@ -232,6 +232,7 @@ export const useAudio = () => {
    * 搜索音乐
    */
   const getMusicSearch = (data: any, changeFlag = true) => {
+    console.log('data', data)
     if (!data) {
       return
     }
@@ -247,7 +248,7 @@ export const useAudio = () => {
         id: data.id,
         name: data.name,
         singer: data.artists[0].name,
-        album: data.album.name,
+        album: data.album?.name,
         mvId: data.mvId,
       })
       getMusicUrl(data.id)

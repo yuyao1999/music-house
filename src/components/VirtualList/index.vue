@@ -2,8 +2,8 @@
   <div ref="listRef" :style="{ height }" class="infinite-list-container" @scroll="scrollEvent">
     <div ref="phantomRef" class="infinite-list-phantom"></div>
     <div ref="contentRef" class="infinite-list">
-      <div ref="itemsRef" :id="item._index" :key="item._index" v-for="item in visibleData">
-        <slot name="item" :data="item" />
+      <div ref="itemsRef" :id="item._index" :key="item._index" v-for="(item, index) in visibleData">
+        <slot name="item" :data="item" v-if="defer(index)" />
       </div>
     </div>
   </div>
@@ -11,6 +11,9 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUpdated, ref, watch } from 'vue'
+import { useDefer } from '@/hooks/useDefer'
+
+const { defer, reset } = useDefer()
 
 const props = defineProps({
   //所有列表数据
@@ -52,6 +55,7 @@ const getPositions = () => {
 watch(
   () => props.listData.length,
   () => {
+    reset()
     getPositions()
   },
   {
@@ -105,7 +109,6 @@ onUpdated(() => {
 
 //获取列表项的当前尺寸
 const updateItemsSize = () => {
-  console.log('updateItemsSize')
   const nodes = itemsRef.value || []
   nodes.forEach((node: HTMLElement) => {
     let rect = node.getBoundingClientRect()
@@ -123,7 +126,6 @@ const updateItemsSize = () => {
       }
     }
   })
-  console.log('nodes', nodes)
 }
 //获取当前的偏移量
 const setStartOffset = () => {

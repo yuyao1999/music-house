@@ -304,7 +304,6 @@ const getLyricsIndex = (currentTime: number) => {
 }
 
 const handleTimeUpdate = () => {
-  console.log('audio.value?.volume', audio.value?.volume)
   currentTime.value = audio.value?.currentTime || 0
   handleLyricsScroll()
 }

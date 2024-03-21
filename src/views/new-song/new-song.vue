@@ -1,14 +1,15 @@
 <template>
   <div class="app">
-    <PageTop title="列表" />
+    <PageTop title="新歌" />
     <div class="container" ref="fContainerRef">
       <VirtualAndWaterfallList :request="getData" :gap="25" :page-size="20" :column="column" :enter-size="column * 2">
         <template #item="{ item, style }">
           <Card
+            @click="onCard(item)"
             :detail="{
               title: item.name,
-              author: item.author,
-              imgSrc: item.picUrl,
+              author: item.artists[0].name,
+              imgSrc: item.album.picUrl,
               style,
             }"
           />
@@ -24,9 +25,12 @@ import Card from '@/components/VirtualAndWaterfallList/card.vue'
 import VirtualAndWaterfallList from '@/components/VirtualAndWaterfallList/index.vue'
 import PageTop from '@/components/PageTop/index.vue'
 import { musicApi } from '@/api/music'
+import { useMusicStore } from '@/store/modules/music'
+import { useAudio } from '@/hooks/useAudio'
 
+const musicStore = useMusicStore()
 const fContainerRef = ref<HTMLDivElement | null>(null)
-const column = ref(3)
+const column = ref(2)
 const fContainerObserver = new ResizeObserver((entries) => {
   changeColumn(entries[0].target.clientWidth)
 })
@@ -58,6 +62,13 @@ const getData = (page: number, pageSize: number) => {
     limit: pageSize,
   }) as any
 }
+const { getMusicSearch } = useAudio()
+const onCard = (item: any) => {
+  console.log(item)
+  musicStore.setMiniShow(false)
+  musicStore.setShow(true)
+  getMusicSearch(item)
+}
 </script>
 
 <style scoped lang="scss">
@@ -69,10 +80,11 @@ const getData = (page: number, pageSize: number) => {
   height: 100vh;
   background: #010101;
   .container {
-    margin-top: 5rem;
     padding: 1rem;
+    padding-top: 4rem;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    overflow: hidden;
   }
 }
 </style>

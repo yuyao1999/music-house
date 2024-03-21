@@ -48,9 +48,9 @@ width="50" height="50">
     url: '/publish',
   },
   {
-    name: '消息',
+    name: '新歌',
     icon: '',
-    url: '/message',
+    url: '/new-song',
   },
   {
     name: '我的',
@@ -73,9 +73,10 @@ const toUrl = (url: string, index: number) => {
     nowIndex.value = index
     return
   }
-  lastPath = url
-
-  nowIndex.value = index
+  if (url === '/home' || url === '/mine') {
+    nowIndex.value = index
+    lastPath = url
+  }
   if (url === '/publish') {
     router.push(url)
   } else router.replace(url)
@@ -83,8 +84,10 @@ const toUrl = (url: string, index: number) => {
 nextTick(() => {
   const path = router.currentRoute.value.path
   lastPath = path
-  console.log('path', path)
-  nowIndex.value = list.findIndex((item) => item.url === path)
+})
+
+router.afterEach((to) => {
+  nowIndex.value = list.findIndex((item) => item.url === to.path)
 })
 //#endregion
 </script>

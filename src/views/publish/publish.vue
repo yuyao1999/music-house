@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import PageTop from '@/components/PageTop/PageTop.vue'
+import PageTop from '@/components/PageTop/index.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ref } from 'vue'
 import { useToast } from '@/components/Toast'

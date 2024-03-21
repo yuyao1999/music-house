@@ -18,7 +18,7 @@
         ></path>
       </svg>
     </div>
-    <div>{{ title }}</div>
+    <div class="title">{{ title }}</div>
     <div class="cursor-pointer">
       <slot name="right" />
     </div>
@@ -40,7 +40,7 @@ const toBack = () => {
     props.onBack()
     return
   }
-  router.back()
+  router.replace('/')
 }
 </script>
 
@@ -57,5 +57,10 @@ const toBack = () => {
   justify-content: space-between;
   align-items: center;
   color: white;
+  .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 </style>

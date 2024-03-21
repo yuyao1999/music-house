@@ -58,6 +58,15 @@ const routes = [
     },
   },
   {
+    path: '/new-song',
+    name: 'newSong',
+    component: () => import('@/views/new-song/new-song.vue'),
+    meta: {
+      title: '列表',
+      icon: '',
+    },
+  },
+  {
     path: '/list',
     name: 'list',
     component: () => import('@/views/list/list.vue'),
@@ -84,6 +93,7 @@ const routes = [
       icon: '',
     },
   },
+
   {
     path: '/404',
     name: '404',
