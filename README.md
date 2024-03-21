@@ -13,7 +13,16 @@ pnpm prod
 待实现功能:个人主页喜欢、关注功能、消息通知、分享功能、音乐个性播放模块、
 待优化项:个人主页重新设计、开发视频播放组件、双击点赞、首页推荐算法
 
-项目亮点:所有的功能、组件、hooks都是自己开发
+项目亮点:
+命令式组件：useToast、useMusicList（命令式组件特点：使用成本低）
+自己封装的hooks：useAudio、useDraggable、useReachBottom、useScroll、useShow、useLoading、useFont
+封装瀑布流虚拟列表的优化
+动态推荐逻辑：用户不重复刷到看过的视频
+音乐播放页的的动画，UI设计
+抖音的交互方式：上下滑动 左右滑动
+所有的功能、组件、hooks都是自己开发
+设计理念:抖音和网易云的结合
+
 
 Acapp端:https://www.acwing.com/file_system/file/content/whole/index/content/10975696/
 Web端:https://yuyao.site
