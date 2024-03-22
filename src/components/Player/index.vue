@@ -8,10 +8,9 @@
           <div class="music-name">
             <scrollText :text="musicStore.nowMusic.name" class="text-center" />
           </div>
-
-          <div>{{ musicStore.nowMusic.singer }}</div>
+          <div class="cursor-pointer" @click="toSinger">{{ musicStore.nowMusic.singer }}</div>
         </div>
-        <div class="icon-share" />
+        <div @click="onShare" class="icon-share" />
       </div>
       <!-- 图片 -->
       <div
@@ -130,12 +129,27 @@ import { setBack } from '@/utils/app-setting'
 import scrollText from '@/components/scrollText/index.vue'
 import { musicApi } from '@/api/music'
 import { handleDj } from '@/utils/handleDj'
-
 import { useShow } from '@/hooks/useShow'
+import { useRouter } from 'vue-router'
+import { useToast } from '@/components/Toast'
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
 const { open: listOpen } = useMusicList()
+const { open: toast } = useToast()
+const router = useRouter()
+
+const toSinger = () => {
+  musicStore.setShow(false)
+  router.push({
+    path: '/singer-song',
+    query: {
+      id: musicStore.nowMusic.singerId,
+      name: musicStore.nowMusic.singer,
+      musicShow: 'play',
+    },
+  })
+}
 
 const onPlayCss = () => {
   const dom: HTMLDivElement | null = document.querySelector('.music-img')
@@ -312,9 +326,14 @@ createAudio(musicStore.nowMusic.src, true)
 
 const getDj = () => {
   audioPause()
-  musicApi.getPersonalDJ({}).then((res) => {
-    handleDj(res.data)
-  })
+  musicApi
+    .getPersonalDJ({
+      longitude: '116.45301061291795',
+      latitude: '39.834686270829096',
+    })
+    .then((res) => {
+      handleDj(res.data)
+    })
 }
 if (musicStore.musicListMode === 3) {
   getDj()
@@ -442,6 +461,48 @@ const progressPercent = computed(() => {
 })
 
 //#endregion
+function setClipValue(text: string) {
+  if (plus.os.name == 'Android') {
+    var Context = plus.android.importClass('android.content.Context')
+    var main = plus.android.runtimeMainActivity()
+    var clip = main.getSystemService(Context.CLIPBOARD_SERVICE)
+    plus.android.invoke(clip, 'setText', text)
+    // ('已成功复制到剪贴板');
+  } else if (plus.os.name == 'iOS') {
+    var UIPasteboard = plus.ios.importClass('UIPasteboard')
+    var generalPasteboard = UIPasteboard.generalPasteboard()
+    generalPasteboard.plusCallMethod({
+      setValue: text,
+      forPasteboardType: 'public.utf8-plain-text',
+    })
+    generalPasteboard.plusCallMethod({
+      valueForPasteboardType: 'public.utf8-plain-text',
+    })
+    // ('已成功复制到剪贴板');
+  }
+}
+
+declare const plus: any
+
+const isPlus = () => {
+  // 判断是否是plus
+  return typeof plus !== 'undefined'
+}
+const onShare = () => {
+  console.log('分享')
+  const text = `【音乐屋】我正在听《${musicStore.nowMusic.name}》，快来听吧！\n点击链接：${
+    'https://yuyao.site/?shareId=' + musicStore.nowMusic.id + '='
+  }  \n直接打开音乐屋~`
+  localStorage.setItem('lastShareId', musicStore.nowMusic.id as string)
+  if (isPlus() && plus.os.name == 'Android') {
+    setClipValue(text)
+    toast('已复制到剪切板,发送给好友叭~')
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      toast('已复制到剪切板,发送给好友叭~')
+    })
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -461,6 +522,7 @@ const progressPercent = computed(() => {
   z-index: 998;
   transform: scale(1.05);
 }
+
 .page {
   // 占满屏幕
   position: fixed;
@@ -475,6 +537,7 @@ const progressPercent = computed(() => {
   // 不可选中
   user-select: none;
   overflow: hidden;
+
   .music-name {
     position: relative;
     width: 100%;
@@ -489,8 +552,10 @@ const progressPercent = computed(() => {
     animation: rotate 50s linear infinite paused, shadow 1s linear infinite alternate paused;
   }
 }
+
 .lyrics-active {
   position: relative;
+
   &::after {
     content: '';
     position: absolute;
@@ -503,6 +568,7 @@ const progressPercent = computed(() => {
     border-left: 8px solid v-bind('appStore.mainColor');
     cursor: pointer;
   }
+
   &::before {
     content: '';
     position: absolute;
@@ -521,6 +587,7 @@ const progressPercent = computed(() => {
     );
   }
 }
+
 .lyrics {
   position: relative;
   // height: calc(#{$lyricsShowCount} * #{$lyricsHeight} + #{$lyricsActiveHeight});
@@ -528,21 +595,23 @@ const progressPercent = computed(() => {
   height: v-bind("lyricsShowCount * lyricsHeight + lyricsActiveHeight + 'px'");
 
   overflow: auto;
+
   .top {
     position: sticky;
     top: 0;
     width: 100%;
-    height: v-bind("lyricsHeight+'px'");
+    height: v-bind("lyricsHeight + 'px'");
     // 从上到下渐变
     // background: linear-gradient(180deg, #010207, transparent);
     background: linear-gradient(180deg, v-bind('appStore.darkColor'), transparent);
     box-shadow: 0 -2px v-bind('appStore.darkColor');
   }
+
   .bottom {
     position: sticky;
     bottom: 0;
     width: 100%;
-    height: v-bind("lyricsHeight+'px'");
+    height: v-bind("lyricsHeight + 'px'");
     // 从下到上渐变
     background: linear-gradient(0deg, v-bind('appStore.darkColor'), transparent);
     box-shadow: 0 1px v-bind('appStore.darkColor');
@@ -554,7 +623,7 @@ const progressPercent = computed(() => {
   }
 
   .item {
-    height: v-bind("lyricsHeight+'px'");
+    height: v-bind("lyricsHeight + 'px'");
     width: 100%;
     // 文字垂直居中
     @apply flex items-center justify-center;
@@ -565,7 +634,7 @@ const progressPercent = computed(() => {
 
     &.active {
       color: v-bind('appStore.mainColor');
-      height: v-bind("lyricsActiveHeight+'px'");
+      height: v-bind("lyricsActiveHeight + 'px'");
       // 文字垂直居中
       @apply flex items-center justify-center;
       font-size: 1.3rem;
@@ -574,6 +643,7 @@ const progressPercent = computed(() => {
       text-align: center;
     }
   }
+
   // 滚动动画
   transition: all 0.3s;
 }
@@ -584,6 +654,7 @@ const progressPercent = computed(() => {
   height: 2px;
   background-color: #e2e2e2;
   @apply mx-5;
+
   // 播放完的进度条颜色 从左到右渐变
   &::after {
     content: '';
@@ -603,6 +674,7 @@ const progressPercent = computed(() => {
     height: 8px;
     background-color: v-bind('appStore.mainColor');
     border-radius: 50%;
+
     // 扩大点击区域
     &::before {
       content: '';
@@ -623,6 +695,7 @@ const progressPercent = computed(() => {
   border-radius: 50%;
   background: v-bind('appStore.mainColor');
   position: relative;
+
   // 三角形
   &::after {
     content: '';
@@ -642,12 +715,14 @@ const progressPercent = computed(() => {
     transform: translate(-50%, -50%);
   }
 }
+
 .icon-pause {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
   border: 0.1rem solid v-bind('appStore.mainColor');
   position: relative;
+
   // 两个竖线
   &::after {
     content: '';
@@ -659,6 +734,7 @@ const progressPercent = computed(() => {
     left: 40%;
     transform: translate(-50%, -50%);
   }
+
   &::before {
     content: '';
     position: absolute;
@@ -670,6 +746,7 @@ const progressPercent = computed(() => {
     transform: translate(-50%, -50%);
   }
 }
+
 .icon-next {
   // 下一首
   // 两个向右的三角形 左边小右边大 两个三角形重叠
@@ -677,6 +754,7 @@ const progressPercent = computed(() => {
   height: 2.5rem;
 
   position: relative;
+
   &::after {
     content: '';
     position: absolute;
@@ -692,6 +770,7 @@ const progressPercent = computed(() => {
     left: 45%;
     transform: translate(-50%, -50%);
   }
+
   &::before {
     content: '';
     position: absolute;
@@ -708,12 +787,14 @@ const progressPercent = computed(() => {
     transform: translate(-50%, -50%);
   }
 }
+
 .icon-prev {
   // 上一首
   // 两个向左的三角形 左边大右边小 两个三角形重叠
   width: 2.5rem;
   height: 2.5rem;
   position: relative;
+
   &::after {
     content: '';
     position: absolute;
@@ -729,6 +810,7 @@ const progressPercent = computed(() => {
     left: 55%;
     transform: translate(-50%, -50%);
   }
+
   &::before {
     content: '';
     position: absolute;
@@ -745,11 +827,13 @@ const progressPercent = computed(() => {
     transform: translate(-50%, -50%);
   }
 }
+
 .icon-back {
   // 返回按钮 向左的箭头
   width: 2.5rem;
   height: 2.5rem;
   position: relative;
+
   // 两条直线 夹角45度
   &::after {
     content: '';
@@ -763,6 +847,7 @@ const progressPercent = computed(() => {
     left: 50%;
     transform: translate(-50%, -50%) rotate(50deg);
   }
+
   &::before {
     content: '';
     position: absolute;
@@ -774,11 +859,14 @@ const progressPercent = computed(() => {
     left: 50%;
     transform: translate(-50%, -50%) rotate(-50deg);
   }
+
   //旋转45度
   transform: rotate(-90deg);
 }
+
 $heartWidth: 1.2rem;
 $heartHeight: 1.2rem;
+
 .icon-love {
   //心型
   width: $heartWidth;
@@ -786,6 +874,7 @@ $heartHeight: 1.2rem;
   position: relative;
   background-color: tomato;
   transform: rotate(-45deg);
+
   &::before {
     content: '';
     position: absolute;
@@ -797,6 +886,7 @@ $heartHeight: 1.2rem;
     border-radius: 50%;
     background-color: tomato;
   }
+
   &::after {
     content: '';
     position: absolute;
@@ -808,18 +898,23 @@ $heartHeight: 1.2rem;
     background-color: tomato;
   }
 }
+
 .icon-love-none {
   // 裁剪为 空心心
   @extend .icon-love;
   background-color: white;
+
   &::before {
     background-color: white;
   }
+
   &::after {
     background-color: white;
   }
+
   transform: rotate(-45deg) scale(0.8);
 }
+
 .icon-share {
   // 分享图标
   width: 32px;
@@ -831,14 +926,17 @@ $heartHeight: 1.2rem;
   from {
     box-shadow: v-bind('appStore.mainColor') 0px 0px 20px 10px;
   }
+
   to {
     box-shadow: v-bind('appStore.mainColor') 0px 0px 10px 0px;
   }
 }
+
 @keyframes rotate {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

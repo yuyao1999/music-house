@@ -13,6 +13,7 @@ import { ref } from 'vue'
 import Player from '@/components/Player/index.vue'
 import { userApi } from '@/api/user'
 import { useUserStore } from '@/store/modules/user'
+import ShareMessage from '@/components/shareMessage/index.vue'
 
 window.addEventListener(
   'message',
@@ -78,6 +79,7 @@ router.beforeEach((to, from) => {
 
 <template>
   <div>
+    <ShareMessage />
     <router-view #default="{ Component }">
       <Transition :name="transitionName">
         <keep-alive :include="routerStore.keepAliveList">
