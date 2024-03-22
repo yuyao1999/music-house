@@ -62,7 +62,16 @@ const routes = [
     name: 'newSong',
     component: () => import('@/views/new-song/new-song.vue'),
     meta: {
-      title: '列表',
+      title: '新歌速递',
+      icon: '',
+    },
+  },
+  {
+    path: '/singer-song',
+    name: 'singerSong',
+    component: () => import('@/views/singer-song/singer-song.vue'),
+    meta: {
+      title: '歌手全部歌曲',
       icon: '',
     },
   },
@@ -93,7 +102,6 @@ const routes = [
       icon: '',
     },
   },
-
   {
     path: '/404',
     name: '404',

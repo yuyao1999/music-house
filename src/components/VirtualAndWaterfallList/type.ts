@@ -8,6 +8,8 @@ export interface IVirtualWaterFallProps {
   request: (page: number, pageSize: number) => Promise<ICardItem>
   // 是否分页
   isPagination?: boolean
+  //接口字段
+  filed: string
 }
 
 export interface ICardItem {

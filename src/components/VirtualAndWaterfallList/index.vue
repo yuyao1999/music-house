@@ -19,12 +19,9 @@
 import { CSSProperties, computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import type { IVirtualWaterFallProps, ICardItem, IBookColumnQueue, IBookRenderItem, IBookItemRect } from './type'
 import { debounce, rafThrottle } from './tool'
+import { musicApi } from '@/api/music'
 
 const props = defineProps<IVirtualWaterFallProps>()
-
-defineSlots<{
-  item(props: { item: ICardItem; style: CSSProperties }): any
-}>()
 
 const containerRef = ref<HTMLDivElement | null>(null)
 
@@ -146,12 +143,21 @@ const loadDataList = async () => {
   if (dataState.isFinish) return
   dataState.loading = true
   const source = await props.request(dataState.currentPage++, props.pageSize)
-  const list = source.data
+  const list = source[props.filed]
+
+  console.log('list', list)
   if (!list.length) {
     dataState.isFinish = true
     return
   }
   dataState.list.push(...list)
+  if (props.filed === 'songs') {
+    dataState.list.forEach(async (item: any) => {
+      const res: any = await musicApi.detail({ ids: item.id })
+      item.imgSrc = res.songs[0]?.al?.picUrl
+    })
+  }
+
   dataState.loading = false
   return list.length
 }

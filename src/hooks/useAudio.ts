@@ -168,6 +168,7 @@ export const useAudio = () => {
       }
       const data = res.songs[0]?.al?.picUrl
       musicStore.supplementMusic({
+        singerId: res.songs[0]?.ar?.[0]?.id,
         id: ids,
         cover: data,
       })
@@ -232,7 +233,6 @@ export const useAudio = () => {
    * 搜索音乐
    */
   const getMusicSearch = (data: any, changeFlag = true) => {
-    console.log('data', data)
     if (!data) {
       return
     }
@@ -247,9 +247,9 @@ export const useAudio = () => {
       musicStore.pushPlayList({
         id: data.id,
         name: data.name,
-        singer: data.artists[0].name,
-        album: data.album?.name,
-        mvId: data.mvId,
+        singer: data?.artists?.[0]?.name || data?.ar?.[0]?.name,
+        album: data?.album?.name,
+        mvId: data?.mvId,
       })
       getMusicUrl(data.id)
     }

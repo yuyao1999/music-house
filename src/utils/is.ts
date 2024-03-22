@@ -116,3 +116,10 @@ export const isMobile = (): boolean => {
 export const isWeiXin = (): boolean => {
   return /MicroMessenger/i.test(navigator.userAgent)
 }
+/**
+ * plus 环境
+ */
+export const isPlus = (): boolean => {
+  //  是否可以获取到plus对象
+  return isDef(window.plus)
+}

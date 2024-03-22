@@ -1,22 +1,22 @@
 <template>
   <div class="app">
-    <PageTop title="新歌" />
+    <PageTop :title="query?.name as string" :onBack="onBack" />
     <div class="container" ref="fContainerRef">
       <VirtualAndWaterfallList
+        isPagination
         :request="getData"
+        filed="songs"
         :gap="25"
         :page-size="20"
         :column="column"
         :enter-size="column * 2"
-        filed="data"
       >
         <template #item="{ item, style }">
           <Card
             @click="onCard(item)"
             :detail="{
+              imgSrc: item.imgSrc,
               title: item.name,
-              author: item.artists[0].name,
-              imgSrc: item.album.picUrl,
               style,
             }"
           />
@@ -34,8 +34,18 @@ import PageTop from '@/components/PageTop/index.vue'
 import { musicApi } from '@/api/music'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
+import { useRoute, useRouter } from 'vue-router'
 
 const musicStore = useMusicStore()
+const { query } = useRoute()
+const router = useRouter()
+
+const onBack = () => {
+  if (query.musicShow) {
+    musicStore.setShow(true)
+  }
+  router.back()
+}
 const fContainerRef = ref<HTMLDivElement | null>(null)
 const column = ref(2)
 const fContainerObserver = new ResizeObserver((entries) => {
@@ -63,10 +73,11 @@ onUnmounted(() => {
 })
 
 const getData = (page: number, pageSize: number) => {
-  return musicApi.getNewMusic({
-    area: 'ZH',
+  return musicApi.singerSongs({
+    id: query.id,
     offset: (page - 1) * pageSize,
     limit: pageSize,
+    order: 'time',
   }) as any
 }
 const { getMusicSearch } = useAudio()

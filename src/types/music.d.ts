@@ -14,6 +14,10 @@ export type IMusic = {
    */
   singer?: string
   /**
+   * 歌手id
+   */
+  singerId?: string
+  /**
    * 专辑
    */
   album?: string

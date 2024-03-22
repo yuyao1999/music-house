@@ -59,6 +59,18 @@ class Music {
   getNewMusic(params: any) {
     return this.http.get('/top/song', params)
   }
+  /**
+   * 搜索歌手
+   */
+  searchSinger(params: any) {
+    return this.http.get('/ugc/artist/search', params)
+  }
+  /**
+   * 歌手全部歌曲
+   */
+  singerSongs(params: any) {
+    return this.http.get('/artist/songs', params)
+  }
 }
 const musicApi = new Music()
 export { musicApi }

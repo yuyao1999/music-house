@@ -60,8 +60,25 @@
           </div>
         </div>
       </div>
+
       <div class="list">
-        <div class="h-[80%] overflow-auto">
+        <div v-if="singerList.length" class="relative w-full mb-4 overflow-x-scroll flex gap-3 items-center">
+          <div
+            class="h-22 leading-22 line-he text-l items-stretch text-[#66f192] font-600 flex-shrink-0 sticky left-0 bg-[#010101]"
+          >
+            歌手：
+          </div>
+          <div
+            v-for="item in singerList"
+            :key="item.artistId"
+            class="flex flex-shrink-0 flex-col items-center justify-between cursor-pointer"
+            @click="toSinger(item.artistId, item.artistName)"
+          >
+            <img :src="item.artistAvatarPicUrl" alt="" class="w-15 h-15 rounded-full object-cover" />
+            <div class="text-base text-gray-200 font-400 mt-1 w-20 truncate text-center">{{ item.artistName }}</div>
+          </div>
+        </div>
+        <div class="overflow-auto">
           <div
             v-for="(item, index) in list"
             :key="item.id"
@@ -99,15 +116,29 @@ import { useMusicStore } from '@/store/modules/music'
 
 const keyword = debounceRef('')
 const list = ref([] as any)
+const singerList = ref([] as any)
 watch(keyword, (val) => {
   musicApi.search({ keywords: val }).then((res: any) => {
     list.value = res.result?.songs.slice(0, 10) || []
+  })
+  musicApi.searchSinger({ keyword: val, limit: 4 }).then((res: any) => {
+    console.log(res)
+    singerList.value = res.data?.list || []
   })
 })
 
 const router = useRouter()
 const toBack = () => {
   router.back()
+}
+const toSinger = (id: number, name: string) => {
+  router.push({
+    path: '/singer-song',
+    query: {
+      id,
+      name,
+    },
+  })
 }
 let typeShare = false
 if (useRoute().query.type === 'share') {
@@ -165,6 +196,7 @@ const onPlay = (data: any) => {
     color: #fff;
   }
 }
+
 .list {
   padding: 0 2rem;
   .scroll-text {

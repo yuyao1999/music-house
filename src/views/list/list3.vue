@@ -2,7 +2,14 @@
   <div class="app">
     <PageTop title="列表" />
     <div class="container" ref="fContainerRef">
-      <VirtualAndWaterfallList :request="getData" :gap="25" :page-size="20" :column="column" :enter-size="column * 2">
+      <VirtualAndWaterfallList
+        filed="data"
+        :request="getData"
+        :gap="25"
+        :page-size="20"
+        :column="column"
+        :enter-size="column * 2"
+      >
         <template #item="{ item, style }">
           <Card
             :detail="{
