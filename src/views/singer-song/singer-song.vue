@@ -99,7 +99,7 @@ const onCard = (item: any) => {
   background: #010101;
   .container {
     padding: 1rem;
-    padding-top: 4rem;
+    padding-top: calc(3rem + var(--statusBarHeight, 0px));
     width: 100%;
     height: 100vh;
     overflow: hidden;

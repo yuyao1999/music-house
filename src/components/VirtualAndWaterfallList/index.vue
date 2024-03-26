@@ -60,7 +60,6 @@ const end = computed(() => scrollState.viewHeight + scrollState.start)
 const cardList = computed(() => queueState.queue.reduce<IBookRenderItem[]>((pre, { list }) => pre.concat(list), []))
 
 const renderList = computed(() => cardList.value.filter((i) => i.h + i.y > scrollState.start && i.y < end.value))
-
 const computedHeight = computed(() => {
   let minIndex = 0,
     minHeight = Infinity,
@@ -145,7 +144,6 @@ const loadDataList = async () => {
   const source = await props.request(dataState.currentPage++, props.pageSize)
   const list = source[props.filed]
 
-  console.log('list', list)
   if (!list.length) {
     dataState.isFinish = true
     return
@@ -176,6 +174,7 @@ const handleScroll = rafThrottle(() => {
   if (scrollTop + clientHeight > computedHeight.value.minHeight) {
     mountTemporaryList()
   }
+  console.log('containerRef.value!.clientHeight', containerRef.value!.clientHeight)
 })
 
 const handleResize = debounce(() => {
@@ -193,10 +192,7 @@ const reComputedQueue = () => {
 
 const mountTemporaryList = (size = props.enterSize) => {
   if (!hasMoreData.value) return
-
   isShow.value = false
-
-  console.log('temporaryList 1')
   for (let i = 0; i < size!; i++) {
     const item = dataState.list[queueState.len + i]
     if (!item) break
@@ -222,7 +218,6 @@ const mountTemporaryList = (size = props.enterSize) => {
     updateItemSize()
     addInQueue(temporaryList.value.length)
     temporaryList.value = []
-    console.log('temporaryList 2')
   })
 }
 
@@ -230,11 +225,12 @@ const initScrollState = () => {
   scrollState.viewWidth = containerRef.value!.clientWidth
   scrollState.viewHeight = containerRef.value!.clientHeight
   scrollState.start = containerRef.value!.scrollTop
+  console.log('containerRef.value!.clientHeight', containerRef.value!.clientHeight)
 }
 
 const init = async () => {
   initScrollState()
-  // resizeObserver.observe(containerRef.value!)
+  resizeObserver.observe(containerRef.value!)
   const len = await loadDataList()
   setItemSize()
   len && mountTemporaryList(len)

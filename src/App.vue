@@ -89,7 +89,6 @@ router.beforeEach((to, from) => {
         </keep-alive>
       </Transition>
     </router-view>
-    <Transition appear enter-active-class="animate__animated animate__bounceInLeft"> </Transition>
     <Transition name="up-down">
       <Player v-if="musicStore.show" />
     </Transition>

@@ -88,7 +88,9 @@ const onCard = (item: any) => {
   background: #010101;
   .container {
     padding: 1rem;
-    padding-top: 4rem;
+    // padding-top: calc(4rem + var(--statusBarHeight));
+    //statusBarHeight 有值则加上状态栏高度 无值则不加
+    padding-top: calc(3rem + var(--statusBarHeight, 0px));
     width: 100%;
     height: 100vh;
     overflow: hidden;

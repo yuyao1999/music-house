@@ -21,7 +21,6 @@ interface ICardDetail {
 const props = defineProps<{
   detail: ICardDetail
 }>()
-console.log(props.detail)
 </script>
 
 <style scoped lang="scss">
