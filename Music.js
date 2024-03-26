@@ -25,7 +25,11 @@ class Settings {
     let id = root.id
     this.$ac_game = $('#' + id)
     this.$ac_game.append(`<div id="app"></div>`)
-    this.$ac_game.append(`<iframe id="frameObj" src="https://yuyao.site" frameborder="0" width="100%" height="100%"/>`)
+    // 聚焦app
+    this.$ac_game.focus()
+    this.$ac_game.append(
+      `<iframe id="frameObj" allow="clipboard-read" src="https://yuyao.site" frameborder="0" width="100%" height="100%"/>`
+    )
     this.$h = $('head')
     this.$h.append(`<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">`)
     $('#app').parents('.fs-gui-window')[0].style.width = 'calc(390px + 2px)'

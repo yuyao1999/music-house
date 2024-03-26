@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { musicApi } from '@/api/music'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { useAudio } from '@/hooks/useAudio'
 const { getMusicSearch } = useAudio()
@@ -24,9 +24,22 @@ const isPlus = () => {
   // 判断是否是plus
   return typeof plus !== 'undefined'
 }
+document.addEventListener('DOMContentLoaded', function () {
+  document.designMode = 'on' // 启用编辑模式
+  if (document.body) {
+    document.body.focus() // 尝试聚焦 body
+    document.designMode = 'off' // 关闭编辑模式
+  }
+})
 
 const readClipboard = () => {
-  console.log('navigator.clipboard', isPlus())
+  document.getElementById('app')?.focus()
+  const shareId = window.location.hash.match(/shareId=(\d+)/)?.[1] || ''
+  console.log('shareId', shareId)
+  if (shareId) {
+    handleText('shareId=' + shareId)
+    return
+  }
   if (isPlus() && plus.os.name == 'Android') {
     handleText(getClipValue())
   } else {
@@ -36,14 +49,12 @@ const readClipboard = () => {
   }
 }
 const handleText = (text: string) => {
-  console.log('text', text)
   const shareId = text.match(/shareId=(\d+)/)?.[1]
   const lastShareId = localStorage.getItem('lastShareId') || ''
   if (lastShareId === shareId) return
   if (shareId) {
     localStorage.setItem('lastShareId', shareId)
     musicApi.detail({ ids: shareId }).then((res: any) => {
-      console.log('res', res)
       song.value = res.songs[0] || {}
     })
   }
@@ -63,26 +74,25 @@ function getClipValue() {
   }
 }
 
-readClipboard()
+onMounted(() => {
+  setTimeout(() => {
+    readClipboard()
+  }, 500)
+})
 
 document.addEventListener('visibilitychange', function () {
   let pageVisibility = document.visibilityState
   // 页面变为不可见时触发
   if (pageVisibility == 'hidden') {
-    console.log('离开时间点：' + new Date())
   }
   // 页面变为可见时触发
   if (pageVisibility == 'visible') {
-    console.log('重新进入时间点：' + new Date())
-    document.body.focus()
     setTimeout(() => {
       readClipboard()
     }, 500)
-    // DOMException: Document is not focused.
   }
 })
 const onPlay = () => {
-  console.log('播放')
   getMusicSearch(song.value)
   song.value = {}
   musicStore.setMiniShow(false)
@@ -111,7 +121,7 @@ declare const plus: any
     left: 50%;
     transform: translate(-50%, -50%);
     width: 80%;
-    height: 52%;
+    min-height: 52%;
     background-color: #fefefe;
     border-radius: 10px;
     padding: 1rem;
@@ -165,16 +175,11 @@ declare const plus: any
       &::before {
         position: absolute;
         content: '×';
-        // 垂直水平居中
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         color: #fff;
-        height: 3rem;
-        font-size: 2.5rem;
-        line-height: 2.5rem;
-        // 文字垂直对齐方式 使文字垂直居中
-        vertical-align: middle;
+        width: 100%;
+        height: 100%;
+        font-size: 2rem;
+        text-align: center;
       }
     }
   }

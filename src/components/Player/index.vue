@@ -10,7 +10,7 @@
           </div>
           <div class="cursor-pointer" @click="toSinger">{{ musicStore.nowMusic.singer }}</div>
         </div>
-        <div @click="onShare" class="icon-share" />
+        <div @click="onShare" class="icon-share cursor-pointer" />
       </div>
       <!-- 图片 -->
       <div
@@ -491,8 +491,8 @@ const isPlus = () => {
 const onShare = () => {
   console.log('分享')
   const text = `【音乐屋】我正在听《${musicStore.nowMusic.name}》，快来听吧！\n点击链接：${
-    'https://yuyao.site/?shareId=' + musicStore.nowMusic.id + '='
-  }  \n直接打开音乐屋~`
+    'https://yuyao.site/#/?shareId=' + musicStore.nowMusic.id
+  }  \n直接打开音乐屋 或者复制文本打开音乐屋APP~`
   localStorage.setItem('lastShareId', musicStore.nowMusic.id as string)
   if (isPlus() && plus.os.name == 'Android') {
     setClipValue(text)
