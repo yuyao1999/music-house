@@ -1,5 +1,5 @@
 <template>
-  <div class="fs-book-card-container animate-move-class cursor-pointer">
+  <div class="fs-book-card-container cursor-pointer" :id="'class' + props.detail.title">
     <div class="fs-book-card-image">
       <img class="img img-none" v-lazy="detail.imgSrc" />
     </div>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { CSSProperties } from 'vue'
+import { CSSProperties, nextTick } from 'vue'
 
 interface ICardDetail {
   title: string
@@ -22,10 +22,24 @@ interface ICardDetail {
 const props = defineProps<{
   detail: ICardDetail
 }>()
+const handleClass = () => {
+  nextTick(() => {
+    const dom = document.getElementById('class' + props.detail.title)
+    if (!dom) return
+    // 在上方出现使用animate-move-up-class 动画 否则使用animate-move-down-class 动画
+    const top = dom.getBoundingClientRect().top
+    if (top < window.innerHeight / 2) {
+      dom.classList.add('animate-move-up-class')
+    } else {
+      dom.classList.add('animate-move-down-class')
+    }
+  })
+}
+handleClass()
 </script>
 
 <style scoped lang="scss">
-@keyframes MoveAnimate {
+@keyframes MoveAnimateDown {
   from {
     opacity: 0;
     transform: translateY(200px);
@@ -35,8 +49,21 @@ const props = defineProps<{
     transform: translateY(0);
   }
 }
-.animate-move-class {
-  animation: MoveAnimate 0.5s ease-in-out;
+@keyframes MoveAnimateUp {
+  from {
+    opacity: 0;
+    transform: translateY(-200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-move-down-class {
+  animation: MoveAnimateDown 0.5s ease-in-out;
+}
+.animate-move-up-class {
+  animation: MoveAnimateUp 0.5s ease-in-out;
 }
 .fs-book-card {
   &-container {
@@ -45,9 +72,6 @@ const props = defineProps<{
     background: #010101;
   }
   &-image {
-    // background-image: v-bind("'url(' + props.detail.imgSrc + ')'");
-    // background-size: cover;
-    // background-position: center;
     border: none !important;
     .img {
       width: 100%;
