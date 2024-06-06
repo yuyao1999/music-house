@@ -8,7 +8,7 @@ export const useAppStore = defineStore(
     /**
      * 版本号
      */
-    const version = ref('0.9.0')
+    const version = ref('0.9.2')
     const setVersion = (data: string) => {
       version.value = data
     }

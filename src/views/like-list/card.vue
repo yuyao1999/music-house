@@ -1,5 +1,5 @@
 <template>
-  <div class="card" :id="'class' + detail.username" @click="toUser(detail.id)">
+  <div class="card" :id="'class' + detail.id" @click="toUser(detail.user_id)">
     <div class="flex items-center">
       <img class="img img-none" :src="detail.photo ? detail.photo : requireImg('logo.png')" />
       <div class="title">{{ detail.username }}</div>
@@ -24,6 +24,7 @@ const router = useRouter()
 
 interface ICardDetail {
   id: string | number
+  user_id: string | number
   username: string
   photo: string
   son_name: string
@@ -35,11 +36,11 @@ const props = defineProps<{
 // console.log('props', props.detail)
 const handleClass = () => {
   nextTick(() => {
-    const dom = document.getElementById('class' + props.detail.username)
+    const dom = document.getElementById('class' + props.detail.id)
     if (!dom) return
     // 在上方出现使用animate-move-up-class 动画 否则使用animate-move-down-class 动画
     const top = dom.getBoundingClientRect().top
-    if (top < window.innerHeight / 2) {
+    if (top < document.getElementById('app')?.clientHeight!  / 2 ) {
       dom.classList.add('animate-move-up-class')
     } else {
       dom.classList.add('animate-move-down-class')

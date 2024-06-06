@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "animate.css": "^4.1.1",
+    "axios": "^1.7.2",
+    "glob": "^10.4.1",
+    "pinia": "^2.1.7",
     "terser": "^5.27.0",
     "vue": "^3.3.4"
   },

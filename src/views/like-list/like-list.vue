@@ -16,7 +16,8 @@
           <Card
             @click="onCard(item)"
             :detail="{
-              id: item.user_id,
+              user_id: item.user_id,
+              id: item.id,
               username: item.username,
               photo: item.photo,
               son_name: item.son_name,

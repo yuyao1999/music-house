@@ -28,7 +28,7 @@ const handleClass = () => {
     if (!dom) return
     // 在上方出现使用animate-move-up-class 动画 否则使用animate-move-down-class 动画
     const top = dom.getBoundingClientRect().top
-    if (top < window.innerHeight / 2) {
+    if (top < document.getElementById('app')?.clientHeight!  / 2 ) {
       dom.classList.add('animate-move-up-class')
     } else {
       dom.classList.add('animate-move-down-class')

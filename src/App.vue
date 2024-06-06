@@ -34,6 +34,12 @@ const musicStore = useMusicStore()
 const userStore = useUserStore()
 
 const refreshToken = () => {
+  userApi
+    .getUserInfo({
+    })
+    .then((res: any) => {
+      userStore.setUserData(res || {})
+    })
   const token = localStorage.getItem('token')
   const expire = localStorage.getItem('expire') || 0
   const nowTime = new Date(new Date().getTime() + 24 * 60 * 60 * 1000)

@@ -18,9 +18,16 @@
       </div>
       <div v-else>
         <!-- 没有数据 -->
-        <slot name="empty">
+        <div v-if="dataState.isFinish">
+          <slot name="empty">
           <div class="no-data">暂无数据~</div>
         </slot>
+        </div>
+        <div v-else>
+          <slot name="empty">
+          <div class="no-data">加载中~</div>
+        </slot>
+        </div>
       </div>
       <div id="temporary-list" v-if="isShow">
         <div v-for="{ item, style } in temporaryList" :key="item.id" :style="style">
@@ -299,7 +306,7 @@ const refreshData = async () => {
   dataState.list = []
   queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
   queueState.len = 0
-  init()
+  await init()
 }
 const onDragEnd = async () => {
   if (scrollState.start !== 0) return
