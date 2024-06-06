@@ -18,7 +18,9 @@ import ShareMessage from '@/components/shareMessage/index.vue'
 window.addEventListener(
   'message',
   (e) => {
-    console.log('e', e)
+    // 当前的域名是http://localhost:5173 return
+    const nowHref = window.location.href
+    if (nowHref.includes('localhost:5173')) return
     localStorage.setItem('token', e.data)
     routerStore.setKeepAliveList(['home', 'layout'])
     refreshToken()
@@ -57,7 +59,6 @@ const setDefaultTheme = () => {
 // 设置默认字体大小
 const setDefaultFontSize = () => {
   const fontSize = useFont(16)
-  console.log('fontSize', fontSize)
   // 设置根元素字体大小
   document.documentElement.style.fontSize = fontSize + 'px'
 }

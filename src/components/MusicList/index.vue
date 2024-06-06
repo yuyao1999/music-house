@@ -73,7 +73,7 @@ interface IProps {
 }
 defineProps<IProps>()
 
-const activeFunc = (id: string | undefined) => {
+const activeFunc = (id: number | undefined) => {
   return musicStore.nowMusic.id === id
 }
 const onShow = () => {

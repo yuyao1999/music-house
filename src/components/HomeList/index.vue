@@ -3,9 +3,13 @@
     <div class="card" v-for="(item, index) in list" :key="item.id">
       <div class="flex items-center gap-3">
         <div class="head">
-          <img class="head-img" @click="toUser" :src="item.photo ? item.photo : requireImg('logo.png')" />
+          <img class="head-img" @click="toUser(item)" :src="item.photo ? item.photo : requireImg('logo.png')" />
           <!-- 关注 -->
-          <!-- <div class="follow" @click="follow">
+          <div
+            v-if="!item.is_follow && item.userId !== userStore.id && type !== 'mine'"
+            class="follow"
+            @click="follow(item)"
+          >
             <svg
               t="1706086669137"
               class="icon"
@@ -29,7 +33,7 @@
                 class="selected"
               ></path>
             </svg>
-          </div> -->
+          </div>
         </div>
         <div class="truncate">{{ item.username }}</div>
       </div>
@@ -58,6 +62,8 @@ import { useAudio } from '@/hooks/useAudio'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
 import { useUserStore } from '@/store/modules/user'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 interface IProps {
   list: IMusic[]
   type: string
@@ -75,7 +81,7 @@ const userStore = useUserStore()
 const params = ref({
   page: 1,
   size: 10,
-  look_id: computed(() => {
+  user_id: computed(() => {
     return userStore.id
   }),
 })
@@ -111,16 +117,13 @@ const getList = (type: 'top' | 'bottom') => {
       const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {
+          ...item,
           id: item.son_id,
           name: item.son_name,
           singer: item.son_singer,
           album: item.son_album,
           mvId: item.son_mvId,
-          content: item.content,
-
           userId: item.user_id,
-          username: item.username,
-          photo: item.photo,
           activityId: item.id,
           createTime: item.create_time,
         }
@@ -136,23 +139,20 @@ const getMissList = () => {
   const paramsMiss = {
     page: jumpMissData.page,
     size: params.value.size,
-    look_id: userStore.id,
+    user_id: userStore.id,
   }
   userApi.getActivityPage(paramsMiss).then((res: any) => {
     if (res.ok) {
       const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {
+          ...item,
           id: item.son_id,
           name: item.son_name,
           singer: item.son_singer,
           album: item.son_album,
           mvId: item.son_mvId,
-          content: item.content,
-
           userId: item.user_id,
-          username: item.username,
-          photo: item.photo,
           activityId: item.id,
           createTime: item.create_time,
         }
@@ -189,9 +189,36 @@ onMounted(() => {
   getList('bottom')
   useReachBottom({ dom: scrollRef.value, callback: onBottom })
 })
-
-const follow = () => {}
-const toUser = () => {}
+const emits = defineEmits(['change'])
+const follow = (item: IMusic) => {
+  userApi
+    .follow({
+      user_id: userStore.id,
+      follow_user_id: item.userId,
+    })
+    .then((res) => {
+      open(res.msg)
+      if (res.ok) {
+        musicStore.modeMusicList.map((music) => {
+          if (music.userId === musicStore.nowMusic.userId) {
+            music.is_follow = res.data
+          }
+        })
+        emits('change')
+      }
+    })
+}
+const toUser = (item: IMusic) => {
+  if (!item.userId) return
+  router.push({
+    path: '/mine',
+    query: {
+      userId: item.userId,
+      hidden: 'true',
+      is_follow: item.is_follow,
+    },
+  })
+}
 const toPlay = (index: number) => {
   musicStore.setMiniShow(true)
   musicStore.changeIndex(index)

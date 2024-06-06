@@ -76,6 +76,33 @@ const routes = [
     },
   },
   {
+    path: '/like-list',
+    name: 'likeList',
+    component: () => import('@/views/like-list/like-list.vue'),
+    meta: {
+      title: '',
+      icon: '',
+    },
+  },
+  {
+    path: '/follow-list',
+    name: 'followList',
+    component: () => import('@/views/follow-list/follow-list.vue'),
+    meta: {
+      title: '',
+      icon: '',
+    },
+  },
+  {
+    path: '/fans-list',
+    name: 'fansList',
+    component: () => import('@/views/fans-list/fans-list.vue'),
+    meta: {
+      title: '',
+      icon: '',
+    },
+  },
+  {
     path: '/list',
     name: 'list',
     component: () => import('@/views/list/list.vue'),

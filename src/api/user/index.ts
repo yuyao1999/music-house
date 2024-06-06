@@ -51,6 +51,18 @@ class User {
     return this.http.post('/activity/page', data)
   }
   /**
+   * 获取用户喜欢帖子列表
+   */
+  getActivityLikePage(data: any) {
+    return this.http.post('/activity/like_page', data)
+  }
+  /**
+   * 获取用户发布帖子列表
+   */
+  getActivityPublishPage(data: any) {
+    return this.http.post('/activity/user_page', data)
+  }
+  /**
    * acwing一键登录
    */
   acwingLogin(data: any) {
@@ -100,6 +112,36 @@ class User {
    */
   commentDeleteLike(data: any) {
     return this.http.post('/comment_like/delete', data)
+  }
+  /**
+   * 关注
+   */
+  follow(data: any) {
+    return this.http.post('/follow/add', data)
+  }
+  /**
+   * 取消关注
+   */
+  deleteFollow(data: any) {
+    return this.http.post('/follow/delete', data)
+  }
+  /**
+   * 获取用户关注列表
+   */
+  getFollowPage(data: any) {
+    return this.http.post('/user/follow', data)
+  }
+  /**
+   * 获取用户获赞列表
+   */
+  getLikePage(data: any) {
+    return this.http.post('/user/like', data)
+  }
+  /**
+   * 获取用户粉丝列表
+   */
+  getFansPage(data: any) {
+    return this.http.post('/user/fans', data)
   }
 }
 const userApi = new User()

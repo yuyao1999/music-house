@@ -10,7 +10,7 @@ export const useUserStore = defineStore(
     /**
      * 用户
      */
-    const id = ref('')
+    const id = ref(0)
     const username = ref('未登录')
     const photo = ref('')
     const signature = ref('')
@@ -32,7 +32,7 @@ export const useUserStore = defineStore(
      * 清空用户数据
      */
     const clearUserData = () => {
-      id.value = ''
+      id.value = 0
       username.value = ''
       photo.value = ''
     }

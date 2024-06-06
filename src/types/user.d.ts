@@ -1,7 +1,7 @@
 /** @format */
 
 export type IUser = {
-  id: string
+  id: number
   username: string
   mobile: string
   photo: string
@@ -9,5 +9,9 @@ export type IUser = {
   like_count: number
   follow_count: number
   fans_count: number
+  /**
+   * 是否关注
+   */
+  is_follow: number
   [key: string]: any
 }

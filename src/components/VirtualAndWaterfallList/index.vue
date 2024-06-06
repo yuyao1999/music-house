@@ -2,7 +2,7 @@
   <div ref="dragTipRef" v-if="dragType" class="text-light-500" :style="dragTipStyle()">{{ dragTip }}</div>
   <div class="virtual-waterfall-container" ref="containerRef" @scroll="handleScroll">
     <div class="virtual-waterfall-list" :style="listStyle">
-      <div id="real-list">
+      <div v-if="dataState.list.length" id="real-list">
         <div class="virtual-waterfall-item" v-for="{ item, style } in renderList" :key="item.id" :style="style">
           <slot name="item" :item="item" :style="style"></slot>
           <div v-if="item.id === dataState.list[dataState.list.length - 1].id && dataState.isFinish" class="no-more">
@@ -15,6 +15,12 @@
             ---加载中---
           </div>
         </div>
+      </div>
+      <div v-else>
+        <!-- 没有数据 -->
+        <slot name="empty">
+          <div class="no-data">暂无数据~</div>
+        </slot>
       </div>
       <div id="temporary-list" v-if="isShow">
         <div v-for="{ item, style } in temporaryList" :key="item.id" :style="style">
@@ -406,5 +412,14 @@ $distance: 100px;
   padding: 1rem;
   padding-top: 3rem;
   animation: MoveAnimateDown 0.5s ease-in-out;
+}
+.no-data {
+  padding: 1rem;
+  color: #fff;
+  font-size: 2rem;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

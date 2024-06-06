@@ -5,7 +5,6 @@ import { ref, computed } from 'vue'
 import { IMusic } from '@/types/music'
 import { useAudio } from '@/hooks/useAudio'
 import { debounce } from '@/utils/debounce'
-import { watch } from 'fs'
 
 export const useMusicStore = defineStore(
   'music',
@@ -43,16 +42,16 @@ export const useMusicStore = defineStore(
      */
     const changeIndex = debounce((index: number, getUrl = true) => {
       if (index === nowIndex.value) {
-        if (!audioPlayFlag.value && getUrl) getMusicUrl(nowMusic.value.id || '')
+        if (!audioPlayFlag.value && getUrl) getMusicUrl(nowMusic.value.id || 0)
         return
       }
       nowIndex.value = index
-      getUrl && getMusicUrl(nowMusic.value.id || '')
+      getUrl && getMusicUrl(nowMusic.value.id || 0)
     })
     const changeIndexUnlimited = (index: number) => {
       if (index === nowIndex.value) return
       nowIndex.value = index
-      getMusicUrl(nowMusic.value.id || '')
+      getMusicUrl(nowMusic.value.id || 0)
     }
 
     // 下一首
@@ -168,6 +167,15 @@ export const useMusicStore = defineStore(
         modeMusicList.value[index] = { ...modeMusicList.value[index], ...data }
       }
     }
+    /**
+     * 修改数据 musicList searchMusicList personMusicList djMusicList
+     */
+    const updateMusic = (data: Partial<IMusic>) => {
+      const index = musicList.value.findIndex((item) => item.id === data.id)
+      if (index !== -1) {
+        musicList.value[index] = { ...musicList.value[index], ...data }
+      }
+    }
 
     const removePlayList = (index: number) => {
       if (index === nowIndex.value) {
@@ -243,6 +251,7 @@ export const useMusicStore = defineStore(
       modeMusicList,
       musicListMode,
       setMusicListMode,
+      updateMusic,
     }
   },
   {

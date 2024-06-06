@@ -52,7 +52,7 @@ const userStore = useUserStore()
 const params = ref({
   page: 1,
   size: 3,
-  look_id: computed(() => {
+  user_id: computed(() => {
     return userStore.id
   }),
 })
@@ -91,20 +91,15 @@ const getList = (type: 'top' | 'bottom') => {
       const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {
+          ...item,
           id: item.son_id,
           name: item.son_name,
           singer: item.son_singer,
           album: item.son_album,
           mvId: item.son_mvId,
-          content: item.content,
           userId: item.user_id,
-          username: item.username,
-          photo: item.photo,
           activityId: item.id,
           createTime: item.create_time,
-          comment_count: item.comment_count,
-          like_count: item.like_count,
-          is_like: item.is_like,
         }
       })
       if (type === 'bottom') {
@@ -115,7 +110,7 @@ const getList = (type: 'top' | 'bottom') => {
         musicStore.pushListPlayList(list)
 
         musicStore.changeIndex(0)
-        getMusicUrl(musicStore.nowMusic.id || '')
+        getMusicUrl(musicStore.nowMusic.id || 0)
         showIndex.value = 0
 
         // 回到顶部
@@ -123,7 +118,7 @@ const getList = (type: 'top' | 'bottom') => {
           scrollRef.value.style.transform = `translateY(0px)`
         }
       }
-      firstLoad && getMusicUrl(musicStore.nowMusic.id || '')
+      firstLoad && getMusicUrl(musicStore.nowMusic.id || 0)
       firstLoad = false
     }
   })
@@ -133,28 +128,22 @@ const getMissList = () => {
   const paramsMiss = {
     page: jumpMissData.page,
     size: params.value.size,
-    look_id: userStore.id,
+    user_id: userStore.id,
   }
   userApi.getActivityPage(paramsMiss).then((res: any) => {
     if (res.ok) {
       const list = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
         return {
+          ...item,
           id: item.son_id,
           name: item.son_name,
           singer: item.son_singer,
           album: item.son_album,
           mvId: item.son_mvId,
-          content: item.content,
-
           userId: item.user_id,
-          username: item.username,
-          photo: item.photo,
           activityId: item.id,
           createTime: item.create_time,
-          comment_count: item.comment_count,
-          like_count: item.like_count,
-          is_like: item.is_like,
         }
       })
 
@@ -189,7 +178,7 @@ checkAudioPermission().then((res) => {
 })
 const onUnmute = () => {
   mute.value = false
-  getMusicUrl(musicStore.nowMusic.id || '')
+  getMusicUrl(musicStore.nowMusic.id || 0)
 }
 
 onMounted(() => {

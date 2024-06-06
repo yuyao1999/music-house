@@ -3,7 +3,29 @@
 <template>
   <div ref="mine">
     <div class="bg" />
-    <div class="setting cursor-pointer" @click="settingShow = true">
+    <div class="top-title" :style="handleStyle()">
+      <div v-if="userId" @click="toBack" class="cursor-pointer icon-back">
+        <svg
+          t="1706500070344"
+          class="icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="14972"
+          width="32"
+          height="32"
+        >
+          <path
+            d="M363.840919 472.978737C336.938714 497.358861 337.301807 537.486138 364.730379 561.486138L673.951902 832.05497C682.818816 839.813519 696.296418 838.915012 704.05497 830.048098 711.813519 821.181184 710.915012 807.703582 702.048098 799.94503L392.826577 529.376198C384.59578 522.174253 384.502227 511.835287 392.492414 504.59418L702.325747 223.807723C711.056111 215.895829 711.719614 202.404616 703.807723 193.674252 695.895829 184.943889 682.404617 184.280386 673.674253 192.192278L363.840919 472.978737Z"
+            fill="#ffffff"
+            p-id="14973"
+          ></path>
+        </svg>
+      </div>
+      <span> {{ userInfo.username }}的主页</span>
+      <span v-if="scrollTop > 100" class="icon-up" @click="toTop">↑</span>
+    </div>
+    <div v-if="!userId" class="setting cursor-pointer" @click="settingShow = true">
       <svg
         t="1707643319812"
         class="icon"
@@ -36,43 +58,32 @@
         <div class="flex items-center gap-5">
           <img
             class="w-20 rounded-full border-2 border-[#878787]"
-            :src="userStore.photo ? userStore.photo : requireImg('logo.png')"
+            :src="userInfo.photo ? userInfo.photo : requireImg('logo.png')"
           />
           <div class="text-light-500 font-bold text-2xl">
-            {{ userStore.username }}
+            {{ userInfo.username }}
           </div>
         </div>
-        <!-- <svg
-          t="1706144371911"
-          class="icon"
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          p-id="6024"
-          width="34"
-          height="34"
-        >
-          <path
-            d="M512 65C265.1 65 65 265.1 65 512s200.1 447 447 447 447-200.1 447-447S758.9 65 512 65z m266.3 433c0 17.6-14.4 32-32 32H558v188.3c0 17.6-14.4 32-32 32s-32-14.4-32-32V530H305.7c-17.6 0-32-14.4-32-32s14.4-32 32-32H494V277.7c0-17.6 14.4-32 32-32s32 14.4 32 32V466h188.3c17.6 0 32 14.4 32 32z"
-            fill="#81C1ED"
-            p-id="6025"
-          ></path>
-        </svg> -->
+        <!-- 关注 -->
+        <div v-if="userId && userId !== String(userStore.id)">
+          <div v-if="!is_follow" class="follow-btn" @click="follow">关注</div>
+          <div v-else class="follow-btn" @click="delFollow">已关注</div>
+        </div>
       </div>
       <div class="text-[#ECEBEC]">
-        {{ userStore.signature }}
+        {{ userInfo.signature }}
       </div>
       <div class="flex justify-around items-center text-[#FFFFFF] text-xl font-bold">
-        <div class="flex flex-col items-center gap-1">
-          <div>{{ userStore.like_count }}</div>
+        <div class="flex flex-col items-center gap-1" @click="toLike">
+          <div>{{ userInfo.like_count }}</div>
           <div class="text-[#f9f2f2] text-sm">获赞</div>
         </div>
-        <div class="flex flex-col items-center gap-1">
-          <div>{{ userStore.follow_count }}</div>
+        <div class="flex flex-col items-center gap-1" @click="toFollow">
+          <div>{{ userInfo.follow_count }}</div>
           <div class="text-[#f9f2f2] text-sm">关注</div>
         </div>
-        <div class="flex flex-col items-center gap-1">
-          <div>{{ userStore.fans_count }}</div>
+        <div class="flex flex-col items-center gap-1" @click="toFans">
+          <div>{{ userInfo.fans_count }}</div>
           <div class="text-[#f9f2f2] text-sm">粉丝</div>
         </div>
       </div>
@@ -88,7 +99,7 @@
         <div v-if="musicStore.modeMusicList.length === total">
           <div class="text-gray-500 text-xs pb-15 pt-20 text-center">没有更多了~</div>
         </div>
-        <div v-else>
+        <div v-else-if="!musicStore.modeMusicList.length">
           <div class="text-gray-500 text-3xl pt-40 text-center">暂无数据</div>
         </div>
       </div>
@@ -97,8 +108,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useMusicStore } from '@/store/modules/music'
 import { useUserStore } from '@/store/modules/user'
 import { requireImg } from '@/utils/requireImg'
@@ -106,22 +117,29 @@ import HomeList from '@/components/HomeList/index.vue'
 import { useReachBottom } from '@/hooks/useReachBottom'
 import { userApi } from '@/api/user'
 import { useAudio } from '@/hooks/useAudio'
+import { throttle } from '@/utils/throttle'
+import { IUser } from '@/types/user'
+import { useToast } from '@/components/Toast'
 
+const { open } = useToast()
 const router = useRouter()
 const musicStore = useMusicStore()
+const userStore = useUserStore()
 
-const { getMusicSearch } = useAudio()
+const userId = useRoute().query.userId
+const bgUrl = computed(() => {
+  return userInfo.value?.photo ? `url(${userInfo.value.photo}) ` : '#000000'
+})
+
 const params = reactive({
   page: 1,
   size: 10,
   user_id: computed(() => {
-    return userStore.id
+    return userId ?? userStore.id
   }),
 })
-
-const total = ref(0)
 const getList = () => {
-  userApi.getActivityPage(params).then((res: any) => {
+  userApi.getActivityPublishPage(params).then((res: any) => {
     if (res.ok) {
       const listRes = res.data.map((item: any) => {
         getMusicSearch({ id: item.son_id }, false)
@@ -142,8 +160,51 @@ const getList = () => {
 
       musicStore.pushListPlayList(listRes)
       total.value = res.total
-      console.log('list', musicStore.modeMusicList)
-      console.log('total', total.value)
+    }
+  })
+}
+const userInfo = ref({} as IUser)
+const is_follow = ref(Number(useRoute().query.is_follow) || 0)
+
+const getUser = () => {
+  // 获取用户信息
+  userApi
+    .getUserInfo({
+      userId,
+    })
+    .then((res: any) => {
+      userInfo.value = res || {}
+    })
+}
+getUser()
+getList()
+
+const { getMusicSearch } = useAudio()
+
+const total = ref(0)
+
+const getLikeList = () => {
+  userApi.getActivityLikePage(params).then((res: any) => {
+    if (res.ok) {
+      const listRes = res.data.map((item: any) => {
+        getMusicSearch({ id: item.son_id }, false)
+        return {
+          id: item.son_id,
+          name: item.son_name,
+          singer: item.son_singer,
+          album: item.son_album,
+          mvId: item.son_mvId,
+          content: item.content,
+          userId: item.user_id,
+          username: item.username,
+          photo: item.photo,
+          activityId: item.id,
+          createTime: item.create_time,
+        }
+      })
+
+      musicStore.pushListPlayList(listRes)
+      total.value = res.total
     }
   })
 }
@@ -153,18 +214,7 @@ const onBottom = () => {
   getList()
 }
 
-const userStore = useUserStore()
-const getUser = () => {
-  // 获取用户信息
-  userApi.getUserInfo({}).then((res: any) => {
-    userStore.setUserData(res || {})
-  })
-}
 const mine = ref<HTMLDivElement>()
-onMounted(() => {
-  console.log('mine mounted')
-  useReachBottom({ dom: document.getElementById('scrollId'), callback: onBottom, distance: 200 })
-})
 
 const tabList = [
   {
@@ -178,23 +228,135 @@ const tabList = [
 ]
 const currentTab = ref(0)
 const onTab = (index: number) => {
+  musicStore.modeClearPlayList()
+  params.page = 1
+  if (index === 0) {
+    getList()
+  } else {
+    getLikeList()
+  }
   currentTab.value = index
 }
 musicStore.setMiniShow(false)
 musicStore.setMusicListMode(2)
 musicStore.modeClearPlayList()
-getUser()
-getList()
 
 const onLogout = () => {
   localStorage.clear()
   router.replace({ name: 'login' })
 }
-const bgUrl = computed(() => {
-  return userStore.photo ? `url(${userStore.photo}) ` : '#000000'
-})
+
+const follow = () => {
+  userApi
+    .follow({
+      user_id: userStore.id,
+      follow_user_id: musicStore.nowMusic.userId || userId,
+    })
+    .then((res) => {
+      open(res.msg)
+      if (res.ok) {
+        is_follow.value = res.data
+        musicStore.nowMusic.is_follow = res.data
+        musicStore.modeMusicList.map((item) => {
+          if (item.userId === musicStore.nowMusic.userId) {
+            musicStore.updateMusic({
+              id: item.id,
+              is_follow: res.data,
+            })
+          }
+        })
+      }
+    })
+}
+const delFollow = () => {
+  userApi
+    .deleteFollow({
+      id: is_follow.value,
+    })
+    .then((res) => {
+      if (res.ok) {
+        is_follow.value = 0
+        musicStore.modeMusicList.map((item) => {
+          if (item.userId === musicStore.nowMusic.userId) {
+            musicStore.updateMusic({
+              id: item.id,
+              is_follow: 0,
+            })
+          }
+        })
+        open(res.msg)
+      }
+    })
+}
 
 const settingShow = ref(false)
+onMounted(() => {
+  const mineDom = document.getElementById('scrollId')
+  useReachBottom({ dom: mineDom, callback: onBottom, distance: 200 })
+  mineDom?.addEventListener('scroll', throttle(handleScroll))
+})
+onUnmounted(() => {
+  const mineDom = document.getElementById('scrollId')
+  mineDom?.removeEventListener('scroll', handleScroll)
+})
+
+// 当前滚动条位置
+const scrollTop = ref(0)
+// 滚动事件
+const handleScroll = () => {
+  scrollTop.value = Number(document.getElementById('scrollId')?.scrollTop)
+}
+const toTop = () => {
+  document.getElementById('scrollId')?.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
+const toBack = () => {
+  router.back()
+}
+const toLike = () => {
+  router.push({
+    name: 'likeList',
+    query: {
+      userId: userId ?? userStore.id,
+    },
+  })
+}
+const toFollow = () => {
+  router.push({
+    name: 'followList',
+    query: {
+      userId: userId ?? userStore.id,
+    },
+  })
+}
+const toFans = () => {
+  router.push({
+    name: 'fansList',
+    query: {
+      userId: userId ?? userStore.id,
+    },
+  })
+}
+const handleStyle = () => {
+  if (userId) {
+    return `
+    transition:all 0.5s;
+    background:#000000;
+    `
+  }
+  if (scrollTop.value < 100) {
+    return `
+    opacity:0;
+    `
+  } else {
+    return `
+    transition:all 0.5s;
+    background:#000000;
+    `
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -209,6 +371,52 @@ const settingShow = ref(false)
   scale: 1.5;
   filter: blur(40px);
   z-index: 1;
+}
+.top-title {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: #fff;
+  z-index: 99;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span {
+    text-align: center;
+    width: 70%;
+    // 超出省略号
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .icon-back {
+    width: 2rem;
+    height: 1rem;
+    font-size: 2rem;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .icon-up {
+    width: 2rem;
+    height: 1rem;
+    font-size: 2rem;
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 .card {
   position: relative;
@@ -234,7 +442,7 @@ const settingShow = ref(false)
 
   .home-list {
     color: rgb(255, 255, 255);
-    min-height: 60vh;
+    min-height: 65vh;
   }
 }
 .setting {
@@ -287,5 +495,13 @@ const settingShow = ref(false)
   100% {
     transform: translateX(0);
   }
+}
+.follow-btn {
+  padding: 0.5rem 1rem;
+  background: #3ebe33;
+  color: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
 }
 </style>

@@ -1,7 +1,6 @@
 /**
  * 图片懒加载指令
  */
-import defaultImg from '@/assets/logo.png'
 const lazy = {
   mounted(el: any, bindings: any) {
     const observer = new IntersectionObserver(

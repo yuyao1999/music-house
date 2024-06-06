@@ -169,7 +169,7 @@ export const useAudio = () => {
       const data = res.songs[0]?.al?.picUrl
       musicStore.supplementMusic({
         singerId: res.songs[0]?.ar?.[0]?.id,
-        id: ids,
+        id: Number(ids),
         cover: data,
       })
       getImgColor(data).then((res: any) => {
@@ -190,7 +190,7 @@ export const useAudio = () => {
       }
       const { lyric } = formatMusicLyrics(res.lrc.lyric)
       musicStore.supplementMusic({
-        id,
+        id: Number(id),
         lyric,
       })
     })
@@ -198,7 +198,7 @@ export const useAudio = () => {
   /**
    * 获取音乐url
    */
-  const getMusicUrl = (id: string, createFlag = true) => {
+  const getMusicUrl = (id: number, createFlag = true) => {
     console.log(id, '123')
     console.log(Boolean(id), 'createFlag')
     if (!id) {

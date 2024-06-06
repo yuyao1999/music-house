@@ -178,6 +178,7 @@ onMounted(() => {
 onUnmounted(() => {})
 //#endregion
 const onShow = () => {
+  console.log('onshow music')
   setBack(back)
   // 滚动到当前歌词
   if (lyricsRef.value) {
@@ -187,7 +188,9 @@ const onShow = () => {
     })
   }
 }
-const onHide = () => {}
+const onHide = () => {
+  console.log('onhide music')
+}
 
 const playModeList = [
   {
@@ -493,7 +496,7 @@ const onShare = () => {
   const text = `【音乐屋】我正在听《${musicStore.nowMusic.name}》，快来听吧！\n点击链接：${
     'https://yuyao.site/#/?shareId=' + musicStore.nowMusic.id
   }  \n直接打开音乐屋 或者复制文本打开音乐屋APP~`
-  localStorage.setItem('lastShareId', musicStore.nowMusic.id as string)
+  localStorage.setItem('lastShareId', musicStore.nowMusic.id?.toString() || '')
   if (isPlus() && plus.os.name == 'Android') {
     setClipValue(text)
     toast('已复制到剪切板,发送给好友叭~')

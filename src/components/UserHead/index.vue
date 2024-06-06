@@ -7,8 +7,11 @@
         @click="toUser"
         :src="musicStore.nowMusic.photo ? musicStore.nowMusic.photo : requireImg('logo.png')"
       />
-      <!-- 关注 -->
-      <!-- <div class="follow" @click="follow">
+      <div
+        v-if="!musicStore.nowMusic.is_follow && musicStore.nowMusic.userId !== userStore.id"
+        class="follow"
+        @click="follow"
+      >
         <svg
           t="1706086669137"
           class="icon"
@@ -32,7 +35,7 @@
             class="selected"
           ></path>
         </svg>
-      </div> -->
+      </div>
     </div>
     <!-- 点赞 -->
     <div class="flex flex-col items-center">
@@ -73,6 +76,9 @@ import { useMusicStore } from '@/store/modules/music'
 import { useUserStore } from '@/store/modules/user'
 import { requireImg } from '@/utils/requireImg'
 import { userApi } from '@/api/user'
+import { useRouter } from 'vue-router'
+import { useToast } from '@/components/Toast'
+const router = useRouter()
 
 interface IProps {
   activity_id?: number
@@ -85,6 +91,7 @@ const props = defineProps<IProps>()
 const musicStore = useMusicStore()
 const userStore = useUserStore()
 const { open: commentOpen } = useCommentList()
+const { open } = useToast()
 
 const onComment = () => {
   if (!props.activity_id) return
@@ -113,8 +120,33 @@ const deleteLike = () => {
     })
 }
 
-const follow = () => {}
-const toUser = () => {}
+const follow = () => {
+  userApi
+    .follow({
+      user_id: userStore.id,
+      follow_user_id: musicStore.nowMusic.userId,
+    })
+    .then((res) => {
+      open(res.msg)
+      if (res.ok) {
+        musicStore.modeMusicList.map((item) => {
+          if (item.userId === musicStore.nowMusic.userId) {
+            item.is_follow = res.data
+          }
+        })
+      }
+    })
+}
+const toUser = () => {
+  router.push({
+    path: '/mine',
+    query: {
+      userId: musicStore.nowMusic.userId,
+      hidden: 'true',
+      is_follow: musicStore.nowMusic.is_follow,
+    },
+  })
+}
 </script>
 
 <style scoped lang="scss">
@@ -144,3 +176,4 @@ const toUser = () => {}
   }
 }
 </style>
+@/utils/eventEmitter

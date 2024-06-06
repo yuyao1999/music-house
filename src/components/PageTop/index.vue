@@ -40,7 +40,8 @@ const toBack = () => {
     props.onBack()
     return
   }
-  router.replace('/')
+  // router.replace('/')
+  router.back()
 }
 </script>
 

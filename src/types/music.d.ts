@@ -4,7 +4,7 @@ export type IMusic = {
   /**
    * 歌曲id
    */
-  id?: string
+  id?: number
   /**
    * 歌曲名
    */
@@ -52,7 +52,7 @@ export type IMusic = {
   /**
    * 发动态的作者id
    */
-  userId?: string
+  userId?: number
   /**
    * 发动态的作者姓名
    */
@@ -72,4 +72,8 @@ export type IMusic = {
   comment_count: number
   like_count: number
   is_like: number
+  /**
+   * 是否关注
+   */
+  is_follow: number
 }

@@ -1,24 +1,25 @@
 <template>
   <div class="app">
-    <PageTop title="新歌" />
+    <PageTop title="关注列表" />
     <div class="container" ref="fContainerRef">
       <VirtualAndWaterfallList
         :request="getData"
         :gap="25"
-        :page-size="20"
+        :page-size="10"
         :column="column"
         :enter-size="column * 2"
         :is-pull-down-refresh="true"
+        :is-pagination="true"
         filed="data"
       >
-        <template #item="{ item, style }">
+        <template #item="{ item }">
           <Card
             @click="onCard(item)"
             :detail="{
-              title: item.name,
-              author: item.artists[0].name,
-              imgSrc: item.album.picUrl,
-              style,
+              id: String(item.id),
+              user_id: item.user_id,
+              username: item.username,
+              photo: item.photo,
             }"
           />
         </template>
@@ -32,27 +33,18 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import Card from './card.vue'
 import VirtualAndWaterfallList from '@/components/VirtualAndWaterfallList/index.vue'
 import PageTop from '@/components/PageTop/index.vue'
-import { musicApi } from '@/api/music'
-import { useMusicStore } from '@/store/modules/music'
-import { useAudio } from '@/hooks/useAudio'
+import { userApi } from '@/api/user'
+import { useUserStore } from '@/store/modules/user'
 
-const musicStore = useMusicStore()
+const userStore = useUserStore()
 const fContainerRef = ref<HTMLDivElement | null>(null)
-const column = ref(2)
+const column = ref(1)
 const fContainerObserver = new ResizeObserver((entries) => {
-  changeColumn(entries[0].target.clientWidth)
+  changeColumn()
 })
 
-const changeColumn = (width: number) => {
-  if (width > 960) {
-    column.value = 5
-  } else if (width >= 690 && width < 960) {
-    column.value = 4
-  } else if (width >= 500 && width < 690) {
-    column.value = 3
-  } else {
-    column.value = 2
-  }
+const changeColumn = () => {
+  column.value = 1
 }
 
 onMounted(() => {
@@ -63,20 +55,14 @@ onUnmounted(() => {
   fContainerRef.value && fContainerObserver.unobserve(fContainerRef.value)
 })
 
-const getData = (page: number, pageSize: number) => {
-  return musicApi.getNewMusic({
-    area: 'ZH',
-    offset: (page - 1) * pageSize,
-    limit: pageSize,
+const getData = (page: number, size: number) => {
+  return userApi.getFollowPage({
+    page,
+    size,
+    user_id: userStore.id,
   }) as any
 }
-const { getMusicSearch } = useAudio()
-const onCard = (item: any) => {
-  console.log(item)
-  musicStore.setMiniShow(false)
-  musicStore.setShow(true)
-  getMusicSearch(item)
-}
+const onCard = (item: any) => {}
 </script>
 
 <style scoped lang="scss">

@@ -3,8 +3,8 @@
     <div class="crosswise" ref="scrollRef">
       <div class="scroll-item statusBarHeightPaddingTop">
         <ScrollImg v-if="appStore.homeMode === 0" />
-        <div class="home-list" v-else>
-          <HomeList :list="musicStore.musicList" type="home" />
+        <div v-else class="home-list">
+          <HomeList :list="musicStore.musicList" type="home" @change="listKey++" :key="listKey" />
         </div>
       </div>
       <div class="scroll-item statusBarHeightPaddingTop">
@@ -45,11 +45,12 @@ const onShow = () => {
   musicStore.setMusicListMode(0)
   musicStore.setMiniShow(true)
   console.log(musicStore.nowMusic, 'musicStore.nowMusic.id ')
-  getMusicUrl(musicStore.nowMusic.id || '')
+  getMusicUrl(musicStore.nowMusic.id || 0)
 }
 const onHide = () => {
   console.log('onHide')
 }
+const listKey = ref(1)
 
 onMounted(() => {
   useShow({
