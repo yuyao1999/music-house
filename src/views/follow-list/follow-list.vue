@@ -35,6 +35,8 @@ import VirtualAndWaterfallList from '@/components/VirtualAndWaterfallList/index.
 import PageTop from '@/components/PageTop/index.vue'
 import { userApi } from '@/api/user'
 import { useUserStore } from '@/store/modules/user'
+import { useRoute } from 'vue-router'
+const userId = useRoute().query.userId
 
 const userStore = useUserStore()
 const fContainerRef = ref<HTMLDivElement | null>(null)
@@ -59,7 +61,7 @@ const getData = (page: number, size: number) => {
   return userApi.getFollowPage({
     page,
     size,
-    user_id: userStore.id,
+    user_id:userId ?? userStore.id,
   }) as any
 }
 const onCard = (item: any) => {}

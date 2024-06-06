@@ -174,6 +174,12 @@ const loadDataList = async () => {
   const source = await props.request(dataState.currentPage++, props.pageSize)
   const list = source[props.filed]
 
+  if(dragType.value === 'doing'){
+      dataState.list = []
+      queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
+      queueState.len = 0
+  }
+
   if (!list.length) {
     dataState.isFinish = true
     dataState.loading = false
@@ -303,9 +309,9 @@ const refreshData = async () => {
   // 重新加载
   dataState.currentPage = 1
   dataState.isFinish = false
-  dataState.list = []
-  queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
-  queueState.len = 0
+  // dataState.list = []
+  // queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
+  // queueState.len = 0
   await init()
 }
 const onDragEnd = async () => {

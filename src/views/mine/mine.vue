@@ -3,7 +3,7 @@
 <template>
   <div ref="mine">
     <div class="bg" />
-    <div class="top-title" :style="handleStyle()">
+    <div class="top-title statusBarHeightPaddingTop" :style="handleStyle()">
       <div v-if="userId" @click="toBack" class="cursor-pointer icon-back">
         <svg
           t="1706500070344"
