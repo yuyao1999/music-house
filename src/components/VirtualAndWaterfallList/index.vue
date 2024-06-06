@@ -1,12 +1,22 @@
 <template>
+  <div ref="dragTipRef" v-if="dragType" class="text-light-500" :style="dragTipStyle()">{{ dragTip }}</div>
   <div class="virtual-waterfall-container" ref="containerRef" @scroll="handleScroll">
     <div class="virtual-waterfall-list" :style="listStyle">
       <div id="real-list">
         <div class="virtual-waterfall-item" v-for="{ item, style } in renderList" :key="item.id" :style="style">
           <slot name="item" :item="item" :style="style"></slot>
+          <div v-if="item.id === dataState.list[dataState.list.length - 1].id && dataState.isFinish" class="no-more">
+            ---没有更多了---
+          </div>
+          <div
+            v-else-if="item.id === dataState.list[dataState.list.length - 1].id && dataState.loading"
+            class="no-more"
+          >
+            ---加载中---
+          </div>
         </div>
       </div>
-      <div id="temporary-list" v-if="!isShow">
+      <div id="temporary-list" v-if="isShow">
         <div v-for="{ item, style } in temporaryList" :key="item.id" :style="style">
           <slot name="item" :item="item" :style="style"></slot>
         </div>
@@ -20,12 +30,18 @@ import { CSSProperties, computed, nextTick, onMounted, onUnmounted, reactive, re
 import type { IVirtualWaterFallProps, ICardItem, IBookColumnQueue, IBookRenderItem, IBookItemRect } from './type'
 import { debounce, rafThrottle } from './tool'
 import { musicApi } from '@/api/music'
+import { useDraggable } from '@/hooks/useDraggable'
 
-const props = defineProps<IVirtualWaterFallProps>()
+const props = withDefaults(defineProps<IVirtualWaterFallProps>(), {
+  isPullDownRefresh: false,
+  pullDownRefreshDistance: 100,
+})
 
 const containerRef = ref<HTMLDivElement | null>(null)
+const dragTipRef = ref<HTMLDivElement | null>(null)
 
 const resizeObserver = new ResizeObserver(() => {
+  console.log('resizeObserver', resizeObserver)
   handleResize()
 })
 
@@ -51,7 +67,7 @@ const hasMoreData = computed(() => queueState.len < dataState.list.length)
 
 const temporaryList = ref<IBookRenderItem[]>([])
 
-const isShow = ref(false)
+const isShow = ref(true)
 
 const itemSizeInfo = ref(new Map<ICardItem['id'], IBookItemRect>())
 
@@ -80,7 +96,9 @@ const computedHeight = computed(() => {
   }
 })
 
-const listStyle = computed(() => ({ height: `${computedHeight.value.maxHeight}px` } as CSSProperties))
+const listStyle = computed(
+  () => ({ height: `${computedHeight.value.maxHeight + cardList.value.length * props.gap}px` } as CSSProperties)
+)
 
 watch(
   () => props.column,
@@ -119,7 +137,6 @@ const addInQueue = (size = props.enterSize) => {
     queueState.len++
   }
 }
-
 const generatorItem = (item: ICardItem, before: IBookRenderItem | null, index: number): IBookRenderItem => {
   const rect = itemSizeInfo.value.get(item.id)!
   const width = rect.width
@@ -146,6 +163,7 @@ const loadDataList = async () => {
 
   if (!list.length) {
     dataState.isFinish = true
+    dataState.loading = false
     return
   }
   dataState.list.push(...list)
@@ -161,6 +179,7 @@ const loadDataList = async () => {
 }
 
 const handleScroll = rafThrottle(() => {
+  if (dragAnimationDoing.value) return
   const { scrollTop, clientHeight } = containerRef.value!
   scrollState.start = scrollTop
   //分页加载更多
@@ -174,10 +193,14 @@ const handleScroll = rafThrottle(() => {
   if (scrollTop + clientHeight > computedHeight.value.minHeight) {
     mountTemporaryList()
   }
-  console.log('containerRef.value!.clientHeight', containerRef.value!.clientHeight)
 })
-
+let fistLoad = true
 const handleResize = debounce(() => {
+  if (fistLoad && props.column === 1) {
+    fistLoad = false
+    return
+  }
+  console.log('reComputedQueue')
   initScrollState()
   reComputedQueue()
 }, 300)
@@ -186,13 +209,13 @@ const reComputedQueue = () => {
   setItemSize()
   queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
   queueState.len = 0
-  containerRef.value!.scrollTop = 0
+  containerRef.value?.scrollTop && (containerRef.value.scrollTop = 0)
   mountTemporaryList(props.pageSize)
 }
 
 const mountTemporaryList = (size = props.enterSize) => {
   if (!hasMoreData.value) return
-  isShow.value = false
+  isShow.value = true
   for (let i = 0; i < size!; i++) {
     const item = dataState.list[queueState.len + i]
     if (!item) break
@@ -208,13 +231,14 @@ const mountTemporaryList = (size = props.enterSize) => {
   }
 
   nextTick(() => {
-    const list = document.querySelector('#temporary-list')!
+    const list = document.querySelector('#temporary-list')
+    if (!list) return
     ;[...list.children].forEach((item, index) => {
       const rect = item.getBoundingClientRect()
       temporaryList.value[index].h = rect.height
     })
 
-    isShow.value = true
+    isShow.value = false
     updateItemSize()
     addInQueue(temporaryList.value.length)
     temporaryList.value = []
@@ -222,18 +246,114 @@ const mountTemporaryList = (size = props.enterSize) => {
 }
 
 const initScrollState = () => {
-  scrollState.viewWidth = containerRef.value!.clientWidth
-  scrollState.viewHeight = containerRef.value!.clientHeight
-  scrollState.start = containerRef.value!.scrollTop
-  console.log('containerRef.value!.clientHeight', containerRef.value!.clientHeight)
+  scrollState.viewWidth = containerRef.value?.clientWidth || 0
+  scrollState.viewHeight = containerRef.value?.clientHeight || 0
+  scrollState.start = containerRef.value?.scrollTop || 0
 }
 
+const dragType = ref<'start' | 'refresh' | 'doing' | 'finish' | ''>('')
+const dragTip = computed(() => {
+  switch (dragType.value) {
+    case 'start':
+      return '继续下拉刷新~'
+    case 'refresh':
+      return '松开立即刷新~'
+    case 'doing':
+      return '正在刷新~'
+    case 'finish':
+      return '刷新完成~'
+  }
+})
+const dragTipStyle = () => {
+  if (top.value > props.pullDownRefreshDistance || top.value < 20) {
+    dragType.value = ''
+    return
+  }
+  return `
+      position: absolute;
+      left:50%;
+      transform:translate3d(-50%,${-props.pullDownRefreshDistance / 2.5 + top.value}px,0);
+    `
+}
+const onDragStart = () => {
+  if (scrollState.start !== 0) return
+}
+const syncDoing = async (time: number) => {
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null)
+    }, time)
+  })
+}
+const dragAnimationDoing = ref(false)
+const refreshData = async () => {
+  // 重新加载
+  dataState.currentPage = 1
+  dataState.isFinish = false
+  dataState.list = []
+  queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
+  queueState.len = 0
+  init()
+}
+const onDragEnd = async () => {
+  if (scrollState.start !== 0) return
+  if (dragType.value === 'refresh') {
+    dragType.value = 'doing'
+    await refreshData()
+    dragType.value = 'finish'
+  }
+  if (dragType.value === 'finish') {
+    await syncDoing(500)
+    dragTipRef.value!.style.transform = `translate3d(-50%, 0, 0)`
+    dragTipRef.value!.style.opacity = '0'
+    dragTipRef.value!.style.transition = 'all 0.4s'
+  }
+  dragType.value = ''
+  containerRef.value!.style.transform = `translate3d(0, 0, 0)`
+  containerRef.value!.style.transition = 'transform 0.5s'
+  dragAnimationDoing.value = true
+  setTimeout(() => {
+    containerRef.value!.style.transition = ''
+    scrollState.start = 0
+    top.value = 0
+    dragAnimationDoing.value = false
+  }, 500)
+}
+const { setDraggable, top } = useDraggable({
+  axis: 'y',
+  onDragStart,
+  onDragEnd,
+})
+watch(
+  () => top.value,
+  rafThrottle(() => {
+    if (
+      props.isPullDownRefresh !== true ||
+      dragAnimationDoing.value ||
+      top.value < 0 ||
+      (scrollState.start !== 0 && !dragType.value)
+    )
+      return
+    if (top.value > props.pullDownRefreshDistance / 4) {
+      dragType.value = 'start'
+    }
+    if (top.value >= props.pullDownRefreshDistance / 2) {
+      dragType.value = 'refresh'
+    }
+    if (top.value > props.pullDownRefreshDistance) {
+      top.value = props.pullDownRefreshDistance
+    }
+    scrollState.start = 0
+    containerRef.value!.style.transform = `translate3d(0, ${top.value}px, 0)`
+  })
+)
 const init = async () => {
-  initScrollState()
   resizeObserver.observe(containerRef.value!)
+  initScrollState()
   const len = await loadDataList()
   setItemSize()
   len && mountTemporaryList(len)
+  setDraggable(containerRef.value!)
 }
 
 onMounted(() => {
@@ -250,6 +370,7 @@ onUnmounted(() => {
   position: absolute;
   top: 9999px;
 }
+
 .virtual-waterfall {
   &-container {
     width: 100%;
@@ -267,5 +388,23 @@ onUnmounted(() => {
     left: 0;
     box-sizing: border-box;
   }
+}
+$distance: 100px;
+@keyframes MoveAnimateDown {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, $distance, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.no-more {
+  text-align: center;
+  color: #fff;
+  padding: 1rem;
+  padding-top: 3rem;
+  animation: MoveAnimateDown 0.5s ease-in-out;
 }
 </style>

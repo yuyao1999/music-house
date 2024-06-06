@@ -4,12 +4,17 @@ export interface IVirtualWaterFallProps {
   gap: number
   column: number
   pageSize: number
+  // enterSize代表着滚动时进队的个数
   enterSize?: number
   request: (page: number, pageSize: number) => Promise<ICardItem>
   // 是否分页
   isPagination?: boolean
   //接口字段
   filed: string
+  //是否开启下拉刷新
+  isPullDownRefresh?: boolean
+  //下拉刷新最大距离
+  pullDownRefreshDistance?: number
 }
 
 export interface ICardItem {
