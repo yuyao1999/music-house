@@ -3,7 +3,7 @@
 <template>
   <div ref="mine">
     <div class="bg" />
-    <div class="top-title statusBarHeightPaddingTop" :style="handleStyle()">
+    <div class="top-title " :style="handleStyle()">
       <div v-if="userId" @click="toBack" class="cursor-pointer icon-back">
         <svg
           t="1706500070344"
@@ -53,7 +53,7 @@
         <div class="logout" v-debounce="onLogout">退出登录</div>
       </div>
     </div>
-    <div class="px-7 flex flex-col gap-4 relative z-2">
+    <div class="px-7 flex flex-col gap-4 relative z-2 statusBarHeightPaddingTop">
       <div class="flex justify-between items-center mt-[10vh]">
         <div class="flex items-center gap-5">
           <img
@@ -379,10 +379,12 @@ const handleStyle = () => {
   width: 100%;
   color: #fff;
   z-index: 99;
-  height: 3rem;
+  min-height: 3rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0.6rem 0;
+  padding-top: calc(0.6rem + var(--statusBarHeight, 0px));
   span {
     text-align: center;
     width: 70%;
@@ -392,26 +394,22 @@ const handleStyle = () => {
     text-overflow: ellipsis;
   }
   .icon-back {
-    width: 2rem;
-    height: 1rem;
-    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    font-size: 50px;
     position: absolute;
-    top: 50%;
     left: 5%;
-    transform: translateY(-50%);
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
   }
   .icon-up {
-    width: 2rem;
-    height: 1rem;
-    font-size: 2rem;
+    width: 20px;
+    height: 30px;
+    font-size: 30px;
     position: absolute;
-    top: 50%;
     right: 5%;
-    transform: translateY(-50%);
     cursor: pointer;
     display: flex;
     justify-content: center;
