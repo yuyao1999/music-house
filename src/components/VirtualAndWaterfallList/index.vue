@@ -54,7 +54,6 @@ const containerRef = ref<HTMLDivElement | null>(null)
 const dragTipRef = ref<HTMLDivElement | null>(null)
 
 const resizeObserver = new ResizeObserver(() => {
-  console.log('resizeObserver', resizeObserver)
   handleResize()
 })
 
@@ -170,8 +169,8 @@ const generatorItem = (item: ICardItem, before: IBookRenderItem | null, index: n
 
 const loadDataList = async () => {
   if (dataState.isFinish) return
-
   if (dragType.value === 'doing') {
+    initScrollState()
     dataState.currentPage = 1
     dataState.isFinish = false
   }
@@ -179,21 +178,23 @@ const loadDataList = async () => {
   dataState.loading = true
   const source = await props.request(dataState.currentPage++, props.pageSize)
   const list = source[props.filed]
-
   if (!list.length) {
     dataState.isFinish = true
     dataState.loading = false
     return
   }
-
   if (dragType.value === 'doing') {
     initScrollState()
     dataState.list = []
     queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
     queueState.len = 0
   }
-
   dataState.list.push(...list)
+  if (dragType.value === 'doing') {
+    setItemSize()
+    list.length && mountTemporaryList(list.length)
+    await syncDoing(100)
+  }
   if (props.filed === 'songs') {
     dataState.list.forEach(async (item: any) => {
       const res: any = await musicApi.detail({ ids: item.id })
@@ -202,6 +203,7 @@ const loadDataList = async () => {
   }
 
   dataState.loading = false
+
   return list.length
 }
 
@@ -227,7 +229,6 @@ const handleResize = debounce(() => {
     fistLoad = false
     return
   }
-  console.log('reComputedQueue')
   initScrollState()
   reComputedQueue()
 }, 300)
@@ -313,11 +314,14 @@ const syncDoing = async (time: number) => {
   })
 }
 const dragAnimationDoing = ref(false)
+
 const onDragEnd = async () => {
+  if (dragAnimationDoing.value) return
   if (scrollState.start !== 0) return
+  dragAnimationDoing.value = true
   if (dragType.value === 'refresh') {
     dragType.value = 'doing'
-    await init()
+    await loadDataList()
     dragType.value = 'finish'
   }
   if (dragType.value === 'finish') {
@@ -329,7 +333,6 @@ const onDragEnd = async () => {
   dragType.value = ''
   containerRef.value!.style.transform = `translate3d(0, 0, 0)`
   containerRef.value!.style.transition = 'transform 0.5s'
-  dragAnimationDoing.value = true
   setTimeout(() => {
     containerRef.value!.style.transition = ''
     scrollState.start = 0
