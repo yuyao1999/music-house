@@ -1,10 +1,10 @@
 <template>
-  <div class="card" :id="'class' + detail.username" @click="toUser(detail.user_id)">
+  <div class="card" :id="'class' + detail.username" @click="toUser(detail.user_id, detail.id)">
     <img class="img img-none" :src="detail.photo ? detail.photo : requireImg('logo.png')" />
     <div class="title">{{ detail.username }}</div>
     <div class="btn cursor-pointer">
       <div v-if="isFollow" @click.stop="delFollow(detail.id)">已关注</div>
-      <div v-else @click.stop="follow(detail.id)">关注</div>
+      <div v-else @click.stop="follow(detail.user_id)">关注</div>
     </div>
   </div>
 </template>
@@ -36,7 +36,7 @@ const handleClass = () => {
     if (!dom) return
     // 在上方出现使用animate-move-up-class 动画 否则使用animate-move-down-class 动画
     const top = dom.getBoundingClientRect().top
-    if (top < document.getElementById('app')?.clientHeight!  / 2 ) {
+    if (top < document.getElementById('app')?.clientHeight! / 2) {
       dom.classList.add('animate-move-up-class')
     } else {
       dom.classList.add('animate-move-down-class')
@@ -44,14 +44,18 @@ const handleClass = () => {
   })
 }
 handleClass()
+
 const isFollow = ref(true)
-const toUser = (userId: string | number) => {
+const toUser = (userId: string | number, is_follow: string | number) => {
+  if (!isFollow.value) {
+    is_follow = ''
+  }
   router.push({
     path: '/mine',
     query: {
       userId,
       hidden: 'true',
-      is_follow: '',
+      is_follow,
     },
   })
 }
@@ -167,6 +171,7 @@ $imgWidth: 5rem;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 0.8rem;
   }
 }
 </style>

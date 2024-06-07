@@ -20,13 +20,13 @@
         <!-- 没有数据 -->
         <div v-if="dataState.isFinish">
           <slot name="empty">
-          <div class="no-data">暂无数据~</div>
-        </slot>
+            <div class="no-data">暂无数据~</div>
+          </slot>
         </div>
         <div v-else>
           <slot name="empty">
-          <div class="no-data">加载中~</div>
-        </slot>
+            <div class="no-data">加载中~</div>
+          </slot>
         </div>
       </div>
       <div id="temporary-list" v-if="isShow">
@@ -170,21 +170,29 @@ const generatorItem = (item: ICardItem, before: IBookRenderItem | null, index: n
 
 const loadDataList = async () => {
   if (dataState.isFinish) return
+
+  if (dragType.value === 'doing') {
+    dataState.currentPage = 1
+    dataState.isFinish = false
+  }
+
   dataState.loading = true
   const source = await props.request(dataState.currentPage++, props.pageSize)
   const list = source[props.filed]
-
-  if(dragType.value === 'doing'){
-      dataState.list = []
-      queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
-      queueState.len = 0
-  }
 
   if (!list.length) {
     dataState.isFinish = true
     dataState.loading = false
     return
   }
+
+  if (dragType.value === 'doing') {
+    initScrollState()
+    dataState.list = []
+    queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
+    queueState.len = 0
+  }
+
   dataState.list.push(...list)
   if (props.filed === 'songs') {
     dataState.list.forEach(async (item: any) => {
@@ -305,20 +313,11 @@ const syncDoing = async (time: number) => {
   })
 }
 const dragAnimationDoing = ref(false)
-const refreshData = async () => {
-  // 重新加载
-  dataState.currentPage = 1
-  dataState.isFinish = false
-  // dataState.list = []
-  // queueState.queue = new Array(props.column).fill(0).map<IBookColumnQueue>(() => ({ list: [], height: 0 }))
-  // queueState.len = 0
-  await init()
-}
 const onDragEnd = async () => {
   if (scrollState.start !== 0) return
   if (dragType.value === 'refresh') {
     dragType.value = 'doing'
-    await refreshData()
+    await init()
     dragType.value = 'finish'
   }
   if (dragType.value === 'finish') {

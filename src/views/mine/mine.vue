@@ -3,7 +3,7 @@
 <template>
   <div ref="mine">
     <div class="bg" />
-    <div class="top-title " :style="handleStyle()">
+    <div class="top-title" :style="handleStyle()">
       <div v-if="userId" @click="toBack" class="cursor-pointer icon-back">
         <svg
           t="1706500070344"
@@ -55,12 +55,12 @@
     </div>
     <div class="px-7 flex flex-col gap-4 relative z-2 statusBarHeightPaddingTop">
       <div class="flex justify-between items-center mt-[10vh]">
-        <div class="flex items-center gap-5">
+        <div class="flex items-center gap-5 w-[80%]">
           <img
             class="w-20 rounded-full border-2 border-[#878787]"
             :src="userInfo.photo ? userInfo.photo : requireImg('logo.png')"
           />
-          <div class="text-light-500 font-bold text-2xl">
+          <div class="text-light-500 font-bold text-2xl w-[80%] truncate">
             {{ userInfo.username }}
           </div>
         </div>
@@ -405,9 +405,9 @@ const handleStyle = () => {
     align-items: center;
   }
   .icon-up {
-    width: 20px;
-    height: 30px;
-    font-size: 30px;
+    width: 10px;
+    height: 20px;
+    font-size: 25px;
     position: absolute;
     right: 5%;
     cursor: pointer;
@@ -501,5 +501,6 @@ const handleStyle = () => {
   border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
+  white-space: nowrap;
 }
 </style>
