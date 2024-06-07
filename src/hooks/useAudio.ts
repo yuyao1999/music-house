@@ -238,7 +238,7 @@ export const useAudio = () => {
     }
     const musicStore = useMusicStore()
     // 如果存在跳转到当前音乐
-    const index = musicStore.musicList.findIndex((item) => item.id === data.id)
+    const index = musicStore.modeMusicList.findIndex((item) => item.id === data.id)
     if (index !== -1 && changeFlag) {
       musicStore.changeIndex(index)
       return
