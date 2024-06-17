@@ -2,7 +2,7 @@
 
 console.log('refreshHead')
 console.log('refreshHead')
-const eventNames = ['update', 'close', 'refreshHead', 'refreshHeadImg', 'refreshHeadDb'] as const
+const eventNames = ['update', 'close', 'refreshHead', 'refreshHeadImg', 'refreshHeadDb', 'refreshHeadDbLike'] as const
 type EventNames = (typeof eventNames)[number]
 
 class EventEmitter {

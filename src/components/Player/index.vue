@@ -190,7 +190,7 @@ const onLike = () => {
     })
     .then(() => {
       musicStore.nowMusic.is_like = 1
-      EventEmitter.emit('refreshHead')
+      EventEmitter.emit('refreshHeadDb')
     })
 }
 const deleteLike = () => {

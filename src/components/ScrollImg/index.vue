@@ -48,7 +48,10 @@ musicStore.modeClearPlayList()
 musicStore.changeIndex(0, false)
 
 const headKey = ref(1)
-EventEmitter.on('refreshHead', () => {
+EventEmitter.once('refreshHeadDbLike', () => {
+  console.log('refreshHeadDbLike 2')
+  if (!musicStore.nowMusic.is_like)
+    musicStore.nowMusic.like_count = musicStore.nowMusic.like_count ? musicStore.nowMusic.like_count + 1 : 1
   headKey.value++
 })
 
