@@ -168,13 +168,12 @@ const generatorItem = (item: ICardItem, before: IBookRenderItem | null, index: n
 }
 
 const loadDataList = async () => {
-  if (dataState.isFinish) return
   if (dragType.value === 'doing') {
     initScrollState()
     dataState.currentPage = 1
     dataState.isFinish = false
   }
-
+  if (dataState.isFinish) return
   dataState.loading = true
   const source = await props.request(dataState.currentPage++, props.pageSize)
   const list = source[props.filed]
