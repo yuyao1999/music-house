@@ -45,8 +45,13 @@
         </div>
         <!-- 播放按钮 -->
         <div class="flex justify-between items-center">
-          <button v-hidden="musicStore.musicListMode === 3" @click="isLove = !isLove" v-throttle>
-            <div v-if="isLove" class="pl-5">
+          <button
+            v-hidden="musicStore.musicListMode === 3"
+            @click="onLike"
+            v-throttle
+            :key="musicStore.nowMusic.id + headKey.toString()"
+          >
+            <div v-if="musicStore.nowMusic.is_like" class="pl-5">
               <div class="hover:cursor-pointer animate__animated animate__heartBeat">
                 <div class="icon-love" />
               </div>
@@ -132,6 +137,16 @@ import { handleDj } from '@/utils/handleDj'
 import { useShow } from '@/hooks/useShow'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/components/Toast'
+import { userApi } from '@/api/user'
+import EventEmitter from '@/utils/eventEmitter'
+import { useUserStore } from '@/store/modules/user'
+const userStore = useUserStore()
+
+const headKey = ref(1)
+EventEmitter.on('refreshHeadImg', () => {
+  console.log('refreshHeadImg')
+  headKey.value++
+})
 
 const musicStore = useMusicStore()
 const appStore = useAppStore()
@@ -161,7 +176,35 @@ const onPlayCss = () => {
 const { audio, createAudio, audioPlayFlag, createTimeupdate, audioPlay, audioPause, getMusicUrl } = useAudio()
 
 // 当前歌曲是否喜欢
-const isLove = ref(false)
+const onLike = () => {
+  if (!musicStore.nowMusic.activityId) return
+  if (musicStore.nowMusic.is_like) {
+    deleteLike()
+    return
+  }
+  userApi
+    .activityLike({
+      author_user_id: musicStore.nowMusic.userId,
+      activity_id: musicStore.nowMusic.activityId,
+      user_id: userStore.id,
+    })
+    .then(() => {
+      musicStore.nowMusic.is_like = 1
+      EventEmitter.emit('refreshHead')
+    })
+}
+const deleteLike = () => {
+  userApi
+    .activityDeleteLike({
+      activity_id: musicStore.nowMusic.activityId,
+      user_id: userStore.id,
+    })
+    .then(() => {
+      musicStore.nowMusic.is_like = 0
+      EventEmitter.emit('refreshHead')
+    })
+}
+
 //#region 页面周期
 onMounted(() => {
   initScroll(lyricsRef.value)
@@ -188,9 +231,7 @@ const onShow = () => {
     })
   }
 }
-const onHide = () => {
-  console.log('onhide music')
-}
+const onHide = () => {}
 
 const playModeList = [
   {

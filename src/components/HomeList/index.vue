@@ -199,12 +199,12 @@ const follow = (item: IMusic) => {
     .then((res) => {
       open(res.msg)
       if (res.ok) {
+        item.is_follow = res.data
         musicStore.modeMusicList.map((music) => {
           if (music.userId === musicStore.nowMusic.userId) {
             music.is_follow = res.data
           }
         })
-        emits('change')
       }
     })
 }

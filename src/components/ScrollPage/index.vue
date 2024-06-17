@@ -4,7 +4,7 @@
       <div class="scroll-item statusBarHeightPaddingTop">
         <ScrollImg v-if="appStore.homeMode === 0" />
         <div v-else class="home-list">
-          <HomeList :list="musicStore.musicList" type="home" @change="listKey++" :key="listKey" />
+          <HomeList :list="musicStore.musicList" type="home" />
         </div>
       </div>
       <div class="scroll-item statusBarHeightPaddingTop">
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { useDraggable } from '@/hooks/useDraggable'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import ScrollImg from '@/components/ScrollImg/index.vue'
 import ScrollVideo from '@/components/ScrollVideo/index.vue'
@@ -24,6 +24,8 @@ import HomeList from '@/components/HomeList/index.vue'
 import { useAppStore } from '@/store/modules/app'
 import { useShow } from '@/hooks/useShow'
 import { useAudio } from '@/hooks/useAudio'
+import EventEmitter from '@/utils/eventEmitter'
+import { isMobile } from '@/utils/is'
 
 const appStore = useAppStore()
 const musicStore = useMusicStore()
@@ -46,11 +48,38 @@ const onShow = () => {
   musicStore.setMiniShow(true)
   console.log(musicStore.nowMusic, 'musicStore.nowMusic.id ')
   getMusicUrl(musicStore.nowMusic.id || 0)
+
+  if (isMobile()) {
+    document.addEventListener('touchend', onTouchEnd)
+  } else {
+    window.addEventListener('dblclick', onDoubleClick)
+  }
 }
 const onHide = () => {
-  console.log('onHide')
+  if (isMobile()) {
+    document.removeEventListener('touchend', onTouchEnd)
+  } else {
+    window.removeEventListener('dblclick', onDoubleClick)
+  }
 }
-const listKey = ref(1)
+
+let clickCount = 0
+let clickTimer = 0
+const onTouchEnd = () => {
+  // 如果在250毫秒内再次触发touchend，则认为是双击
+  clickCount++
+  if (clickCount > 1) {
+    EventEmitter.emit('refreshHeadDb')
+    clickCount = 0
+  }
+  clickTimer = window.setTimeout(() => {
+    clickCount = 0
+    clearTimeout(clickTimer)
+  }, 250)
+}
+const onDoubleClick = () => {
+  EventEmitter.emit('refreshHeadDb')
+}
 
 onMounted(() => {
   useShow({

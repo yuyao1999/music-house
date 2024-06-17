@@ -35,6 +35,7 @@ import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
 import { formatDate } from '@/utils/handle-time'
 import { useUserStore } from '@/store/modules/user'
+import EventEmitter from '@/utils/eventEmitter'
 
 const { open } = useToast()
 let firstLoad = true
@@ -47,6 +48,9 @@ musicStore.modeClearPlayList()
 musicStore.changeIndex(0, false)
 
 const headKey = ref(1)
+EventEmitter.on('refreshHead', () => {
+  headKey.value++
+})
 
 const userStore = useUserStore()
 const params = ref({
