@@ -189,8 +189,7 @@ const onLike = () => {
       user_id: userStore.id,
     })
     .then(() => {
-      musicStore.nowMusic.is_like = 1
-      EventEmitter.emit('refreshHeadDb')
+      EventEmitter.emit('refreshHeadDbLike')
     })
 }
 const deleteLike = () => {
@@ -201,7 +200,7 @@ const deleteLike = () => {
     })
     .then(() => {
       musicStore.nowMusic.is_like = 0
-      EventEmitter.emit('refreshHead')
+      EventEmitter.emit('refreshHeadDel')
     })
 }
 

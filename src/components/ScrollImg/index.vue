@@ -49,9 +49,13 @@ musicStore.changeIndex(0, false)
 
 const headKey = ref(1)
 EventEmitter.once('refreshHeadDbLike', () => {
-  console.log('refreshHeadDbLike 2')
   if (!musicStore.nowMusic.is_like)
     musicStore.nowMusic.like_count = musicStore.nowMusic.like_count ? musicStore.nowMusic.like_count + 1 : 1
+  musicStore.nowMusic.is_like = 1
+  headKey.value++
+})
+EventEmitter.once('refreshHeadDel', () => {
+  musicStore.nowMusic.like_count--
   headKey.value++
 })
 

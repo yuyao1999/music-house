@@ -79,7 +79,6 @@ import { userApi } from '@/api/user'
 import { useRouter } from 'vue-router'
 import EventEmitter from '@/utils/eventEmitter'
 import { useToast } from '@/components/Toast'
-import { ref } from 'vue'
 const router = useRouter()
 
 interface IProps {
@@ -99,8 +98,13 @@ const onComment = () => {
   if (!props.activity_id) return
   commentOpen(props.activity_id)
 }
-EventEmitter.once('refreshHeadDb', () => {
-  onLike()
+EventEmitter.once('refreshHeadDbLikeFetch', () => {
+  if (musicStore.nowMusic.is_like) return
+  userApi.activityLike({
+    author_user_id: musicStore.nowMusic.userId,
+    activity_id: musicStore.nowMusic.activityId,
+    user_id: userStore.id,
+  })
 })
 const onLike = () => {
   if (musicStore.nowMusic.is_like) return
@@ -115,7 +119,6 @@ const onLike = () => {
         musicStore.nowMusic.like_count = musicStore.nowMusic.like_count ? musicStore.nowMusic.like_count + 1 : 1
       musicStore.nowMusic.is_like = 1
       EventEmitter.emit('refreshHeadImg')
-      EventEmitter.emit('refreshHead')
       EventEmitter.emit('refreshHeadDbLike')
     })
 }

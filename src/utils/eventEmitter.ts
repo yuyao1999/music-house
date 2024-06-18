@@ -1,8 +1,13 @@
 /** @format */
 
-console.log('refreshHead')
-console.log('refreshHead')
-const eventNames = ['update', 'close', 'refreshHead', 'refreshHeadImg', 'refreshHeadDb', 'refreshHeadDbLike'] as const
+const eventNames = [
+  'update',
+  'close',
+  'refreshHeadDel',
+  'refreshHeadImg',
+  'refreshHeadDbLikeFetch',
+  'refreshHeadDbLike',
+] as const
 type EventNames = (typeof eventNames)[number]
 
 class EventEmitter {

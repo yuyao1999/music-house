@@ -69,7 +69,8 @@ const onTouchEnd = () => {
   // 如果在250毫秒内再次触发touchend，则认为是双击
   clickCount++
   if (clickCount > 1) {
-    EventEmitter.emit('refreshHeadDb')
+    EventEmitter.emit('refreshHeadDbLikeFetch')
+    EventEmitter.emit('refreshHeadDbLike')
     clickCount = 0
   }
   clickTimer = window.setTimeout(() => {
@@ -78,7 +79,8 @@ const onTouchEnd = () => {
   }, 250)
 }
 const onDoubleClick = () => {
-  EventEmitter.emit('refreshHeadDb')
+  EventEmitter.emit('refreshHeadDbLikeFetch')
+  EventEmitter.emit('refreshHeadDbLike')
 }
 
 onMounted(() => {
