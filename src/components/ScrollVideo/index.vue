@@ -4,12 +4,12 @@
       <div v-if="topTips" class="text-light-500 text-center mt-12">已经到顶了~</div>
       <div class="scroll-item" v-for="(item, index) in musicStore.mvList" :key="index">
         <span class="name">{{ item.name }}</span>
-        <video
+        <VideoPlayer
           v-if="index === showIndex && item?.mvId"
           ref="videoRef"
           :src="item.mvSrc"
           class="video"
-          controls
+          :controls="false"
           autoplay
           :mute="mute"
         />
@@ -26,6 +26,8 @@ import { useDraggable } from '@/hooks/useDraggable'
 import { onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
 import { musicApi } from '@/api/music'
+import VideoPlayer from '@/components/VideoPlayer/index.vue'
+import { checkAudioPermission } from '@/hooks/useAudio'
 
 const musicStore = useMusicStore()
 const videoRef = ref()
@@ -39,45 +41,25 @@ const getVideo = async () => {
   play()
 }
 const play = () => {
-  console.log('play')
   const dom: any = videoRef.value?.[0]
-  console.log(dom)
-  dom?.play()
+  dom?.play && dom.play()
 }
 const paused = () => {
   const dom: any = videoRef.value?.[0]
-  dom?.pause()
+  dom?.pause && dom.pause()
 }
 defineExpose({
   getVideo,
   paused,
 })
-// 获取是否允许音频自动播放
-const checkAudioPermission = () => {
-  const audio = new Audio()
-  audio.autoplay = true
-  audio.muted = true
-  audio.play()
-  return new Promise((resolve) => {
-    audio.oncanplay = () => {
-      resolve(true)
-    }
-    audio.onplay = () => {
-      resolve(true)
-    }
-    audio.onpause = () => {
-      resolve(false)
-    }
-  })
-}
 
 const mute = ref(true)
 checkAudioPermission().then((res) => {
   mute.value = !res
 })
+
 // 打开声音
 const onUnmute = () => {
-  console.log('openVoice')
   const dom: any = videoRef.value?.[0]
   if (!dom) return
   dom!.mute = false
