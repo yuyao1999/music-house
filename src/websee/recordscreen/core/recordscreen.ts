@@ -3,12 +3,13 @@ import pako from 'pako'
 import { Base64 } from 'js-base64'
 import { getTimestamp, generateUUID, _support } from '@/websee/utils'
 import { EVENTTYPES, STATUS_CODE } from '@/websee/common'
-
+let events: any[] = []
+let transportDataSource: any
 export function handleScreen(transportData: any, recordScreentime: number): void {
   // events存储录屏信息
-  let events: any[] = []
   // 调用stopFn停止录像
   // let stopFn = record({
+  if (!transportDataSource) transportDataSource = transportData
   record({
     emit(event, isCheckout) {
       if (isCheckout) {
@@ -36,6 +37,17 @@ export function handleScreen(transportData: any, recordScreentime: number): void
     recordCanvas: true,
     // 默认每10s重新制作快照
     checkoutEveryNms: 1000 * recordScreentime,
+  })
+}
+export function activeRecordScreen() {
+  const recordScreenId = _support.recordScreenId
+  _support.recordScreenId = generateUUID()
+  transportDataSource.send({
+    type: EVENTTYPES.RECORDSCREEN,
+    recordScreenId,
+    time: getTimestamp(),
+    status: STATUS_CODE.OK,
+    events: zip(events),
   })
 }
 // 压缩

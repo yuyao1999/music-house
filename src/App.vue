@@ -16,6 +16,7 @@ import { useUserStore } from '@/store/modules/user'
 import ShareMessage from '@/components/shareMessage/index.vue'
 import webSee from '@/websee/core'
 import { autoRefresh } from '@/utils/refresh'
+import { activeRecordScreen } from '@/websee/recordscreen'
 
 window.addEventListener(
   'message',
@@ -38,7 +39,9 @@ const userStore = useUserStore()
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) {
     // 页面被隐藏
+    activeRecordScreen()
     webSee.log({
+      type: '用户隐藏页面',
       message: userStore.username + '用户隐藏页面',
       error: new Error(),
     })

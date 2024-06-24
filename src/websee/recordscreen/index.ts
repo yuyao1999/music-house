@@ -2,7 +2,7 @@ import { handleScreen } from './core/recordscreen'
 import { SdkBase, RecordScreenOption, BasePlugin } from '@/websee/types'
 import { EVENTTYPES } from '@/websee/common'
 import { validateOption, generateUUID, _support } from '@/websee/utils'
-
+import { activeRecordScreen } from './core/recordscreen'
 export default class RecordScreen extends BasePlugin {
   type: string
   recordScreentime = 10 // 默认录屏时长
@@ -34,3 +34,4 @@ export default class RecordScreen extends BasePlugin {
   }
   transform() {}
 }
+export { activeRecordScreen }
