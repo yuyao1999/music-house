@@ -29,7 +29,7 @@
 import { useDraggable } from '@/hooks/useDraggable'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useMusicStore } from '@/store/modules/music'
-import { useAudio } from '@/hooks/useAudio'
+import { useAudio, checkAudioPermission } from '@/hooks/useAudio'
 import UserHead from '@/components/UserHead/index.vue'
 import { userApi } from '@/api/user'
 import { useToast } from '@/components/Toast'
@@ -160,25 +160,6 @@ const getMissList = () => {
 
       musicStore.pushListPlayList(list.slice(jumpMissData.start))
       jumpMissData.page = 0
-    }
-  })
-}
-
-// 获取是否允许音频自动播放
-const checkAudioPermission = () => {
-  const audio = new Audio()
-  audio.autoplay = true
-  audio.muted = true
-  audio.play()
-  return new Promise((resolve) => {
-    audio.oncanplay = () => {
-      resolve(true)
-    }
-    audio.onplay = () => {
-      resolve(true)
-    }
-    audio.onpause = () => {
-      resolve(false)
     }
   })
 }

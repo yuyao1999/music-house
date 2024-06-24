@@ -32,7 +32,23 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 })
 
-const readClipboard = () => {
+function checkClipboardPermission() {
+  // 使用Promise包装navigator.clipboard.writeText，以便于错误处理
+  return new Promise((resolve, reject) => {
+    navigator.clipboard
+      .writeText('Test clipboard permission')
+      .then(() => {
+        // 写入成功，解决promise
+        resolve(true)
+      })
+      .catch((err) => {
+        // 写入失败，可能是权限问题，拒绝promise
+        resolve(false)
+      })
+  })
+}
+
+const readClipboard = async () => {
   document.getElementById('app')?.focus()
   const shareId = window.location.hash.match(/shareId=(\d+)/)?.[1] || ''
   console.log('shareId', shareId)
@@ -43,9 +59,11 @@ const readClipboard = () => {
   if (isPlus() && plus.os.name == 'Android') {
     handleText(getClipValue())
   } else {
-    navigator.clipboard.readText().then((text: any) => {
-      handleText(text)
-    })
+    const canRead = await checkClipboardPermission()
+    canRead &&
+      navigator.clipboard.readText().then((text: any) => {
+        handleText(text)
+      })
   }
 }
 const handleText = (text: string) => {

@@ -126,13 +126,19 @@ export const useAudio = () => {
   /**
    * audio播放
    */
-  const audioPlay = () => {
+  const audioPlay = async () => {
     if (!audio.value) {
       return
     }
+    const canplay = await checkAudioPermission()
+    if (!canplay) return
     audio.value?.play()
     const musicStore = useMusicStore()
     if (musicStore.musicListMode === 3) {
+      // 是否可以调用播放
+      if (!audioDj.value) {
+        return
+      }
       audioDj.value?.play()
     }
     audioPlayFlag.value = true
@@ -199,10 +205,7 @@ export const useAudio = () => {
    * 获取音乐url
    */
   const getMusicUrl = (id: number, createFlag = true) => {
-    console.log(id, '123')
-    console.log(Boolean(id), 'createFlag')
     if (!id) {
-      console.error('id不存在')
       return
     }
     const appStore = useAppStore()
@@ -270,4 +273,19 @@ export const useAudio = () => {
     getMusicSearch,
     getMusicUrl,
   }
+}
+//判断是否允许自动播放
+export const checkAudioPermission = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const audio = new Audio()
+    audio.src = 'https://music.163.com/song/media/outer/url?id=33894312.mp3'
+    audio
+      .play()
+      .then(() => {
+        resolve(true)
+      })
+      .catch(() => {
+        resolve(false)
+      })
+  })
 }
