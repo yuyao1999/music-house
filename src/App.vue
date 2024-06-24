@@ -15,6 +15,7 @@ import { userApi } from '@/api/user'
 import { useUserStore } from '@/store/modules/user'
 import ShareMessage from '@/components/shareMessage/index.vue'
 import webSee from '@/websee/core'
+import { autoRefresh } from '@/utils/refresh'
 
 window.addEventListener(
   'message',
@@ -37,19 +38,15 @@ const userStore = useUserStore()
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) {
     // 页面被隐藏
-    console.log('页面被隐藏')
     webSee.log({
-      type: '用户隐藏页面',
       message: userStore.username + '用户隐藏页面',
       error: new Error(),
     })
   } else {
     // 页面可见
-    console.log('页面可见')
   }
 })
 
-console.log('window', window)
 const refreshToken = () => {
   userApi.getUserInfo({}).then((res: any) => {
     userStore.setUserData(res || {})
@@ -98,6 +95,9 @@ router.beforeEach((to, from) => {
   const fromUrl = ['/home', '/mine']
   transitionName.value = fromUrl.includes(from.path) ? '' : 'slide-right'
 })
+
+autoRefresh()
+appStore.setVersion('0.9.5.6')
 </script>
 
 <template>

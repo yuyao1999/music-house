@@ -37,6 +37,8 @@ createApp(App)
     getUserId: () => {
       return useUserStore().id || '未登录'
     },
+    // '/?_timestamp=' 过滤掉
+    filterXhrUrlRegExp: /.*?\/\?_timestamp=\d+$/,
   })
   .mount('#app')
 
