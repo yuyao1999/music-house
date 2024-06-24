@@ -4,6 +4,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import 'virtual:windi.css'
 import directive from './directive'
+import { useUserStore } from '@/store/modules/user'
+
+import webSee from '@/websee/core'
+// import performance from '@/websee/performance'
+import recordscreen from '@/websee/recordscreen'
+
 // 权限
 import './permission'
 // 注入路由
@@ -17,6 +23,22 @@ import '@/styles/index.scss'
 // h5 app设置
 import '@/utils/app-setting'
 
-createApp(App).use(router).use(setupStore).use(directive).mount('#app')
+createApp(App)
+  .use(router)
+  .use(setupStore)
+  .use(directive)
+  .use(webSee, {
+    dsn: import.meta.env.VITE_API_MUSIC_BASE_URL + '/report/add',
+    apikey: 'music',
+    // useImgUpload: true,
+    silentClick: true,
+    silentXhr: false,
+    throttleDelayTime: 100,
+    getUserId: () => {
+      return useUserStore().id || '未登录'
+    },
+  })
+  .mount('#app')
 
-// 注册指令
+// webSee.use(performance, {})
+webSee.use(recordscreen, {})
