@@ -126,11 +126,11 @@ export const useAudio = () => {
   /**
    * audio播放
    */
-  const audioPlay = async () => {
+  const audioPlay = () => {
     if (!audio.value) {
       return
     }
-    const canplay = await checkAudioPermission()
+    const canplay = checkAudioPermission()
     if (!canplay) return
     audio.value?.play()
     const musicStore = useMusicStore()
@@ -275,17 +275,6 @@ export const useAudio = () => {
   }
 }
 //判断是否允许自动播放
-export const checkAudioPermission = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const audio = new Audio()
-    audio.src = 'https://music.163.com/song/media/outer/url?id=33894312.mp3'
-    audio
-      .play()
-      .then(() => {
-        resolve(true)
-      })
-      .catch(() => {
-        resolve(false)
-      })
-  })
+export const checkAudioPermission = (): boolean => {
+  return new AudioContext().state === 'running'
 }

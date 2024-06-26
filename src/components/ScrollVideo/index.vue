@@ -54,9 +54,7 @@ defineExpose({
 })
 
 const mute = ref(true)
-checkAudioPermission().then((res) => {
-  mute.value = !res
-})
+if (checkAudioPermission()) mute.value = false
 
 // 打开声音
 const onUnmute = () => {

@@ -165,9 +165,7 @@ const getMissList = () => {
 }
 
 const mute = ref(true)
-checkAudioPermission().then((res) => {
-  mute.value = !res
-})
+if (checkAudioPermission()) mute.value = false
 const onUnmute = () => {
   mute.value = false
   getMusicUrl(musicStore.nowMusic.id || 0)
