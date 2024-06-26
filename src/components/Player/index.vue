@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-5" id="bottom-btn">
         <!-- 进度条 -->
         <div class="flex items-center justify-center">
           <!-- 当前时长 -->
@@ -113,6 +113,7 @@
       </div>
     </div>
     <div class="bg" />
+    <AudioVisual class="visual" :width="visualWidth" :height="visualHeight" :fillStyle="appStore.mainColor" />
   </div>
 </template>
 
@@ -140,7 +141,11 @@ import { useToast } from '@/components/Toast'
 import { userApi } from '@/api/user'
 import EventEmitter from '@/utils/eventEmitter'
 import { useUserStore } from '@/store/modules/user'
+import AudioVisual from '@/components/AudioVisual/index.vue'
 const userStore = useUserStore()
+
+const visualWidth = document.getElementById('app')?.clientWidth
+const visualHeight = (document.getElementById('bottom-btn')?.clientHeight || 100) / 4
 
 const headKey = ref(1)
 EventEmitter.on('refreshHeadImg', () => {
@@ -983,5 +988,11 @@ $heartHeight: 1.2rem;
   to {
     transform: rotate(360deg);
   }
+}
+.visual {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 998;
 }
 </style>

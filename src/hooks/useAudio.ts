@@ -31,6 +31,7 @@ export const useAudio = () => {
       audio.value.removeEventListener('timeupdate', timeupdate)
       audio.value.addEventListener('ended', audioEnded)
       audio.value.addEventListener('timeupdate', timeupdate)
+      audio.value.crossOrigin = 'anonymous'
       return
     }
     if (audio.value) {
@@ -58,6 +59,7 @@ export const useAudio = () => {
 
     audio.value.addEventListener('ended', audioEnded)
     audio.value.addEventListener('timeupdate', timeupdate)
+    audio.value.crossOrigin = 'anonymous'
     audio.value.oncanplay = () => {
       const musicStore = useMusicStore()
       if (audio.value && musicStore.musicListMode === 3) {
@@ -211,6 +213,7 @@ export const useAudio = () => {
     const appStore = useAppStore()
     const musicStore = useMusicStore()
     getImgColor(musicStore.nowMusic?.cover || '').then((res: any) => {
+      console.log('res', res)
       appStore.setMainColor(res)
       appStore.setDarkColor(getDarkColor(res))
     })
