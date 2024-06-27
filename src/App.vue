@@ -4,7 +4,7 @@
 import { useAppStore } from '@/store/modules/app'
 import { useRouterStore } from '@/store/modules/router'
 import { useMusicStore } from '@/store/modules/music'
-import { isDark } from '@/utils/is'
+import { isDark, isPlus } from '@/utils/is'
 import { isMobile } from '@/utils/is'
 import { useFont } from '@/hooks/useFont'
 import { useThrottleFn } from '@/hooks/useFn'
@@ -35,20 +35,28 @@ const appStore = useAppStore()
 const routerStore = useRouterStore()
 const musicStore = useMusicStore()
 const userStore = useUserStore()
-
-document.addEventListener('visibilitychange', function () {
-  if (document.hidden) {
-    // 页面被隐藏
-    activeRecordScreen()
-    webSee.log({
-      type: '用户隐藏页面',
-      message: userStore.username + '用户隐藏页面',
-      error: new Error(),
-    })
-  } else {
-    // 页面可见
-  }
+window.addEventListener('beforeunload', function () {
+  console.log('beforeunload')
+  activeRecordScreen()
+  webSee.log({
+    type: '用户关闭页面',
+    message: userStore.username + '用户关闭页面',
+    error: new Error(),
+  })
 })
+if (isPlus()) {
+  window.addEventListener('visibilitychange', function () {
+    console.log('visibilitychange')
+    if (document.hidden) {
+      activeRecordScreen()
+      webSee.log({
+        type: '安卓端用户隐藏页面',
+        message: userStore.username + '用户隐藏页面',
+        error: new Error(),
+      })
+    }
+  })
+}
 
 const refreshToken = () => {
   userApi.getUserInfo({}).then((res: any) => {

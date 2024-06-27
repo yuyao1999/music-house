@@ -219,7 +219,7 @@ export const useAudio = () => {
     })
 
     const promise = new Promise((resolve, reject) => {
-      musicApi.getMusicUrl({ id }).then((res: any) => {
+      musicApi.getMusicUrl({ id, level: 'lossless' }).then((res: any) => {
         if (res?.code !== 200) {
           reject(res)
           return

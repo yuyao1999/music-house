@@ -33,7 +33,7 @@ class Music {
    * 获取音乐url
    */
   getMusicUrl(params: any) {
-    return this.http.get('/song/url', params)
+    return this.http.get('/song/url/v1', params)
   }
   /**
    * 获取歌词
