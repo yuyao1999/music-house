@@ -14,8 +14,9 @@
           <div class="inner">
             <strong>${this.name}</strong>
             is
-            <div class="te" @click="onCard">${this.age}</div>
-            <button id="db">取消${this.age}</button>
+            <div class="te">${this.age}</div>
+            <button onclick="onCancel(${this.age})">取消${this.age}</button>
+            <button onclick="onCard(${JSON.stringify(this).replace(/%22/g, %22'%22)})">确认${this.age}</button>
           </div>
         </div>
       </yy-template>
@@ -32,10 +33,15 @@ const text = ref('123')
 onMounted(() => {
   console.log('yyEl', yyEl.value)
 })
-
-const onCard = () => {
-  console.log('onCard')
+const onCancel = (val: any) => {
+  console.log('onCard', val)
 }
+const onCard = (val: any) => {
+  console.log('onCard', val)
+}
+
+;(window as any).onCard = onCard
+;(window as any).onCancel = onCancel
 </script>
 
 <style scoped lang="scss"></style>

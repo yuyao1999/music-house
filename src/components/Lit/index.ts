@@ -89,8 +89,8 @@ class FirstLitElement extends LitElement {
   }
 
   fillTemplate(templateString: string, templateVars: any) {
-    console.log('123', new Function('return `' + templateString + '`;').call(templateVars))
-    return new Function('return `' + templateString + '`;').call(templateVars)
+    const resTemp = decodeURIComponent(templateString)
+    return new Function('return `' + resTemp + '`;').call(templateVars)
   }
 
   getStartIndex = (scrollTop: number = 0) => {

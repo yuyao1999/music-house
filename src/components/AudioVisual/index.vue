@@ -6,8 +6,7 @@
 
 <script setup lang="ts">
 import { useAudio } from '@/hooks/useAudio'
-import { onMounted, ref, watch } from 'vue'
-import { nextTick } from 'process'
+import { onMounted, ref, watch, nextTick } from 'vue'
 const { audio } = useAudio()
 
 const props = defineProps({
