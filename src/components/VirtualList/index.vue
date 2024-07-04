@@ -110,6 +110,7 @@ onUpdated(() => {
 //获取列表项的当前尺寸
 const updateItemsSize = () => {
   const nodes = itemsRef.value || []
+  console.log('nodes', nodes)
   nodes.forEach((node: HTMLElement) => {
     let rect = node.getBoundingClientRect()
     let height = rect.height

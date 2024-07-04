@@ -8,7 +8,17 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [vue(), WindiCSS()],
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          // 将所有带yy短横线的标签名都视为自定义元素
+          isCustomElement: (tag) => tag.includes('yy-'),
+        },
+      },
+    }),
+    WindiCSS(),
+  ],
   build: {
     minify: 'terser',
     terserOptions: {

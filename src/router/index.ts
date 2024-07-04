@@ -130,6 +130,15 @@ const routes = [
     },
   },
   {
+    path: '/lit',
+    name: 'lit',
+    component: () => import('@/views/lit/lit.vue'),
+    meta: {
+      title: '列表',
+      icon: '',
+    },
+  },
+  {
     path: '/404',
     name: '404',
     component: () => import('@/views/404/404.vue'),

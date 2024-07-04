@@ -75,7 +75,7 @@ const refreshToken = () => {
   })
 }
 if (self === top) {
-  refreshToken()
+  // refreshToken()
 }
 
 // 根据浏览器当前主题设置系统主题色
