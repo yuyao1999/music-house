@@ -20,18 +20,19 @@ class FirstLitElement extends LitElement {
     { name: 'Alice', age: 5 },
     { name: 'Alice', age: 6 },
     { name: 'Alice', age: 7 },
-    { name: 'Alice<br/>dw', age: 8 },
+    {
+      name: 'AlAliceAliceAliceAlAliceAliceAliceAliceAliceiceAlAliceAliceAliceAliceAliceiceAliceAliceice<br/>dw',
+      age: 8,
+    },
     { name: 'd', age: 9 },
-    { name: 's', age: 10 },
-    { name: 'da', age: 11 },
-    { name: 'end', age: 12 },
+    { name: 'end', age: 10 },
   ]
 
   @state()
   listDataKey = this.listData.map((item: any, index) => {
     return {
+      ...item,
       _index: `_${index}`,
-      item,
     }
   })
 
@@ -56,6 +57,7 @@ class FirstLitElement extends LitElement {
 
   changeVisibleData() {
     this.visibleData = this.listDataKey.slice(this.start, this.end)
+    this.dispatchEvent(new CustomEvent('virtualListChange', { detail: this.visibleData }))
   }
 
   @state()
@@ -135,8 +137,16 @@ class FirstLitElement extends LitElement {
     this.setStartOffset()
   }
   updateItemsSize() {
-    const nodes = this.contentRef.value || []
-    for (const node of nodes!.children) {
+    let nodes = this.contentRef.value!.children || []
+    if (!this.templateStr) {
+      const slots = []
+      for (const node of nodes) {
+        slots.push(...node.assignedNodes())
+      }
+      nodes = slots
+    }
+    for (const node of nodes) {
+      if (!node?.getBoundingClientRect) continue
       let rect = node.getBoundingClientRect()
       let height = rect.height
       let index = +node.id.slice(1)
@@ -171,11 +181,12 @@ class FirstLitElement extends LitElement {
       <div class="infinite-list-container" ${ref(this.listRef)} id="list" @scroll="${this.scrollEvent}">
         <div class="infinite-list-phantom" ${ref(this.phantomRef)}></div>
         <div class="infinite-list" ${ref(this.contentRef)}>
-          <slot name="name"></slot>
-          ${this.visibleData.map(
+          <slot></slot>
+          ${this.templateStr &&
+          this.visibleData.map(
             (item: any) =>
               html`<div ${ref(this.itemsRef)} .id="${item._index}">
-                ${unsafeHTML(this.fillTemplate(this.templateStr, item.item))}
+                ${unsafeHTML(this.fillTemplate(this.templateStr, item))}
               </div>`
           )}
         </div>
