@@ -181,14 +181,14 @@ class FirstLitElement extends LitElement {
       <div class="infinite-list-container" ${ref(this.listRef)} id="list" @scroll="${this.scrollEvent}">
         <div class="infinite-list-phantom" ${ref(this.phantomRef)}></div>
         <div class="infinite-list" ${ref(this.contentRef)}>
-          <slot></slot>
-          ${this.templateStr &&
-          this.visibleData.map(
-            (item: any) =>
-              html`<div ${ref(this.itemsRef)} .id="${item._index}">
-                ${unsafeHTML(this.fillTemplate(this.templateStr, item))}
-              </div>`
-          )}
+          ${this.templateStr
+            ? this.visibleData.map(
+                (item: any) =>
+                  html`<div ${ref(this.itemsRef)} .id="${item._index}">
+                    ${unsafeHTML(this.fillTemplate(this.templateStr, item))}
+                  </div>`
+              )
+            : html`<slot></slot>`}
         </div>
       </div>
     `
