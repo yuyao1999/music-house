@@ -12,29 +12,59 @@ class FirstLitElement extends LitElement {
   templateStr = ''
 
   @state()
-  listData = [
-    { name: 'start', age: 1 },
-    { name: 'Jane', age: 2 },
-    { name: 'edTedT', age: 3 },
-    { name: 'Alice', age: 4 },
-    { name: 'Alice', age: 5 },
-    { name: 'Alice', age: 6 },
-    { name: 'Alice', age: 7 },
-    {
-      name: 'AlAliceAliceAliceAlAliceAliceAliceAliceAliceiceAlAliceAliceAliceAliceAliceiceAliceAliceice<br/>dw',
-      age: 8,
-    },
-    { name: 'd', age: 9 },
-    { name: 'end', age: 10 },
-  ]
+  listData = [] as any
 
   @state()
-  listDataKey = this.listData.map((item: any, index) => {
-    return {
-      ...item,
-      _index: `_${index}`,
-    }
+  page = 1
+
+  @property({ type: Number })
+  size = 10
+
+  @property({
+    converter: (value: any) => {
+      return value
+    },
   })
+  request = async (page: number, size: number) => {}
+
+  @property({ type: String })
+  loadingText = '加载中~'
+
+  @property({ type: Boolean }) isPagination = true
+  @state() loading = false
+  @state() hasMoreData = true
+
+  async loadDataList() {
+    this.loading = true
+    const data: any = await this.request(this.page, this.size)
+    if (data.length === 0) {
+      this.hasMoreData = false
+      return
+    }
+    this.listData.push(...data)
+    if (this.page === 1) {
+      this.init()
+    } else {
+      this.changeListDataKey()
+      this.changeVisibleCount()
+      this.changeVisibleData()
+      this.getPositions()
+    }
+    this.loading = false
+    return data
+  }
+
+  @state()
+  listDataKey = [] as any
+
+  changeListDataKey = () => {
+    this.listDataKey = this.listData.map((item: any, index: number) => {
+      return {
+        ...item,
+        _index: `_${index}`,
+      }
+    })
+  }
 
   @state()
   screenHeight = 0
@@ -46,7 +76,7 @@ class FirstLitElement extends LitElement {
   end = 0
 
   @state()
-  visibleCount = [] as any
+  visibleCount = 0
 
   @state()
   visibleData = [] as any
@@ -65,7 +95,7 @@ class FirstLitElement extends LitElement {
 
   getPositions() {
     this.positions.push(
-      ...this.listData.slice(this.positions.length, this.listData.length).map((_, index: number) => {
+      ...this.listData.slice(this.positions.length, this.listData.length).map((_: any, index: number) => {
         const indexRes = this.positions.length + index
         return {
           index: this.positions.length + index,
@@ -83,7 +113,13 @@ class FirstLitElement extends LitElement {
   itemsRef = createRef<any>()
 
   firstUpdated() {
+    this.loadDataList()
+    this.init()
+  }
+
+  init() {
     this.screenHeight = this.listRef.value?.clientHeight || 0
+    this.changeListDataKey()
     this.changeVisibleCount()
     this.end = this.visibleCount
     this.changeVisibleData()
@@ -125,9 +161,18 @@ class FirstLitElement extends LitElement {
     this.contentRef.value.style.transform = `translate3d(0,${startOffset}px,0)`
   }
 
+  handleRequestMore(scrollTop: number) {
+    if (this.loading || !this.hasMoreData) return
+    const clientHeight = this.listRef.value.clientHeight
+    if (scrollTop + clientHeight > this.positions[this.positions.length - 1].top) {
+      this.page++
+      this.loadDataList()
+    }
+  }
+
   scrollEvent() {
     //当前滚动位置
-    let scrollTop = this.listRef.value.scrollTop
+    const scrollTop = this.listRef.value.scrollTop
     //此时的开始索引
     this.start = this.getStartIndex(scrollTop) || 0
     //此时的结束索引
@@ -135,13 +180,14 @@ class FirstLitElement extends LitElement {
     this.changeVisibleData()
     //此时的偏移量
     this.setStartOffset()
+    this.handleRequestMore(scrollTop)
   }
   updateItemsSize() {
     let nodes = this.contentRef.value!.children || []
     if (!this.templateStr) {
       const slots = []
       for (const node of nodes) {
-        slots.push(...node.assignedNodes())
+        node?.assignedNodes && slots.push(...node.assignedNodes())
       }
       nodes = slots
     }
@@ -167,7 +213,7 @@ class FirstLitElement extends LitElement {
   updated() {
     //获取真实元素大小，修改对应的尺寸缓存
     this.updateItemsSize()
-    const height = this.positions[this.positions.length - 1].bottom
+    const height = this.positions[this.positions.length - 1]?.bottom
     this.phantomRef.value.style.height = height + 'px'
     //更新真实偏移量
     this.setStartOffset()
@@ -177,18 +223,22 @@ class FirstLitElement extends LitElement {
     const template = this.querySelector('yy-template')!
     this.templateStr = template?.innerHTML || ''
     return html`
+      <div>${this.listData.length}</div>
       <div>${this.start}-${this.end}</div>
       <div class="infinite-list-container" ${ref(this.listRef)} id="list" @scroll="${this.scrollEvent}">
         <div class="infinite-list-phantom" ${ref(this.phantomRef)}></div>
         <div class="infinite-list" ${ref(this.contentRef)}>
-          ${this.templateStr
-            ? this.visibleData.map(
-                (item: any) =>
-                  html`<div ${ref(this.itemsRef)} .id="${item._index}">
-                    ${unsafeHTML(this.fillTemplate(this.templateStr, item))}
-                  </div>`
-              )
-            : html`<slot></slot>`}
+          ${html`
+            ${this.templateStr
+              ? this.visibleData.map(
+                  (item: any) =>
+                    html`<div ${ref(this.itemsRef)} .id="${item._index}">
+                      ${unsafeHTML(this.fillTemplate(this.templateStr, item))}
+                    </div>`
+                )
+              : html`<slot></slot>`}
+          `}
+          <div class="no-more">${this.hasMoreData ? '' : '没有更多数据了'}</div>
         </div>
       </div>
     `
@@ -216,6 +266,20 @@ class FirstLitElement extends LitElement {
       right: 0;
       top: 0;
       position: absolute;
+    }
+    @keyframes blink {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+    .loading {
+      font-size: 1.5rem;
+      text-align: center;
+      /* 动画闪烁 */
+      animation: blink 1s linear infinite;
     }
   `
 }
